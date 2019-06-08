@@ -1,10 +1,16 @@
 #include <vector>
 #include <iostream>
 
+#include <zmq.h>
+#include <stdio.h>
+#include <unistd.h>
+#include <string.h>
+#include <assert.h>
+
 #include <aff3ct.hpp>
 using namespace aff3ct;
 
-int main(int argc, char** argv)
+int run(int argc, char** argv)
 {
 	// get the AFF3CT version
     std::cout << "#----------------------------------------------------------"      << std::endl;
@@ -107,4 +113,24 @@ int main(int argc, char** argv)
 
 	std::cout << "# End of the simulation" << std::endl;
 	return 0;
+}
+
+
+int main(int argc, char** argv) 
+{
+    //  Socket to talk to clients
+    void *context = zmq_ctx_new ();
+    void *responder = zmq_socket (context, ZMQ_REP);
+    int rc = zmq_bind (responder, "tcp://*:5555");
+    assert (rc == 0);
+
+    while (1) {
+        char buffer [10];
+        zmq_recv (responder, buffer, 10, 0);
+        printf ("Received Hello\n");
+        sleep (1);          //  Do some 'work'
+        zmq_send (responder, "World", 5, 0);
+    }
+
+    return run(argc, argv);
 }

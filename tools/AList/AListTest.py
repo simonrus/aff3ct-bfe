@@ -2,8 +2,8 @@ import unittest
 from AList import *
 
 
-class MyTestCase(unittest.TestCase):
-    def test_alist_read1(self):
+class AListTest(unittest.TestCase):
+    def test_alist_parse1(self):
         alist_text = ["7 3",
                       "3 4",
                       "1 1 2 2 3 2 1",
@@ -28,11 +28,11 @@ class MyTestCase(unittest.TestCase):
                                  [1, 1, 1],
                                  [1, 1, 1],
                                  [0, 1, 1],
-                                 [0, 0, 1]], dtype=int);
+                                 [0, 0, 1]], dtype=int)
 
         self.assertTrue(np.array_equal(matrix_ref, reader.matrix), "Read matrix differs from reference")
 
-    def test_alist_read2(self):
+    def test_alist_parse2(self):
         alist_text = ["12 16",
                       "4 3",
                       "4 4 4 4 4 4 4 4 4 4 4 4",

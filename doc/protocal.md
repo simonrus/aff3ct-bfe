@@ -1,5 +1,8 @@
 # Protocol description
+## Used libraries
+https://github.com/python-cmd2/cmd2
 ## Motivation
+To interruct simple with aff3ct
 
 ## Discription
 [] optional flag
@@ -40,6 +43,15 @@ S:
 C: do encode X -> Y
 
 S: ok
+
+## local settings
+C: local print with zeros
+C: local print with dots
+
+## local dumps
+X
+Y
+
     
 
 

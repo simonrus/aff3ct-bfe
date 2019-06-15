@@ -16,14 +16,14 @@ S: ok
 
 ## Data transfer
 ### Transfer matrix (Client to server) 
-C: set G
+C: push G
     
     4,3
     G00, G01,G02...
 
 S: ok   
 ### Transfer vector (client to server)
-C: set X
+C: pull X
 
     3
     G1, G2,G3.
@@ -31,7 +31,7 @@ C: set X
 S: ok
 
 ### Transfer vector (server to client )
-C: get X
+C: pull X
 
 S: 
 

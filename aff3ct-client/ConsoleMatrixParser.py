@@ -46,11 +46,9 @@ class ConsoleMatrixParser:
         pos = 0
 
         while i < len(words):
-            row = pos / total_cols
+            row = int(pos / total_cols)
             col = pos % total_cols
             try:
-                print("pos and words:", pos, words[i])
-                print("np_target_mtx", np_target_mtx)
                 if total_rows == 1:
                     np_target_mtx[col] = float(words[i])
                 else:
@@ -60,6 +58,7 @@ class ConsoleMatrixParser:
                 self.error += ('Value error while parsing %s for pos (%d,%d) - N' % (words[i], col, row))
             except IndexError:
                 self.error += ('Index error while parsing %s for pos (%d,%d)' % (words[i], col, row))
+
                 self.invalidate(np_target_mtx)
                 return False
 
@@ -147,9 +146,6 @@ class ConsoleMatrixParser:
             if len(shape) is not 2:
                 self.error += "Currently only 2 dim matrices are supported (provided %d-dim)"%(len(shape))
                 return False
-
-            print("Params ", params)
-            print("i ", i)
 
             self.value = np.zeros(tuple(shape))
             self.parse_matrix_values(params, shape[0], shape[1], i+1, self.value)

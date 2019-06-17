@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package aff3ct;
+
+//General replies
+enum ResultType {
+    Success = 0;
+    Failed = 1;
+}
+
+message Result
+{
+    ResultType type = 1;
+    string error_text = 2;
+}
+
+message Matrix {
+    uint32 n = 1;      //Matrix size (elements in rows)
+    uint32 m = 2;      //Matrix size (elements in colum)
+    repeated float values = 3 [packed=true];
+}
+
+//##################### COMMANDS ###############################
+// Push some matrix with (M, N) size to remote variable var_name
+message PushRequest {
+    string var = 1;    //Variable name
+    Matrix mtx = 2;
+}
+
+message PushReply {
+    Result result = 1;
+}
+
+//##################### COMMANDS ###############################
+// Pull some matrix from remote side
+message PullRequest {
+    string var = 1;
+}
+
+message PullReply {
+    Result result = 1;          //operation result
+    Matrix mtx = 2;
+}
+
+//#################### ENCODE ##################################
+message DoEncodeRequest {
+    string input = 1;       //variable to use as input
+    string output = 2;      //variable to store output
+}
+
+message DoEncodeReply {
+    Result res = 1;
+    repeated string created_resources = 2;
+}
+
+
+
+

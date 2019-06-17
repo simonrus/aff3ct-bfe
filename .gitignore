@@ -1,4 +1,13 @@
 build/*
 cmake/*
 .idea/*
-
+temp/*
+__pycache__
+CMakeFiles
+Makefile
+CMakeCache.txt
+.*.swp
+nbproject
+.idea
+*.cmake
+compile_commands.json

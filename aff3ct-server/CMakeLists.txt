@@ -21,11 +21,7 @@ find_package(Protobuf REQUIRED)
 
 message ("PROTO_DIR = ${PROTO_DIR}/")
 
-# Create the executable from sources
-#add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${PROTO_SRCS} ${PROTO_HDRS})
-add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp )
-
-PROTOBUF_GENERATE_CPP(PROTO_SRCS PROTO_HDRS ${PROTO_DIR}/aff3ct.proto)
+protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_DIR}/aff3ct.proto)
 
 # Print path to generated files
 message ("PROTO_SRCS = ${PROTO_SRCS}")
@@ -45,10 +41,10 @@ find_library(ZeroMQ_LIBRARY
         PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
         )
 
-
+add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${PROTO_SRCS} ${PROTO_HDRS})
 
 # Link with AFF3CT
 set (AFF3CT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 find_package(AFF3CT)
-target_include_directories(aff3ct-server PUBLIC ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS})
+target_include_directories(aff3ct-server PUBLIC ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
 target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES})

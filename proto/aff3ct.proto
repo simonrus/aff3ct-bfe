@@ -8,6 +8,21 @@ enum ResultType {
     Failed = 1;
 }
 
+message Message
+{
+    oneof content   
+    {
+        Result          result          = 1; 
+        PushRequest     pushRequest     = 2;
+        PushReply       pushReply       = 3;
+        PullRequest     pullRequest     = 4;
+        PullReply       pullReply       = 5;
+        DoEncodeRequest doEncodeRequest = 6;
+        DoEncodeReply   doEncodeReply   = 7;
+    }
+
+}
+
 message Result
 {
     ResultType type = 1;

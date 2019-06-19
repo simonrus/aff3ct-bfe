@@ -5,6 +5,14 @@ import numpy as np
 
 from ConsoleMatrixParser import ConsoleMatrixParser
 
+class Aff3ctProtocol:
+    def __init__(self):
+        pass
+
+    @staticmethod
+    def packPushRequest():
+        pass todo asdasdasdasd
+
 
 class Aff3ctClient(cmd2.Cmd):
     """ Main loop"""

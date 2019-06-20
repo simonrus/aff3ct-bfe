@@ -1,23 +1,20 @@
 import argparse
 import sys
 import cmd2
+import zmq
 import numpy as np
+from pb import aff3ct_pb2
 
+import aff3ct-protocol
 from ConsoleMatrixParser import ConsoleMatrixParser
-
-class Aff3ctProtocol:
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def packPushRequest():
-        pass todo asdasdasdasd
-
 
 class Aff3ctClient(cmd2.Cmd):
     """ Main loop"""
-    Parser = None
-    Registers = None
+    parser = None
+    registers = None
+    zmq_context = None
+    server_address = 'tcp://localhost:5555'
+    zmq_socket = None
 
     def report_done(self):
         self.poutput("+OK")
@@ -34,8 +31,16 @@ class Aff3ctClient(cmd2.Cmd):
 
         # Set use_ipython to True to enable the "ipy" command which embeds and interactive IPython shell
         super().__init__(use_ipython=False, multiline_commands=['push'])
-        self.Parser = ConsoleMatrixParser()
-        self.Registers = {}
+        self.parser = ConsoleMatrixParser()
+        self.registers = {}
+        self.zmq_context = zmq.Context()
+
+        print("Connecting to aff3ct-server…" + self.server_address)
+        self.zmq_socket = self.zmq_context.socket(zmq.REQ)
+        self.zmq_socket.connect(self.server_address) asdasd
+        asdasdasd
+
+
 
     set_parser = argparse.ArgumentParser()
     set_parser.add_argument('VAR', help='variable name')
@@ -49,20 +54,24 @@ class Aff3ctClient(cmd2.Cmd):
             self.report_failed("1st arg shall be a Variable Name (with capital letter)")
             return
 
-        self.Parser.reset()
-        self.Parser.parse(args.params)
+        self.parser.reset()
+        self.parser.parse(args.params)
 
-        if self.Parser.is_error():
-            self.report_failed(self.Parser.get_error_text())
+        if self.parser.is_error():
+            self.report_failed(self.parser.get_error_text())
             return
 
-        self.Registers[args.VAR] = self.Parser.get_value()
+        self.registers[args.VAR] = self.parser.get_value()
+
+        ##Now push
+
+
         self.report_done()
 
     def do_list(self, args):
         # just list available args
         names = ''
-        for key in self.Registers:
+        for key in self.registers:
             names += ' ' + key
 
         self.poutput(names)

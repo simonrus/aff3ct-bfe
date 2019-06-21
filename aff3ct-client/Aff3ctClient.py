@@ -34,7 +34,7 @@ class Aff3ctClient(cmd2.Cmd):
         self.registers = {}
         self.zmq_context = zmq.Context()
 
-        print("Connecting to aff3ct-server…" + self.server_address)
+        print("Connecting to aff3ct-server..." + self.server_address)
         self.zmq_socket = self.zmq_context.socket(zmq.REQ)
         self.zmq_socket.connect(self.server_address)
 

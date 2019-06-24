@@ -10,13 +10,65 @@
 //Libraries to Capture signal 
 #include <signal.h>
 #include <stdlib.h>
-
+#include <stdint.h>
+#include <stdarg.h>     /* va_list, va_start, va_arg, va_end */
 
 //Include protobuf generated file
 #include <aff3ct.pb.h>
 
 #include <aff3ct.hpp>
 
+ #define DEF_SINGLETON_DEFAULT( NAME )    \
+ public:                        \
+    static NAME& instance()      \
+    {                            \
+       static NAME _instance;    \
+       return _instance;         \
+    }                            \
+ private:                       \
+    NAME() = default;               \
+    ~NAME() = default;               
+    
+
+class ErrorStorage {
+
+    DEF_SINGLETON_DEFAULT(ErrorStorage)
+public:
+    //pretty report
+    void preport(const char *format, ...) {
+        m_buffer[0] = '\0';
+        va_list args;
+        va_start(args, format);
+        vsnprintf(m_buffer, sizeof (m_buffer) / sizeof (m_buffer[0]) - 1, format, args);
+
+        m_errorString = m_buffer;
+        //do something with the error
+
+        va_end(args);
+    }
+
+    void report(const std::string &error) {
+        m_errorString = error;
+        m_isRaised = true;
+    }
+
+    bool wasError() {
+        return m_isRaised;
+    }
+
+    void reset() {
+        m_errorString = "";
+        m_isRaised = false;
+    }
+private:
+    char m_buffer[1024];
+    bool m_isRaised = false;
+    std::string m_errorString = "";
+
+};
+
+#define REPORT_ERR(msg, ...)       ErrorStorage::instance().preport(msg, ##__VA_ARGS__);
+ 
 using namespace aff3ct;
 
 int run(int argc, char** argv)
@@ -93,7 +145,6 @@ int run(int argc, char** argv)
         // update the sigma of the modem and the channel
         modem  .set_noise(noise);
         channel.set_noise(noise);
-
         // display the performance (BER and FER) in real time (in a separate thread)
         terminal.start_temp_report();
 
@@ -142,6 +193,28 @@ int enableSIGTermHandler()
    sigaction(SIGINT, &sigIntHandler, NULL);
 }
 
+bool pbMatrixToVector(aff3ct::Matrix& from, std::vector<float> &to) {
+    if (from.n() != 1) {
+        REPORT_ERR("wrong input dim (%u, %u). Shall be vector (%u, %u", 
+                from.n(), from.m(), 1, from.m());
+        return false;
+    }
+    
+    to.resize(from.m(), 0.0);
+    
+    if (from.m() != from.values_size())
+    {
+        REPORT_ERR("expected %u elements for vector with length %u, but got %u",
+                from.m(), from.m(), from.values_size());
+        return false;
+    }
+    
+    for (uint32_t i = 0; i < from.m(); i++)
+    {
+        to[i] = from.values(i);
+    }
+    return true;
+}
 
 void proccessClientRequest(aff3ct::Message &recvMessage)
 {
@@ -151,6 +224,7 @@ void proccessClientRequest(aff3ct::Message &recvMessage)
             printf("Result received\n");
             break;
         case aff3ct::Message::ContentCase::kPushRequest:
+            
             printf("kPushRequest received\n");
             break;
         default:

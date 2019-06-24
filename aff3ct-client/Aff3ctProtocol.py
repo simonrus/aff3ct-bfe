@@ -9,8 +9,9 @@ class Aff3ctProtocol:
     def serialize_matrix(matrix):
         matrix = aff3ct_pb2.Matrix()
         matrix.n = 2
-        matrix.m = 2
-        matrix.values.extend([1.0, 2.0, 3.0, 4.0])
+        matrix.m = 3
+        matrix.values.extend([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+
         return matrix
 
     @staticmethod

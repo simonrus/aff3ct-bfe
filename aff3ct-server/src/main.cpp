@@ -193,6 +193,7 @@ int enableSIGTermHandler()
    sigaction(SIGINT, &sigIntHandler, NULL);
 }
 
+std::map<std::vector<float>> g_MemoryContainer;
 bool pbMatrixToVector(aff3ct::Matrix& from, std::vector<float> &to) {
     if (from.n() != 1) {
         REPORT_ERR("wrong input dim (%u, %u). Shall be vector (%u, %u", 
@@ -211,9 +212,21 @@ bool pbMatrixToVector(aff3ct::Matrix& from, std::vector<float> &to) {
     
     for (uint32_t i = 0; i < from.m(); i++)
     {
-        to[i] = from.values(i);
+        to[i] = (from.values(i));
     }
     return true;
+}
+
+bool vector2pbMatrix(std::vector<float> &from, aff3ct::Matrix& to)
+{
+    
+    to.set_n(1);
+    to.set_m((uint32_t) from.size());
+    
+    for (size_t i = 0; i < from.size();i++)
+    {
+        to.add_values((float) from[i]);
+    }
 }
 
 void proccessClientRequest(aff3ct::Message &recvMessage)
@@ -224,7 +237,6 @@ void proccessClientRequest(aff3ct::Message &recvMessage)
             printf("Result received\n");
             break;
         case aff3ct::Message::ContentCase::kPushRequest:
-            
             printf("kPushRequest received\n");
             break;
         default:

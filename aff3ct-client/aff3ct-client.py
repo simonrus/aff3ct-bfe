@@ -3,4 +3,5 @@ import sys
 
 if __name__ == "__main__":
     app = Aff3ctClient()
+    app.debug = True
     sys.exit(app.cmdloop())

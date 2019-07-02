@@ -41,10 +41,20 @@ find_library(ZeroMQ_LIBRARY
         PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
         )
 
-add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${PROTO_SRCS} ${PROTO_HDRS})
+#add logging module
+set(LOGURU_DIR ${TOP_LEVEL_PATH}/3rdparty/loguru)
+set(LOGURU_INCLUDE_DIRS ${LOGURU_DIR})
+set(LOGURU_SRCS ${LOGURU_DIR}/loguru.cpp)
+
+add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
 
 # Link with AFF3CT
 set (AFF3CT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 find_package(AFF3CT)
-target_include_directories(aff3ct-server PUBLIC ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR})
-target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES})
+target_include_directories(aff3ct-server PUBLIC ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+
+if(NOT WIN32)
+    set(DL_LIBRARY dl)
+endif()
+
+target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})

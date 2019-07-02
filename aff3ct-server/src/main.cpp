@@ -16,65 +16,13 @@
 #include <stdint.h>
 #include <stdarg.h>     /* va_list, va_start, va_arg, va_end */
 
-//Include protobuf generated file
+    //Include protobuf generated file
 #include <aff3ct.pb.h>
 
+//Include loguru headers
+#include <loguru.hpp>
+
 #include <aff3ct.hpp>
-
-#define DEF_SINGLETON_DEFAULT( NAME )    \
- public:                        \
-    static NAME& instance()      \
-    {                            \
-       static NAME _instance;    \
-       return _instance;         \
-    }                            \
- private:                       \
-    NAME() = default;               \
-    ~NAME() = default;               
-
-class ErrorStorage
-{
-
-    DEF_SINGLETON_DEFAULT(ErrorStorage)
-  public:
-    //pretty report
-    void preport(const char *format, ...)
-    {
-        m_buffer[0] = '\0';
-        va_list args;
-        va_start(args, format);
-        vsnprintf(m_buffer, sizeof (m_buffer) / sizeof (m_buffer[0]) - 1, format, args);
-
-        m_errorString = m_buffer;
-        //do something with the error
-
-        va_end(args);
-    }
-
-    void report(const std::string &error)
-    {
-        m_errorString = error;
-        m_isRaised = true;
-    }
-
-    bool wasError()
-    {
-        return m_isRaised;
-    }
-
-    void reset()
-    {
-        m_errorString = "";
-        m_isRaised = false;
-    }
-  private:
-    char m_buffer[1024];
-    bool m_isRaised = false;
-    std::string m_errorString = "";
-
-};
-
-#define REPORT_ERR(msg, ...)       ErrorStorage::instance().preport(msg, ##__VA_ARGS__);
 
 using namespace aff3ct;
 
@@ -181,7 +129,7 @@ int run(int argc, char** argv)
 
 void sigHandler(int s)
 {
-    printf("Caught signal %d\n", s);
+    LOG_F(INFO, "Caught signal %d. Exiting", s);
     google::protobuf::ShutdownProtobufLibrary();
     exit(1);
 }
@@ -202,7 +150,7 @@ std::map<std::string, std::vector<float>> g_MemoryContainer;
 bool pbMatrixToVector(const aff3ct::Matrix& from, std::vector<float> &to)
 {
     if (from.n() != 1) {
-        REPORT_ERR("wrong input dim (%u, %u). Shall be vector (%u, %u)",
+        LOG_F(ERROR, "wrong input dim (%u, %u). Shall be vector (%u, %u)",
                 from.n(), from.m(), 1, from.m());
         return false;
     }
@@ -210,7 +158,7 @@ bool pbMatrixToVector(const aff3ct::Matrix& from, std::vector<float> &to)
     to.resize(from.m(), 0.0);
 
     if (from.m() != from.values_size()) {
-        REPORT_ERR("expected %u elements for vector with length %u, but got %u",
+        LOG_F(ERROR, "expected %u elements for vector with length %u, but got %u",
                 from.m(), from.m(), from.values_size());
         return false;
     }
@@ -232,32 +180,44 @@ bool vector2pbMatrix(std::vector<float> &from, aff3ct::Matrix& to)
     }
 }
 
-void processClientMessage(aff3ct::Message &recvMessage)
+aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
 {
+    LOG_SCOPE_FUNCTION(INFO);
+    
     bool bSuccess = false;
     switch (recvMessage.content_case()) {
         case aff3ct::Message::ContentCase::kPushRequest:
         {
-            printf("kPushRequest received\n");
+            
+            LOG_F(INFO,"kPushRequest received");
             const std::string &var_name = recvMessage.pushrequest().var();
             if (g_MemoryContainer.find(var_name) != g_MemoryContainer.end()) {
-                printf("[PushRequest] overrides existing %s\n", var_name.c_str());
+                LOG_F(WARNING,"[PushRequest] overrides existing %s with (%dx%d)", 
+                        var_name.c_str(), 
+                        recvMessage.pushrequest().mtx().n(),
+                        recvMessage.pushrequest().mtx().m());
             }
 
             g_MemoryContainer[var_name] = std::vector<float>();
             bSuccess = pbMatrixToVector(recvMessage.pushrequest().mtx(), g_MemoryContainer[var_name]);
 
             if (!bSuccess) {
-                //TODO return error result with message
+                aff3ct::Result* result = recvMessage.mutable_result();
+                result->set_type(Failed);
+                result->set_error_text("pbMatrixToVector failed");
             } else {
-                //TODO return ok
+                aff3ct::Result* result = recvMessage.mutable_result();
+                //result->set_type(Success);
+                
+                result->set_type(Failed);
+                result->set_error_text("pbMatrixToVector failed (actually not");
             }
             break;
         }
 
         case aff3ct::Message::ContentCase::kPullRequest:
         {
-            printf("kPullRequest received\n");
+            LOG_F(INFO,"kPullRequest received");
             
             const std::string &var_name = recvMessage.pullrequest().var();
             
@@ -273,9 +233,10 @@ void processClientMessage(aff3ct::Message &recvMessage)
             break;
         }
         default:
-            printf("Protocol error: message (id=%d) shall not be received by server\n", recvMessage.content_case());
+            LOG_F(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());
             break;
     }
+    return recvMessage;
 }
 
 int main(int argc, char** argv)
@@ -283,6 +244,8 @@ int main(int argc, char** argv)
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 
+    loguru::init(argc, argv);
+    
     enableSIGTermHandler();
 
 
@@ -299,13 +262,14 @@ int main(int argc, char** argv)
         aff3ct::Message recvMessage;
         recvMessage.ParseFromArray(request.data(), request.size());
 
-        processClientMessage(recvMessage);
+        recvMessage = processClientMessage(recvMessage);
         //  Do some 'work'
         sleep(1);
 
         //  Send reply back to client
-        zmq::message_t reply(5);
-        memcpy(reply.data(), "World", 5);
+        zmq::message_t reply(recvMessage.ByteSize());
+        recvMessage.SerializeToArray(reply.data(), reply.size());
+
         socket.send(reply);
     }
 

@@ -4,3 +4,6 @@
 [submodule "3rdparty/lpdec"]
 	path = 3rdparty/lpdec
 	url = https://github.com/supermihi/lpdec.git
+[submodule "3rdparty/loguru"]
+	path = 3rdparty/loguru
+	url = https://github.com/emilk/loguru.git

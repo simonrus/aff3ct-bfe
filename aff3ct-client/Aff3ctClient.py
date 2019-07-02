@@ -60,7 +60,7 @@ class Aff3ctClient(cmd2.Cmd):
         self.registers[args.VAR] = self.parser.get_value()
 
         ##Now push
-        Aff3ctProtocol.do_push(self.zmq_socket, args.VAR, None)
+        Aff3ctProtocol.do_push(self.zmq_socket, args.VAR, self.registers[args.VAR])
 
         self.report_done()
 

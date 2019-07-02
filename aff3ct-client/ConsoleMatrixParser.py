@@ -26,7 +26,7 @@ class ConsoleMatrixParser:
 
     @staticmethod
     def invalidate(matrix):
-        matrix[0] = np.NaN;
+        matrix[0] = np.NaN
 
     def reset(self):
         self.value = None

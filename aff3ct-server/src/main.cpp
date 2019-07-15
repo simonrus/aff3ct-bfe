@@ -1,3 +1,10 @@
+/* 
+ * File:   aff3ct-errc.cpp
+ * Author: sergei semenov (sergey.semionov@gmail.com)
+ *
+ * Main application
+ */
+
 #include <vector>
 #include <map>
 #include <iostream>
@@ -8,8 +15,6 @@
 #include <string.h>
 #include <assert.h>
 
-
-
 //Libraries to Capture signal 
 #include <signal.h>
 #include <stdlib.h>
@@ -18,11 +23,13 @@
 
     //Include protobuf generated file
 #include <aff3ct.pb.h>
-
+#include <aff3ct-errc.h>
 //Include loguru headers
 #include <loguru.hpp>
 
 #include <aff3ct.hpp>
+
+Aff3ctErrc      g_Error = Aff3ctErrc::NoError;
 
 using namespace aff3ct;
 
@@ -147,11 +154,15 @@ int enableSIGTermHandler()
 
 std::map<std::string, std::vector<float>> g_MemoryContainer;
 
+/*
+ * Converts protobuf matrix to vector
+ */
 bool pbMatrixToVector(const aff3ct::Matrix& from, std::vector<float> &to)
 {
     if (from.n() != 1) {
         LOG_F(ERROR, "wrong input dim (%u, %u). Shall be vector (%u, %u)",
                 from.n(), from.m(), 1, from.m());
+        g_Error = Aff3ctErrc::ParsingError;
         return false;
     }
 
@@ -160,6 +171,7 @@ bool pbMatrixToVector(const aff3ct::Matrix& from, std::vector<float> &to)
     if (from.m() != from.values_size()) {
         LOG_F(ERROR, "expected %u elements for vector with length %u, but got %u",
                 from.m(), from.m(), from.values_size());
+        g_Error = Aff3ctErrc::ParsingError;
         return false;
     }
 
@@ -169,6 +181,16 @@ bool pbMatrixToVector(const aff3ct::Matrix& from, std::vector<float> &to)
     return true;
 }
 
+
+void invalidatePbMatrix(aff3ct::Matrix* to)
+{
+    to->set_m(0);
+    to->set_n(0);
+}
+
+/*
+ * Converts vector to protobuf matrix
+ */
 bool vector2pbMatrix(std::vector<float> &from, aff3ct::Matrix& to)
 {
 
@@ -207,36 +229,42 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
                 result->set_error_text("pbMatrixToVector failed");
             } else {
                 aff3ct::Result* result = recvMessage.mutable_result();
-                //result->set_type(Success);
-                
-                result->set_type(Failed);
-                result->set_error_text("pbMatrixToVector failed (actually not");
+                result->set_type(Success);
             }
+            
+            return recvMessage;
             break;
         }
 
         case aff3ct::Message::ContentCase::kPullRequest:
         {
+            
             LOG_F(INFO,"kPullRequest received");
             
             const std::string &var_name = recvMessage.pullrequest().var();
             
-            
-            if (g_MemoryContainer.find(var_name) == g_MemoryContainer.end()) {
-                
+            if (g_MemoryContainer.find(var_name) == g_MemoryContainer.end()) {      
                 //TODO return error result with not found message
+                
+                aff3ct::PullReply* pull_reply = recvMessage.mutable_pullreply();
+                invalidatePbMatrix(pull_reply->mutable_mtx());
+                
+                aff3ct::Result *result = pull_reply->mutable_result();
+                result->set_type(Failed);
+                result->set_error_text("Can't find variable");
             } 
             else 
             {
                 //TODO pack message
             }
+            return recvMessage;
             break;
         }
         default:
             LOG_F(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());
             break;
     }
-    return recvMessage;
+    
 }
 
 int main(int argc, char** argv)
@@ -253,11 +281,13 @@ int main(int argc, char** argv)
     zmq::socket_t socket(context, ZMQ_REP);
     socket.bind("tcp://*:5555");
 
+    LOG_F(INFO, "Message loop started");
+
     while (1) {
         zmq::message_t request;
         //  Wait for next request from client
         socket.recv(&request);
-        std::cout << "Received Hello" << std::endl;
+        LOG_F(INFO,  "Received Hello in while loop");
 
         aff3ct::Message recvMessage;
         recvMessage.ParseFromArray(request.data(), request.size());

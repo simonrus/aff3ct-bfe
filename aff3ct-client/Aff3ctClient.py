@@ -60,9 +60,29 @@ class Aff3ctClient(cmd2.Cmd):
         self.registers[args.VAR] = self.parser.get_value()
 
         ##Now push
-        Aff3ctProtocol.do_push(self.zmq_socket, args.VAR, self.registers[args.VAR])
+        success, error_string = Aff3ctProtocol.do_push(self.zmq_socket, args.VAR, self.registers[args.VAR])
+
+        if not success:
+            self.report_failed(self, error_string)
+        else:
+            self.report_done(self)
 
         self.report_done()
+
+    @cmd2.with_argparser(set_parser)
+    def do_pull(self, args):
+        # pull VARIABLE
+
+        if args.VAR.islower():
+            self.report_failed("1st arg shall be a Variable Name (with capital letter)")
+            return
+
+        success, error_string = Aff3ctProtocol.do_pull(self.zmq_socket, args.VAR, self.registers[args.VAR])
+        if not success:
+            self.report_failed(self, error_string)
+        else:
+            self.report_done(self)
+
 
     def do_list(self, args):
         # just list available args

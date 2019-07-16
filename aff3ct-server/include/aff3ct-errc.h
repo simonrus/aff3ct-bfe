@@ -9,12 +9,24 @@
 #define AFF3CT_ERRC_H
 
 # include <system_error>
+//Include loguru headers
+#include <loguru.hpp>
+#include <stdio.h>
+
+#define LOG_BUF_SIZE   256
+extern char g_log_buffer[LOG_BUF_SIZE];
+#define TRACELOG(LEVEL, ...) {g_log_buffer[0] = 0; \
+                                        snprintf(g_log_buffer, LOG_BUF_SIZE, __VA_ARGS__); \
+                                        LOG_F(LEVEL, __VA_ARGS__); \
+                                       }
+
+char* getLastLogEntry();
 
 enum class Aff3ctErrc
 {
   // no 0
   NoError      = 0,
-  ParsingError = 10, // requested airport doesn't exist
+  ParsingError = 10, //Parsing data error
  
 };
  

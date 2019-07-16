@@ -24,8 +24,7 @@
     //Include protobuf generated file
 #include <aff3ct.pb.h>
 #include <aff3ct-errc.h>
-//Include loguru headers
-#include <loguru.hpp>
+
 
 #include <aff3ct.hpp>
 
@@ -136,7 +135,7 @@ int run(int argc, char** argv)
 
 void sigHandler(int s)
 {
-    LOG_F(INFO, "Caught signal %d. Exiting", s);
+    TRACELOG(INFO, "Caught signal %d. Exiting", s);
     google::protobuf::ShutdownProtobufLibrary();
     exit(1);
 }
@@ -160,7 +159,7 @@ std::map<std::string, std::vector<float>> g_MemoryContainer;
 bool pbMatrixToVector(const aff3ct::Matrix& from, std::vector<float> &to)
 {
     if (from.n() != 1) {
-        LOG_F(ERROR, "wrong input dim (%u, %u). Shall be vector (%u, %u)",
+        TRACELOG(ERROR, "wrong input dim (%u, %u). Shall be vector (%u, %u)",
                 from.n(), from.m(), 1, from.m());
         g_Error = Aff3ctErrc::ParsingError;
         return false;
@@ -169,7 +168,7 @@ bool pbMatrixToVector(const aff3ct::Matrix& from, std::vector<float> &to)
     to.resize(from.m(), 0.0);
 
     if (from.m() != from.values_size()) {
-        LOG_F(ERROR, "expected %u elements for vector with length %u, but got %u",
+        TRACELOG(ERROR, "expected %u elements for vector with length %u, but got %u",
                 from.m(), from.m(), from.values_size());
         g_Error = Aff3ctErrc::ParsingError;
         return false;
@@ -210,11 +209,15 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
     switch (recvMessage.content_case()) {
         case aff3ct::Message::ContentCase::kPushRequest:
         {
+            std::string var_name = recvMessage.pushrequest().var();
             
-            LOG_F(INFO,"kPushRequest received");
-            const std::string &var_name = recvMessage.pushrequest().var();
+            TRACELOG(INFO,"kPushRequest received %s (%d, %d) ", 
+                    var_name.c_str(), 
+                    recvMessage.pushrequest().mtx().n(),
+                    recvMessage.pushrequest().mtx().m());
+            
             if (g_MemoryContainer.find(var_name) != g_MemoryContainer.end()) {
-                LOG_F(WARNING,"[PushRequest] overrides existing %s with (%dx%d)", 
+                TRACELOG(WARNING,"[PushRequest] overrides existing %s with (%dx%d)", 
                         var_name.c_str(), 
                         recvMessage.pushrequest().mtx().n(),
                         recvMessage.pushrequest().mtx().m());
@@ -226,22 +229,24 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
             if (!bSuccess) {
                 aff3ct::Result* result = recvMessage.mutable_result();
                 result->set_type(Failed);
-                result->set_error_text("pbMatrixToVector failed");
+                
+                std::string error = "pbMatrixToVector failed for "  + var_name;   
+                TRACELOG(INFO,"kPullRequest failed: %s", error.c_str());
+
+                result->set_error_text(getLastLogEntry());
             } else {
                 aff3ct::Result* result = recvMessage.mutable_result();
                 result->set_type(Success);
             }
             
             return recvMessage;
-            break;
         }
 
         case aff3ct::Message::ContentCase::kPullRequest:
         {
-            
-            LOG_F(INFO,"kPullRequest received");
-            
-            const std::string &var_name = recvMessage.pullrequest().var();
+            std::string var_name = recvMessage.pullrequest().var();
+        
+            TRACELOG(INFO,"kPullRequest received for %s", var_name.c_str());
             
             if (g_MemoryContainer.find(var_name) == g_MemoryContainer.end()) {      
                 //TODO return error result with not found message
@@ -251,17 +256,25 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
                 
                 aff3ct::Result *result = pull_reply->mutable_result();
                 result->set_type(Failed);
-                result->set_error_text("Can't find variable");
+                
+                std::string error = "Can't find variable "  + var_name;   
+                TRACELOG(INFO,"kPullRequest failed: %s", error.c_str());
+                
+                result->set_error_text(getLastLogEntry());
             } 
             else 
             {
-                //TODO pack message
-            }
+                aff3ct::PullReply* pull_reply = recvMessage.mutable_pullreply();
+                invalidatePbMatrix(pull_reply->mutable_mtx());
+                
+                aff3ct::Result *result = pull_reply->mutable_result();
+                result->set_type(Success);
+            } 
+           
             return recvMessage;
-            break;
         }
         default:
-            LOG_F(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());
+            TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());
             break;
     }
     
@@ -281,13 +294,13 @@ int main(int argc, char** argv)
     zmq::socket_t socket(context, ZMQ_REP);
     socket.bind("tcp://*:5555");
 
-    LOG_F(INFO, "Message loop started");
+    TRACELOG(INFO, "Message loop started");
 
     while (1) {
         zmq::message_t request;
         //  Wait for next request from client
         socket.recv(&request);
-        LOG_F(INFO,  "Received Hello in while loop");
+        TRACELOG(INFO,  "Received Hello in while loop");
 
         aff3ct::Message recvMessage;
         recvMessage.ParseFromArray(request.data(), request.size());

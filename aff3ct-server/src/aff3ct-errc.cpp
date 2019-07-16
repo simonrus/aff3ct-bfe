@@ -7,6 +7,13 @@
 
 # include <aff3ct-errc.h>
 
+char g_log_buffer[LOG_BUF_SIZE];
+
+char* getLastLogEntry()
+{
+    return g_log_buffer;
+}
+
 namespace { // anonymous namespace
   
 struct Aff3ctErrCategory : std::error_category

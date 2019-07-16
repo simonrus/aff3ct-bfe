@@ -17,14 +17,14 @@ class Aff3ctClient(cmd2.Cmd):
     zmq_socket = None
 
     def report_done(self):
-        self.poutput("+OK")
+        self.poutput("+(REMOTE) OK")
         pass
 
     def report_failed(self, error_str=''):
         if len(error_str):
-            self.poutput("-Failed with error: \"" + error_str + "\"")
+            self.poutput("-(REMOTE): Failed with error: \"" + error_str + "\"")
         else:
-            self.poutput("-Failed")
+            self.poutput("-(REMOTE): Failed")
         pass
 
     def __init__(self):
@@ -54,7 +54,7 @@ class Aff3ctClient(cmd2.Cmd):
         self.parser.parse(args.params)
 
         if self.parser.is_error():
-            self.report_failed(self.parser.get_error_text())
+            self.report_failed(arser.get_error_text())
             return
 
         self.registers[args.VAR] = self.parser.get_value()
@@ -63,12 +63,13 @@ class Aff3ctClient(cmd2.Cmd):
         success, error_string = Aff3ctProtocol.do_push(self.zmq_socket, args.VAR, self.registers[args.VAR])
 
         if not success:
-            self.report_failed(self, error_string)
+            self.report_failed(error_string)
         else:
-            self.report_done(self)
+            self.report_done()
 
-        self.report_done()
 
+    set_parser = argparse.ArgumentParser()
+    set_parser.add_argument('VAR', help='variable name')
     @cmd2.with_argparser(set_parser)
     def do_pull(self, args):
         # pull VARIABLE
@@ -77,11 +78,13 @@ class Aff3ctClient(cmd2.Cmd):
             self.report_failed("1st arg shall be a Variable Name (with capital letter)")
             return
 
-        success, error_string = Aff3ctProtocol.do_pull(self.zmq_socket, args.VAR, self.registers[args.VAR])
+        matrix = None
+        success, error_string = Aff3ctProtocol.do_pull(self.zmq_socket, args.VAR, matrix)
         if not success:
-            self.report_failed(self, error_string)
+            self.report_failed(error_string)
         else:
-            self.report_done(self)
+            self.registers[args.VAR] = matrix
+            self.report_done()
 
 
     def do_list(self, args):

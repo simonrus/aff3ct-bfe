@@ -190,14 +190,16 @@ void invalidatePbMatrix(aff3ct::Matrix* to)
 /*
  * Converts vector to protobuf matrix
  */
-bool vector2pbMatrix(std::vector<float> &from, aff3ct::Matrix& to)
+void vector2pbMatrix(std::vector<float> &from, aff3ct::Matrix* to)
 {
 
-    to.set_n(1);
-    to.set_m((uint32_t) from.size());
+    to->set_n(1);
+    to->set_m((uint32_t) from.size());
 
+    to->mutable_values()->Reserve(to->n() * to->m());
+    to->clear_values();
     for (size_t i = 0; i < from.size(); i++) {
-        to.add_values((float) from[i]);
+        to->add_values((float) from[i]);
     }
 }
 
@@ -266,6 +268,7 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
             {
                 aff3ct::PullReply* pull_reply = recvMessage.mutable_pullreply();
                 invalidatePbMatrix(pull_reply->mutable_mtx());
+                vector2pbMatrix(g_MemoryContainer[var_name], pull_reply->mutable_mtx());
                 
                 aff3ct::Result *result = pull_reply->mutable_result();
                 result->set_type(Success);
@@ -306,9 +309,6 @@ int main(int argc, char** argv)
         recvMessage.ParseFromArray(request.data(), request.size());
 
         recvMessage = processClientMessage(recvMessage);
-        //  Do some 'work'
-        sleep(1);
-
         //  Send reply back to client
         zmq::message_t reply(recvMessage.ByteSize());
         recvMessage.SerializeToArray(reply.data(), reply.size());

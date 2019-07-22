@@ -1,8 +1,7 @@
 import argparse
 import cmd2
 import zmq
-#import numpy as np
-#from pb import aff3ct_pb2
+import pdb
 from Aff3ctProtocol import Aff3ctProtocol
 
 from ConsoleMatrixParser import ConsoleMatrixParser
@@ -54,7 +53,7 @@ class Aff3ctClient(cmd2.Cmd):
         self.parser.parse(args.params)
 
         if self.parser.is_error():
-            self.report_failed(arser.get_error_text())
+            self.report_failed(self.parser.get_error_text())
             return
 
         self.registers[args.VAR] = self.parser.get_value()
@@ -67,7 +66,6 @@ class Aff3ctClient(cmd2.Cmd):
         else:
             self.report_done()
 
-
     set_parser = argparse.ArgumentParser()
     set_parser.add_argument('VAR', help='variable name')
     @cmd2.with_argparser(set_parser)
@@ -78,14 +76,26 @@ class Aff3ctClient(cmd2.Cmd):
             self.report_failed("1st arg shall be a Variable Name (with capital letter)")
             return
 
-        matrix = None
-        success, error_string = Aff3ctProtocol.do_pull(self.zmq_socket, args.VAR, matrix)
+        success, error_string, matrix = Aff3ctProtocol.do_pull(self.zmq_socket, args.VAR)
         if not success:
             self.report_failed(error_string)
         else:
             self.registers[args.VAR] = matrix
             self.report_done()
 
+    set_parser = argparse.ArgumentParser()
+    set_parser.add_argument('VAR', help='variable name')
+    @cmd2.with_argparser(set_parser)
+    def do_print(self, args):
+        if args.VAR.islower():
+            self.report_failed("1st arg shall be a Variable Name (with capital letter)")
+            return
+
+        if args.VAR not in self.registers:
+            self.report_failed("Variable is not found")
+            return
+
+        self.poutput(str(self.registers[args.VAR]))
 
     def do_list(self, args):
         # just list available args

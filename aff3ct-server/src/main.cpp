@@ -32,6 +32,39 @@ Aff3ctErrc      g_Error = Aff3ctErrc::NoError;
 
 using namespace aff3ct;
 
+struct factories{
+    factory::Source          ::parameters p_src;
+    factory::Codec_repetition::parameters p_cdc;
+    factory::Modem           ::parameters p_mdm;
+    factory::Channel         ::parameters p_chn;
+    factory::Monitor_BFER    ::parameters p_mnt;
+    factory::Terminal        ::parameters p_ter;
+
+};
+
+struct factories g_factories;
+
+struct Model {
+    tools::Sigma<> noise;
+
+	// create the AFF3CT modules
+    std::unique_ptr<module::Source          <>> source; 
+    std::unique_ptr<module::Codec_repetition<>> codec;  
+    std::unique_ptr<module::Modem           <>> modem;  
+    std::unique_ptr<module::Channel         <>> channel;
+    std::unique_ptr<module::Monitor_BFER    <>> monitor;
+};
+
+struct Model g_model;
+std::vector<const module::Module*> g_modules;
+
+std::vector<factory::Factory::parameters*> g_params = {&g_factories.p_src, 
+                                                        &g_factories.p_cdc, 
+                                                        &g_factories.p_mdm, 
+                                                        &g_factories.p_chn, 
+                                                        &g_factories.p_mnt, 
+                                                        &g_factories.p_ter};
+
 int run(int argc, char** argv)
 {
     // get the AFF3CT version
@@ -201,6 +234,140 @@ void vector2pbMatrix(std::vector<float> &from, aff3ct::Matrix* to)
     for (size_t i = 0; i < from.size(); i++) {
         to->add_values((float) from[i]);
     }
+}
+
+void splitString(std::string &str, 
+                                std::vector<std::string> &arg_vec)
+{
+    arg_vec.clear();
+    std::stringstream ss(str);
+    std::string buf;
+    
+    while (ss >> buf)
+        arg_vec.push_back(buf);
+}
+
+std::string getAff3CTVersionString()
+{
+    //determine version
+    std::string v = "v" + std::to_string(version_major()) + "." +
+	                            std::to_string(version_minor()) + "." +
+	                            std::to_string(version_release());
+    
+    return v;
+}
+
+/*
+ * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
+ */
+bool doConfigure(std::string &config)
+{
+    TRACELOG(INFO,"doConfigure(): %s", config.c_str());
+    //prepare argc and argv
+    std::vector<std::string> arg_vec;
+    std::vector<const char *> argv;
+    splitString(config, arg_vec);
+    
+    argv.reserve(arg_vec.size());
+    for (auto it = arg_vec.begin(); it != arg_vec.end(); ++it) 
+    {   
+        argv.push_back((*it));
+    }
+
+    factory::Command_parser cp(argv.size(), &argv[0], g_params, true);
+    
+    // parse the command for the given parameters and fill them
+    if (cp.parsing_failed())
+    {
+        cp.print_help    ();
+        cp.print_warnings();
+        cp.print_errors  ();
+    
+        TRACELOG(ERROR,"cp.parsing_failed");
+        //FIXME: Redirect std::cout to log!
+        return false;
+    }
+    
+    TRACELOG(INFO,"aff3ct version is %s", getAff3CTVersionString().c_str());
+    
+    // display the headers (= print the AFF3CT parameters on the screen)
+    factory::Header::print_parameters(g_params); 
+    cp.print_warnings();
+    
+    g_model.source  = std::unique_ptr<module::Source          <>>(g_factories.p_src.build());  
+    g_model.codec   = std::unique_ptr<module::Codec_repetition<>>(g_factories.p_cdc.build()); 
+    g_model.modem   = std::unique_ptr<module::Modem           <>>(g_factories.p_mdm.build()); 
+    g_model.channel = std::unique_ptr<module::Channel         <>>(g_factories.p_chn.build()); 
+    g_model.monitor = std::unique_ptr<module::Monitor_BFER    <>>(g_factories.p_mnt.build()); 
+    
+    // get the encoder and decoder modules from the codec module
+    auto& encoder = g_model.codec->get_encoder();
+    auto& decoder = g_model.codec->get_decoder_siho();
+
+#ifdef ENABLE_REPORTERS
+    // create reporters to display results in the terminal
+    std::vector<tools::Reporter*> reporters =
+    {
+            new tools::Reporter_noise     <>(noise   ), // report the noise values (Es/N0 and Eb/N0)
+            new tools::Reporter_BFER      <>(*monitor), // report the bit/frame error rates
+            new tools::Reporter_throughput<>(*monitor)  // report the simulation throughputs
+    };
+    // convert the vector of reporter pointers into a vector of smart pointers
+    std::vector<std::unique_ptr<tools::Reporter>> reporters_uptr;
+    for (auto rep : reporters) reporters_uptr.push_back(std::unique_ptr<tools::Reporter>(rep));
+
+    // create a terminal that will display the collected data from the reporters
+    std::unique_ptr<tools::Terminal> terminal(p_ter.build(reporters_uptr));
+
+    // display the legend in the terminal
+    terminal->legend();
+#endif // ENABLE_REPORTERS
+    
+    g_modules = {g_model.source.get(), 
+            encoder.get(), 
+            g_model.modem.get(), 
+            g_model.channel.get(),
+            decoder.get(), 
+            g_model.monitor.get()};
+
+    //use default parameters
+    for (auto& m : g_modules)
+        for (auto& t : m->tasks)
+        {
+            t->set_autoalloc  (true ); // enable the automatic allocation of the data in the tasks
+            t->set_autoexec   (false); // disable the auto execution mode of the tasks
+            t->set_debug      (false); // disable the debug mode
+            t->set_debug_limit(16   ); // display only the 16 first bits if the debug mode is enabled
+            t->set_stats      (true ); // enable the statistics
+
+            // enable the fast mode (= disable the useless verifs in the tasks) if there is no debug and stats modes
+            t->set_fast(!t->is_debug() && !t->is_stats());
+        }
+    
+    
+    // sockets binding (connect the sockets of the tasks = fill the input sockets with the output sockets)
+    using namespace module;
+    (*encoder)[enc::sck::encode      ::U_K ].bind((*g_model.source )[src::sck::generate   ::U_K ]);
+    (*g_model.modem  )[mdm::sck::modulate    ::X_N1].bind((*encoder)[enc::sck::encode     ::X_N ]);
+    (*g_model.channel)[chn::sck::add_noise   ::X_N ].bind((*g_model.modem  )[mdm::sck::modulate   ::X_N2]);
+    (*g_model.modem  )[mdm::sck::demodulate  ::Y_N1].bind((*g_model.channel)[chn::sck::add_noise  ::Y_N ]);
+    (*decoder)[dec::sck::decode_siho ::Y_N ].bind((*g_model.modem  )[mdm::sck::demodulate ::Y_N2]);
+    (*g_model.monitor)[mnt::sck::check_errors::U   ].bind((*encoder)[enc::sck::encode     ::U_K ]);
+    (*g_model.monitor)[mnt::sck::check_errors::V   ].bind((*decoder)[dec::sck::decode_siho::V_K ]);
+    
+    // reset the memory of the decoder after the end of each communicatio
+    g_model.monitor->add_handler_check(std::bind(&module::Decoder::reset, decoder));
+
+    // initialize the interleaver if this code use an interleaver
+    try
+    {
+            auto& interleaver = g_model.codec->get_interleaver();
+            interleaver->init();
+    }
+    catch (const std::exception&) { /* do nothing if there is no interleaver */ }
+    
+    //!!! ready for the loop
+
 }
 
 aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)

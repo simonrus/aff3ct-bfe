@@ -48,7 +48,9 @@ set(LOGURU_SRCS ${LOGURU_DIR}/loguru.cpp)
 
 #set main sources
 set(MAIN_SRCS
-${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-errc.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp 
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-errc.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/Model.cpp
 )
 
 add_executable(aff3ct-server ${MAIN_SRCS} ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})

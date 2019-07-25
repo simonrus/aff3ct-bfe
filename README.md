@@ -1,7 +1,10 @@
 # Intoroduction
 This project provides the remote interface to aff3ct library. It implements the following
+
 - Remote server accepts the requests from remote clients and runs the encoding/decoding of testvectors using aff3ct-library
+
 - Protocol that provides synchronious commands to configure aff3ct-library server, to push/pull vectors/matrices from client and server and to execute operations on the vectors/matrix using aff3ct-library
+
 - Interactive command shell, that allows users to control remote aff3ct server
 
 # Repo management

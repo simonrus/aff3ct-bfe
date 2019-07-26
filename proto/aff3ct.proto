@@ -12,13 +12,14 @@ message Message
 {
     oneof content   
     {
-        Result          result          = 1; 
-        PushRequest     pushRequest     = 2;
-        PushReply       pushReply       = 3;
-        PullRequest     pullRequest     = 4;
-        PullReply       pullReply       = 5;
-        DoEncodeRequest doEncodeRequest = 6;
-        DoEncodeReply   doEncodeReply   = 7;
+        Result              result          = 1; 
+        PushRequest         pushRequest     = 2;
+        PushReply           pushReply       = 3;
+        PullRequest         pullRequest     = 4;
+        PullReply           pullReply       = 5;
+        RunRequest          runRequest      = 6;
+        DoEncodeReply       doEncodeReply   = 7;
+        ConfigRequest       configRequest   = 8;
     }
 
 }
@@ -57,8 +58,8 @@ message PullReply {
     Matrix mtx = 2;
 }
 
-//#################### ENCODE ##################################
-message DoEncodeRequest {
+//#################### Process ##################################
+message RunRequest {
     string input = 1;       //variable to use as input
     string output = 2;      //variable to store output
 }

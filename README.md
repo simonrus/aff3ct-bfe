@@ -1,31 +1,56 @@
-# Using AFF3CT as a library for your codes
+# Intoroduction
+This project provides the remote interface to aff3ct library. It implements the following
 
-[![pipeline status](https://gitlab.com/aff3ct/my_project_with_aff3ct/badges/master/pipeline.svg)](https://gitlab.com/aff3ct/my_project_with_aff3ct/pipelines)
+- Remote server accepts the requests from remote clients and runs the encoding/decoding of testvectors using aff3ct-library
 
-This repository contains some simple code examples. It helps to understand how to use the AFF3CT library in your code.
-The first step is to compile AFF3CT into a library.
+- Protocol that provides synchronious commands to configure aff3ct-library server, to push/pull vectors/matrices from client and server and to execute operations on the vectors/matrix using aff3ct-library
 
-Get the AFF3CT library:
+- Interactive command shell, that allows users to control remote aff3ct server
 
+# Repo management
+## 1.1 Sync procedure with main repo
+
+	$ git pull sync master
+	$ git push -u origin master
+
+# Usefull links
+https://www.uni-kl.de/channel-codes/channel-codes-database/more-ldpc-codes
+http://www.inference.org.uk/mackay/codes/alist.html
+
+# Install everything
+	$ sudo apt-get install pkg-config
+## ZeroMQ
+	$ sudo apt-get install libzmq3-dev
+## Python3 (anaconda way)
+	$ conda create --name py3 python=3.5
+	$ conda activate py3
+	$ pip install pyzmq
+	$ pip install ipython
+	$ pip install cmd2
+## protobuf > 3.0
+	$ sudo apt-get install libprotobuf-dev 
+	$ sudo apt-get install protobuf-compiler
+or
+follow https://leimao.github.io/blog/ProtoBuf-Tutorial/
+
+## missfec 
+	$ git clone https://simonrus@bitbucket.org/simonrus/missfec.git
+	$ cd missfec/lib
 	$ git submodule update --init --recursive
-
-Compile the library on Linux/MacOS/MinGW:
-
-	$ cd lib/aff3ct
+## aff3ct library
+	$ cd aff3ct
 	$ mkdir build
 	$ cd build
 	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-funroll-loops -march=native" -DAFF3CT_COMPILE_EXE="OFF" -DAFF3CT_COMPILE_STATIC_LIB="ON" -DAFF3CT_COMPILE_SHARED_LIB="ON"
 	$ make -j4
+	$ cd ../../../aff3ct-server
 
-Compile the library on Windows (Visual Studio project)
+## post steps
+follow README.RE
 
-	$ cd lib/aff3ct
-	$ mkdir build
-	$ cd build
-	$ cmake .. -G"Visual Studio 15 2017 Win64" -DCMAKE_CXX_FLAGS="-D_CRT_SECURE_NO_DEPRECATE /EHsc /MP4" -DAFF3CT_COMPILE_EXE="OFF" -DAFF3CT_COMPILE_STATIC_LIB="ON" -DAFF3CT_COMPILE_SHARED_LIB="ON"
-	$ devenv /build Release aff3ct.sln
-
-Now the AFF3CT library has been built in the `lib/aff3ct/build` folder.
-
-The source codes of the examples are in the `examples/` folder.
-You can go in this folder to see the next steps.
+# Running Samples
+## Server
+	$ aff3ct-server
+## Interactive Client
+	$ source ~/bin/anaconda.sh
+	$ conda activate py3

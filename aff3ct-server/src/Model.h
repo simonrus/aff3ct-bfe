@@ -19,6 +19,7 @@
 #define R_TYPE  float  
 
 #include <aff3ct.hpp>
+#include <list>
 
 using namespace aff3ct;
 
@@ -49,19 +50,19 @@ protected:
     
     std::vector<const module::Module*> m_modules;
 
+    void setNoise(float ebn0);
+    
 public:
     Model() = default;
     virtual ~Model() = default;
     
-    bool init(std::string &config);
+    
     
     static std::string getAff3CTVersionString();
-    static void splitString(std::string &str, 
-                                std::vector<std::string> &arg_vec);
-    
      
-    void setNoise(float ebn0);
-    void process();
+    bool init(std::list<std::string> &arg_vec);
+    
+    
     
 };
 

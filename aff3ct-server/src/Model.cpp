@@ -15,17 +15,6 @@
 
 #include <aff3ct-errc.h>
 
-void Model::splitString(std::string &str, 
-                                std::vector<std::string> &arg_vec)
-{
-    arg_vec.clear();
-    std::stringstream ss(str);
-    std::string buf;
-    
-    while (ss >> buf)
-        arg_vec.push_back(buf);
-}
-
 std::string Model::getAff3CTVersionString()
 {
     //determine version
@@ -39,18 +28,15 @@ std::string Model::getAff3CTVersionString()
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
  */
-bool Model::init(std::string &config)
+bool Model::init(std::list<std::string> &arg_vec)
 {
-    TRACELOG(INFO,"doConfigure(): %s", config.c_str());
-    //prepare argc and argv
-    std::vector<std::string> arg_vec;
-    std::vector<const char *> argv;
-    splitString(config, arg_vec);
     
+    std::vector<const char *> argv;
+
     argv.reserve(arg_vec.size());
-    for (auto it = arg_vec.begin(); it != arg_vec.end(); ++it) 
+    for (std::string &arg : arg_vec) 
     {   
-        argv.push_back((*it).c_str());
+        argv.push_back(arg.c_str());
     }
 
     m_paramsList =  {&p_src, &p_cdc, &p_mdm, &p_chn, &p_mnt, &p_ter};
@@ -166,7 +152,7 @@ void Model::setNoise(float ebn0)
     m_modem  ->set_noise(noise);
     m_channel->set_noise(noise);
 }
-
+/*
 void Model::process()
 {
     // get the r_encoder and r_decoder modules from the codec module
@@ -182,5 +168,9 @@ void Model::process()
     (*r_decoder)[dec::tsk::decode_siho ].exec();
     (*m_monitor)[mnt::tsk::check_errors].exec();
 }
+ * */
+
+
+
 
 

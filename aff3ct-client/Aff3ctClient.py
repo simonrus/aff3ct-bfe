@@ -97,11 +97,23 @@ class Aff3ctClient(cmd2.Cmd):
 
         self.poutput(str(self.registers[args.VAR]))
 
-    def do_list(self, args):
-        # just list available args
+    @cmd2.with_argument_list
+    def do_locals(self, args):
+        # just list available vars at local side
         names = ''
         for key in self.registers:
             names += ' ' + key
 
         self.poutput(names)
-        self.report_done()
+
+    @cmd2.with_argument_list
+    def do_cmd(self, args):
+        """ List item command help """
+
+        success, error_string = Aff3ctProtocol.do_command(self.zmq_socket, args)
+
+        if not success:
+            self.report_failed(error_string)
+        else:
+            self.report_done()
+

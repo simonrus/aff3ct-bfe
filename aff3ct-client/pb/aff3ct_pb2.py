@@ -20,7 +20,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
   name='aff3ct.proto',
   package='aff3ct',
   syntax='proto3',
-  serialized_pb=_b('\n\x0c\x61\x66\x66\x33\x63t.proto\x12\x06\x61\x66\x66\x33\x63t\"\xc2\x02\n\x07Message\x12 \n\x06result\x18\x01 \x01(\x0b\x32\x0e.aff3ct.ResultH\x00\x12*\n\x0bpushRequest\x18\x02 \x01(\x0b\x32\x13.aff3ct.PushRequestH\x00\x12&\n\tpushReply\x18\x03 \x01(\x0b\x32\x11.aff3ct.PushReplyH\x00\x12*\n\x0bpullRequest\x18\x04 \x01(\x0b\x32\x13.aff3ct.PullRequestH\x00\x12&\n\tpullReply\x18\x05 \x01(\x0b\x32\x11.aff3ct.PullReplyH\x00\x12\x32\n\x0f\x64oEncodeRequest\x18\x06 \x01(\x0b\x32\x17.aff3ct.DoEncodeRequestH\x00\x12.\n\rdoEncodeReply\x18\x07 \x01(\x0b\x32\x15.aff3ct.DoEncodeReplyH\x00\x42\t\n\x07\x63ontent\">\n\x06Result\x12 \n\x04type\x18\x01 \x01(\x0e\x32\x12.aff3ct.ResultType\x12\x12\n\nerror_text\x18\x02 \x01(\t\"2\n\x06Matrix\x12\t\n\x01n\x18\x01 \x01(\r\x12\t\n\x01m\x18\x02 \x01(\r\x12\x12\n\x06values\x18\x03 \x03(\x02\x42\x02\x10\x01\"7\n\x0bPushRequest\x12\x0b\n\x03var\x18\x01 \x01(\t\x12\x1b\n\x03mtx\x18\x02 \x01(\x0b\x32\x0e.aff3ct.Matrix\"+\n\tPushReply\x12\x1e\n\x06result\x18\x01 \x01(\x0b\x32\x0e.aff3ct.Result\"\x1a\n\x0bPullRequest\x12\x0b\n\x03var\x18\x01 \x01(\t\"H\n\tPullReply\x12\x1e\n\x06result\x18\x01 \x01(\x0b\x32\x0e.aff3ct.Result\x12\x1b\n\x03mtx\x18\x02 \x01(\x0b\x32\x0e.aff3ct.Matrix\"0\n\x0f\x44oEncodeRequest\x12\r\n\x05input\x18\x01 \x01(\t\x12\x0e\n\x06output\x18\x02 \x01(\t\"G\n\rDoEncodeReply\x12\x1b\n\x03res\x18\x01 \x01(\x0b\x32\x0e.aff3ct.Result\x12\x19\n\x11\x63reated_resources\x18\x02 \x03(\t*%\n\nResultType\x12\x0b\n\x07Success\x10\x00\x12\n\n\x06\x46\x61iled\x10\x01\x62\x06proto3')
+  serialized_pb=_b('\n\x0c\x61\x66\x66\x33\x63t.proto\x12\x06\x61\x66\x66\x33\x63t\"\x82\x02\n\x07Message\x12 \n\x06result\x18\x01 \x01(\x0b\x32\x0e.aff3ct.ResultH\x00\x12*\n\x0bpushRequest\x18\x02 \x01(\x0b\x32\x13.aff3ct.PushRequestH\x00\x12&\n\tpushReply\x18\x03 \x01(\x0b\x32\x11.aff3ct.PushReplyH\x00\x12*\n\x0bpullRequest\x18\x04 \x01(\x0b\x32\x13.aff3ct.PullRequestH\x00\x12&\n\tpullReply\x18\x05 \x01(\x0b\x32\x11.aff3ct.PullReplyH\x00\x12\"\n\x07\x63ommand\x18\x06 \x01(\x0b\x32\x0f.aff3ct.CommandH\x00\x42\t\n\x07\x63ontent\">\n\x06Result\x12 \n\x04type\x18\x01 \x01(\x0e\x32\x12.aff3ct.ResultType\x12\x12\n\nerror_text\x18\x02 \x01(\t\"2\n\x06Matrix\x12\t\n\x01n\x18\x01 \x01(\r\x12\t\n\x01m\x18\x02 \x01(\r\x12\x12\n\x06values\x18\x03 \x03(\x02\x42\x02\x10\x01\"7\n\x0bPushRequest\x12\x0b\n\x03var\x18\x01 \x01(\t\x12\x1b\n\x03mtx\x18\x02 \x01(\x0b\x32\x0e.aff3ct.Matrix\"+\n\tPushReply\x12\x1e\n\x06result\x18\x01 \x01(\x0b\x32\x0e.aff3ct.Result\"\x1a\n\x0bPullRequest\x12\x0b\n\x03var\x18\x01 \x01(\t\"H\n\tPullReply\x12\x1e\n\x06result\x18\x01 \x01(\x0b\x32\x0e.aff3ct.Result\x12\x1b\n\x03mtx\x18\x02 \x01(\x0b\x32\x0e.aff3ct.Matrix\"%\n\x07\x43ommand\x12\x0c\n\x04\x61rgc\x18\x01 \x01(\r\x12\x0c\n\x04\x61rgv\x18\x02 \x03(\t*%\n\nResultType\x12\x0b\n\x07Success\x10\x00\x12\n\n\x06\x46\x61iled\x10\x01\x62\x06proto3')
 )
 _sym_db.RegisterFileDescriptor(DESCRIPTOR)
 
@@ -41,8 +41,8 @@ _RESULTTYPE = _descriptor.EnumDescriptor(
   ],
   containing_type=None,
   options=None,
-  serialized_start=792,
-  serialized_end=829,
+  serialized_start=644,
+  serialized_end=681,
 )
 _sym_db.RegisterEnumDescriptor(_RESULTTYPE)
 
@@ -95,15 +95,8 @@ _MESSAGE = _descriptor.Descriptor(
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='doEncodeRequest', full_name='aff3ct.Message.doEncodeRequest', index=5,
+      name='command', full_name='aff3ct.Message.command', index=5,
       number=6, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='doEncodeReply', full_name='aff3ct.Message.doEncodeReply', index=6,
-      number=7, type=11, cpp_type=10, label=1,
       has_default_value=False, default_value=None,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
@@ -124,7 +117,7 @@ _MESSAGE = _descriptor.Descriptor(
       index=0, containing_type=None, fields=[]),
   ],
   serialized_start=25,
-  serialized_end=347,
+  serialized_end=283,
 )
 
 
@@ -161,8 +154,8 @@ _RESULT = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=349,
-  serialized_end=411,
+  serialized_start=285,
+  serialized_end=347,
 )
 
 
@@ -206,8 +199,8 @@ _MATRIX = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=413,
-  serialized_end=463,
+  serialized_start=349,
+  serialized_end=399,
 )
 
 
@@ -244,8 +237,8 @@ _PUSHREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=465,
-  serialized_end=520,
+  serialized_start=401,
+  serialized_end=456,
 )
 
 
@@ -275,8 +268,8 @@ _PUSHREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=522,
-  serialized_end=565,
+  serialized_start=458,
+  serialized_end=501,
 )
 
 
@@ -306,8 +299,8 @@ _PULLREQUEST = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=567,
-  serialized_end=593,
+  serialized_start=503,
+  serialized_end=529,
 )
 
 
@@ -344,65 +337,27 @@ _PULLREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=595,
-  serialized_end=667,
+  serialized_start=531,
+  serialized_end=603,
 )
 
 
-_DOENCODEREQUEST = _descriptor.Descriptor(
-  name='DoEncodeRequest',
-  full_name='aff3ct.DoEncodeRequest',
+_COMMAND = _descriptor.Descriptor(
+  name='Command',
+  full_name='aff3ct.Command',
   filename=None,
   file=DESCRIPTOR,
   containing_type=None,
   fields=[
     _descriptor.FieldDescriptor(
-      name='input', full_name='aff3ct.DoEncodeRequest.input', index=0,
-      number=1, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
+      name='argc', full_name='aff3ct.Command.argc', index=0,
+      number=1, type=13, cpp_type=3, label=1,
+      has_default_value=False, default_value=0,
       message_type=None, enum_type=None, containing_type=None,
       is_extension=False, extension_scope=None,
       options=None),
     _descriptor.FieldDescriptor(
-      name='output', full_name='aff3ct.DoEncodeRequest.output', index=1,
-      number=2, type=9, cpp_type=9, label=1,
-      has_default_value=False, default_value=_b("").decode('utf-8'),
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-  ],
-  extensions=[
-  ],
-  nested_types=[],
-  enum_types=[
-  ],
-  options=None,
-  is_extendable=False,
-  syntax='proto3',
-  extension_ranges=[],
-  oneofs=[
-  ],
-  serialized_start=669,
-  serialized_end=717,
-)
-
-
-_DOENCODEREPLY = _descriptor.Descriptor(
-  name='DoEncodeReply',
-  full_name='aff3ct.DoEncodeReply',
-  filename=None,
-  file=DESCRIPTOR,
-  containing_type=None,
-  fields=[
-    _descriptor.FieldDescriptor(
-      name='res', full_name='aff3ct.DoEncodeReply.res', index=0,
-      number=1, type=11, cpp_type=10, label=1,
-      has_default_value=False, default_value=None,
-      message_type=None, enum_type=None, containing_type=None,
-      is_extension=False, extension_scope=None,
-      options=None),
-    _descriptor.FieldDescriptor(
-      name='created_resources', full_name='aff3ct.DoEncodeReply.created_resources', index=1,
+      name='argv', full_name='aff3ct.Command.argv', index=1,
       number=2, type=9, cpp_type=9, label=3,
       has_default_value=False, default_value=[],
       message_type=None, enum_type=None, containing_type=None,
@@ -420,8 +375,8 @@ _DOENCODEREPLY = _descriptor.Descriptor(
   extension_ranges=[],
   oneofs=[
   ],
-  serialized_start=719,
-  serialized_end=790,
+  serialized_start=605,
+  serialized_end=642,
 )
 
 _MESSAGE.fields_by_name['result'].message_type = _RESULT
@@ -429,8 +384,7 @@ _MESSAGE.fields_by_name['pushRequest'].message_type = _PUSHREQUEST
 _MESSAGE.fields_by_name['pushReply'].message_type = _PUSHREPLY
 _MESSAGE.fields_by_name['pullRequest'].message_type = _PULLREQUEST
 _MESSAGE.fields_by_name['pullReply'].message_type = _PULLREPLY
-_MESSAGE.fields_by_name['doEncodeRequest'].message_type = _DOENCODEREQUEST
-_MESSAGE.fields_by_name['doEncodeReply'].message_type = _DOENCODEREPLY
+_MESSAGE.fields_by_name['command'].message_type = _COMMAND
 _MESSAGE.oneofs_by_name['content'].fields.append(
   _MESSAGE.fields_by_name['result'])
 _MESSAGE.fields_by_name['result'].containing_oneof = _MESSAGE.oneofs_by_name['content']
@@ -447,17 +401,13 @@ _MESSAGE.oneofs_by_name['content'].fields.append(
   _MESSAGE.fields_by_name['pullReply'])
 _MESSAGE.fields_by_name['pullReply'].containing_oneof = _MESSAGE.oneofs_by_name['content']
 _MESSAGE.oneofs_by_name['content'].fields.append(
-  _MESSAGE.fields_by_name['doEncodeRequest'])
-_MESSAGE.fields_by_name['doEncodeRequest'].containing_oneof = _MESSAGE.oneofs_by_name['content']
-_MESSAGE.oneofs_by_name['content'].fields.append(
-  _MESSAGE.fields_by_name['doEncodeReply'])
-_MESSAGE.fields_by_name['doEncodeReply'].containing_oneof = _MESSAGE.oneofs_by_name['content']
+  _MESSAGE.fields_by_name['command'])
+_MESSAGE.fields_by_name['command'].containing_oneof = _MESSAGE.oneofs_by_name['content']
 _RESULT.fields_by_name['type'].enum_type = _RESULTTYPE
 _PUSHREQUEST.fields_by_name['mtx'].message_type = _MATRIX
 _PUSHREPLY.fields_by_name['result'].message_type = _RESULT
 _PULLREPLY.fields_by_name['result'].message_type = _RESULT
 _PULLREPLY.fields_by_name['mtx'].message_type = _MATRIX
-_DOENCODEREPLY.fields_by_name['res'].message_type = _RESULT
 DESCRIPTOR.message_types_by_name['Message'] = _MESSAGE
 DESCRIPTOR.message_types_by_name['Result'] = _RESULT
 DESCRIPTOR.message_types_by_name['Matrix'] = _MATRIX
@@ -465,8 +415,7 @@ DESCRIPTOR.message_types_by_name['PushRequest'] = _PUSHREQUEST
 DESCRIPTOR.message_types_by_name['PushReply'] = _PUSHREPLY
 DESCRIPTOR.message_types_by_name['PullRequest'] = _PULLREQUEST
 DESCRIPTOR.message_types_by_name['PullReply'] = _PULLREPLY
-DESCRIPTOR.message_types_by_name['DoEncodeRequest'] = _DOENCODEREQUEST
-DESCRIPTOR.message_types_by_name['DoEncodeReply'] = _DOENCODEREPLY
+DESCRIPTOR.message_types_by_name['Command'] = _COMMAND
 DESCRIPTOR.enum_types_by_name['ResultType'] = _RESULTTYPE
 
 Message = _reflection.GeneratedProtocolMessageType('Message', (_message.Message,), dict(
@@ -518,19 +467,12 @@ PullReply = _reflection.GeneratedProtocolMessageType('PullReply', (_message.Mess
   ))
 _sym_db.RegisterMessage(PullReply)
 
-DoEncodeRequest = _reflection.GeneratedProtocolMessageType('DoEncodeRequest', (_message.Message,), dict(
-  DESCRIPTOR = _DOENCODEREQUEST,
+Command = _reflection.GeneratedProtocolMessageType('Command', (_message.Message,), dict(
+  DESCRIPTOR = _COMMAND,
   __module__ = 'aff3ct_pb2'
-  # @@protoc_insertion_point(class_scope:aff3ct.DoEncodeRequest)
+  # @@protoc_insertion_point(class_scope:aff3ct.Command)
   ))
-_sym_db.RegisterMessage(DoEncodeRequest)
-
-DoEncodeReply = _reflection.GeneratedProtocolMessageType('DoEncodeReply', (_message.Message,), dict(
-  DESCRIPTOR = _DOENCODEREPLY,
-  __module__ = 'aff3ct_pb2'
-  # @@protoc_insertion_point(class_scope:aff3ct.DoEncodeReply)
-  ))
-_sym_db.RegisterMessage(DoEncodeReply)
+_sym_db.RegisterMessage(Command)
 
 
 _MATRIX.fields_by_name['values'].has_options = True

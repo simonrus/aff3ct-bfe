@@ -87,3 +87,29 @@ class Aff3ctProtocol:
             return True, '', Aff3ctProtocol.deserialize_matrix(message_pb.pullReply.mtx)
         else:
             return False, message_pb.pullReply.result.error_text, None
+
+    @staticmethod
+    def do_command(socket, args):
+        argc = len(args)
+
+        command = aff3ct_pb2.Command(argc = argc)
+        command.argv.extend(args)
+
+        message_pb = aff3ct_pb2.Message(command = command)
+
+        stream = message_pb.SerializeToString()
+        
+        socket.send(stream)
+
+        reply = socket.recv()
+
+        message_pb.ParseFromString(reply)
+
+        message_type = message_pb.WhichOneof('content')
+        if message_type != 'result':
+            return False, "received object of " + message_type + " instead of command"
+
+        if message_pb.result.type == aff3ct_pb2.ResultType.Value('Success'):
+            return True, ''
+        else:
+            return False, message_pb.result.error_text

@@ -17,9 +17,7 @@ message Message
         PushReply           pushReply       = 3;
         PullRequest         pullRequest     = 4;
         PullReply           pullReply       = 5;
-        RunRequest          runRequest      = 6;
-        DoEncodeReply       doEncodeReply   = 7;
-        ConfigRequest       configRequest   = 8;
+        Command             command         = 6;
     }
 
 }
@@ -58,17 +56,10 @@ message PullReply {
     Matrix mtx = 2;
 }
 
-//#################### Process ##################################
-message RunRequest {
-    string input = 1;       //variable to use as input
-    string output = 2;      //variable to store output
+//#################### General command ##################################
+//send remote command 
+message Command {
+    uint32 argc = 1;
+    repeated string argv = 2;
 }
-
-message DoEncodeReply {
-    Result res = 1;
-    repeated string created_resources = 2;
-}
-
-
-
 

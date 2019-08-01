@@ -7,6 +7,7 @@
 
 # include <aff3ct-errc.h>
 
+std::ostringstream g_err_stream;
 char g_log_buffer[LOG_BUF_SIZE];
 
 char* getLastLogEntry()

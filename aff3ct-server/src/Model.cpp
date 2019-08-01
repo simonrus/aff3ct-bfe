@@ -28,7 +28,7 @@ std::string Model::getAff3CTVersionString()
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
  */
-bool Model::init(std::list<std::string> &arg_vec)
+bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
 {
     
     std::vector<const char *> argv;
@@ -40,16 +40,21 @@ bool Model::init(std::list<std::string> &arg_vec)
     }
 
     m_paramsList =  {&p_src, &p_cdc, &p_mdm, &p_chn, &p_mnt, &p_ter};
-    factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true);
+    factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
+    
+    if (cp.help_required())
+    {
+        cp.print_help    ();
+        return false;
+    }
     
     // parse the command for the given parameters and fill them
     if (cp.parsing_failed())
     {
-        cp.print_help    ();
         cp.print_warnings();
         cp.print_errors  ();
     
-        TRACELOG(ERROR,"cp.parsing_failed");
+        //TRACELOG(ERROR,"cp.parsing_failed");
         //FIXME: Redirect std::cout to log!
         return false;
     }

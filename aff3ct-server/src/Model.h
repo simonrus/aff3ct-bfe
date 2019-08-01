@@ -60,7 +60,7 @@ public:
     
     static std::string getAff3CTVersionString();
      
-    bool init(std::list<std::string> &arg_vec);
+    bool init(std::list<std::string> &arg_vec, std::ostream& err_stream = std::cerr);
     
     
     

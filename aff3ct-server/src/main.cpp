@@ -117,8 +117,9 @@ void logCommand(std::list<std::string> &args)
     TRACELOG(INFO,"%s", ss.str().c_str());
 
 }
-bool processCommand(std::list<std::string> &args)
+bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
 {    
+    bool result;
     LOG_SCOPE_FUNCTION(INFO);
     
     logCommand(args);
@@ -128,10 +129,12 @@ bool processCommand(std::list<std::string> &args)
         return false;
     }
     std::string front = args.front();
-
+        
     if (front == "init")
-    {
-        return true;
+    {   
+        result = g_model.init(args, err_stream);
+        
+        return result;
     }
     else {
         TRACELOG(ERROR, "wrong command %s", front.c_str());  
@@ -228,14 +231,15 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
             /** do command processing */
             aff3ct::Result* result = recvMessage.mutable_result();
             
-            if (processCommand(args)) 
+            if (processCommand(args, getErrStream())) 
             {
                 result->set_type(Success);    
-                result->set_error_text("Succees");    
+                
             }else 
             {
                 result->set_type(Failed);    
-                result->set_error_text("Failed");
+                result->set_error_text(getErrStream().str());    
+                clearErrStream();
             }
             
             return recvMessage;

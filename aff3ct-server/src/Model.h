@@ -20,6 +20,7 @@
 
 #include <aff3ct.hpp>
 #include <list>
+#include <memory>
 
 using namespace aff3ct;
 
@@ -31,7 +32,7 @@ struct Parameters{
 class Model {
 
 protected:
-    factory::Source          ::parameters p_src;
+    /*factory::Source          ::parameters p_src;
     factory::Codec_repetition::parameters p_cdc;
     factory::Modem           ::parameters p_mdm;
     factory::Channel         ::parameters p_chn;
@@ -48,9 +49,14 @@ protected:
     std::unique_ptr<module::Channel         <R_TYPE>> m_channel;
     std::unique_ptr<module::Monitor_BFER    <B_TYPE>> m_monitor;
     
-    std::vector<const module::Module*> m_modules;
+    std::vector<const module::Module*> m_modules;*/
 
     void setNoise(float ebn0);
+    
+    factory::Launcher::parameters m_params;
+    
+    std::unique_ptr<launcher::Launcher>         m_launcher;
+    
     
 public:
     Model() = default;

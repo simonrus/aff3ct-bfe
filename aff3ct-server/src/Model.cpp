@@ -13,7 +13,8 @@
 
 #include "Model.h"
 
-#include <aff3ct-errc.h>
+#include "aff3ct-utils.h"
+#include "aff3ct-errc.h"
 
 std::string Model::getAff3CTVersionString()
 {
@@ -25,6 +26,61 @@ std::string Model::getAff3CTVersionString()
     return v;
 }
 
+
+
+bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
+{
+    int exit_code;
+    
+    std::vector<const char *> argv;
+
+    argv.reserve(arg_vec.size());
+    for (std::string &arg : arg_vec) {
+        argv.push_back(arg.c_str());
+    }
+  
+    exit_code = aff3ct::utils::read_arguments (arg_vec.size(), (const char**)&argv[0], m_params);
+    
+    if (exit_code == EXIT_FAILURE)
+        return false;
+    
+    try {
+        
+        launcher::Launcher *launcher;
+        
+#ifdef AFF3CT_MULTI_PREC
+        switch (m_params.sim_prec)
+        {
+            
+            case 8 : launcher = factory::Launcher::build<B_8, R_8, Q_8 >(m_params, arg_vec.size(), (const char**)&argv[0]); break;
+            case 16: launcher = factory::Launcher::build<B_16,R_16,Q_16>(m_params, arg_vec.size(), (const char**)&argv[0]); break;
+            case 32: launcher = factory::Launcher::build<B_32,R_32,Q_32>(m_params, arg_vec.size(), (const char**)&argv[0]); break;
+            case 64: launcher = factory::Launcher::build<B_64,R_64,Q_64>(m_params, arg_vec.size(), (const char**)&argv[0]); break;
+            default: launcher = nullptr; break;
+        }
+#else
+        launcher = factory::Launcher::build<B,R,Q>(params, arg_vec.size(), (const char**)&argv[0]);
+#endif
+         
+        if (launcher != nullptr)
+        {
+            m_launcher = std::unique_ptr<launcher::Launcher> (launcher);
+            exit_code = m_launcher->launch();
+        }
+
+    } catch (std::exception const& e) {
+        rang::format_on_each_line(std::cerr, std::string(e.what()) + "\n", rang::tag::error);
+    }
+    
+#ifdef AFF3CT_MPI
+    MPI_Finalize();
+#endif
+
+            
+    return true;
+}
+
+#if 0
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
  */
@@ -140,9 +196,13 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
     catch (const std::exception&) { /* do nothing if there is no interleaver */ }
 }
 
+#endif 
+
+
+
 void Model::setNoise(float ebn0) 
 {
-    tools::Sigma<> noise;
+    /*tools::Sigma<> noise;
     
     const float R = (float) p_cdc.enc->K / (float)p_cdc.enc->N_cw;
     
@@ -155,7 +215,7 @@ void Model::setNoise(float ebn0)
     // update the sigma of the modem and the channel
     m_codec  ->set_noise(noise);
     m_modem  ->set_noise(noise);
-    m_channel->set_noise(noise);
+    m_channel->set_noise(noise);*/
 }
 /*
 void Model::process()

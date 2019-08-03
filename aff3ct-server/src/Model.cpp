@@ -28,65 +28,95 @@ std::string Model::getAff3CTVersionString()
 
 
 
-bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
+void Model::constructCodec()
+{   
+    
+    if (m_params.cde_type == "POLAR")
+	{
+		/*if (this->sim_type == "BFER" ) return new launcher::Polar<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (this->sim_type == "BFERI") return new launcher::Polar<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);*/
+	}
+
+	if (m_params.cde_type == "RSC")
+	{
+		/*if (this->sim_type == "BFER" ) return new launcher::RSC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+		if (this->sim_type == "BFERI") return new launcher::RSC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);*/
+	}
+
+	if (m_params.cde_type == "RSC_DB")
+	{
+//		if (this->sim_type == "BFER" ) return new launcher::RSC_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+//		if (this->sim_type == "BFERI") return new launcher::RSC_DB<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "TURBO")
+	{
+//		if (this->sim_type == "BFER") return new launcher::Turbo<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "TURBO_DB")
+	{
+//		if (this->sim_type == "BFER") return new launcher::Turbo_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "TPC")
+	{
+//		if (this->sim_type == "BFER") return new launcher::Turbo_product<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "REP")
+	{
+                m_codec   = std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE>> (p_cdc->build()); 
+//		if (this->sim_type == "BFER") return new launcher::Repetition<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "BCH")
+	{
+//		if (this->sim_type == "BFER") return new launcher::BCH<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "RS")
+	{
+//		if (this->sim_type == "BFER") return new launcher::RS<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "RA")
+	{
+//		if (this->sim_type == "BFER") return new launcher::RA<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "LDPC")
+	{
+//		if (this->sim_type == "BFER" ) return new launcher::LDPC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+//		if (this->sim_type == "BFERI") return new launcher::LDPC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+	}
+
+	if (m_params.cde_type == "UNCODED")
+	{
+//		if (this->sim_type == "BFER" ) return new launcher::Uncoded<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+//		if (this->sim_type == "BFERI") return new launcher::Uncoded<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+	}
+}
+void Model::construct()
 {
-    int exit_code;
+    m_source  = std::unique_ptr<module::Source          <B_TYPE>>                   (p_src->build());  
     
-    std::vector<const char *> argv;
+    constructCodec();
+    
+    m_modem   = std::unique_ptr<module::Modem           <B_TYPE, R_TYPE, Q_TYPE>>   (p_mdm->build()); 
+    m_channel = std::unique_ptr<module::Channel         <R_TYPE>>                   (p_chn->build()); 
+    m_monitor = std::unique_ptr<module::Monitor_BFER    <B_TYPE>>                   (p_mnt->build()); 
+    
 
-    argv.reserve(arg_vec.size());
-    for (std::string &arg : arg_vec) {
-        argv.push_back(arg.c_str());
-    }
-  
-    exit_code = aff3ct::utils::read_arguments (arg_vec.size(), (const char**)&argv[0], m_params);
-    
-    if (exit_code == EXIT_FAILURE)
-        return false;
-    
-    try {
-        
-        launcher::Launcher *launcher;
-        
-#ifdef AFF3CT_MULTI_PREC
-        switch (m_params.sim_prec)
-        {
-            
-            case 8 : launcher = factory::Launcher::build<B_8, R_8, Q_8 >(m_params, arg_vec.size(), (const char**)&argv[0]); break;
-            case 16: launcher = factory::Launcher::build<B_16,R_16,Q_16>(m_params, arg_vec.size(), (const char**)&argv[0]); break;
-            case 32: launcher = factory::Launcher::build<B_32,R_32,Q_32>(m_params, arg_vec.size(), (const char**)&argv[0]); break;
-            case 64: launcher = factory::Launcher::build<B_64,R_64,Q_64>(m_params, arg_vec.size(), (const char**)&argv[0]); break;
-            default: launcher = nullptr; break;
-        }
-#else
-        launcher = factory::Launcher::build<B,R,Q>(params, arg_vec.size(), (const char**)&argv[0]);
-#endif
-         
-        if (launcher != nullptr)
-        {
-            m_launcher = std::unique_ptr<launcher::Launcher> (launcher);
-            exit_code = m_launcher->launch();
-        }
-
-    } catch (std::exception const& e) {
-        rang::format_on_each_line(std::cerr, std::string(e.what()) + "\n", rang::tag::error);
-    }
-    
-#ifdef AFF3CT_MPI
-    MPI_Finalize();
-#endif
-
-            
-    return true;
 }
 
-#if 0
+
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
  */
 bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
 {
-    
+    int exit_code;
     std::vector<const char *> argv;
 
     argv.reserve(arg_vec.size());
@@ -95,7 +125,17 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
         argv.push_back(arg.c_str());
     }
 
-    m_paramsList =  {&p_src, &p_cdc, &p_mdm, &p_chn, &p_mnt, &p_ter};
+    exit_code = aff3ct::utils::read_arguments (arg_vec.size(), (const char**)&argv[0], m_params);
+    
+    if (exit_code == EXIT_FAILURE)
+        return false;
+
+    m_paramsList =  {p_src.get(), 
+                        p_cdc.get(), 
+                        p_mdm.get(), 
+                        p_chn.get(), 
+                        p_mnt.get(), 
+                        p_ter.get()};
     factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
     
     if (cp.help_required())
@@ -121,17 +161,11 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
     factory::Header::print_parameters(m_paramsList); 
     cp.print_warnings();
     
+    construct();
 
-    m_source  = std::unique_ptr<module::Source          <B_TYPE>>                   (p_src.build());  
-    m_codec   = std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE>>           (p_cdc.build()); 
-    m_modem   = std::unique_ptr<module::Modem           <B_TYPE, R_TYPE, Q_TYPE>>   (p_mdm.build()); 
-    m_channel = std::unique_ptr<module::Channel         <R_TYPE>>                   (p_chn.build()); 
-    m_monitor = std::unique_ptr<module::Monitor_BFER    <B_TYPE>>                   (p_mnt.build()); 
-    
     // get the r_encoder and r_decoder modules from the codec module
     auto& r_encoder = m_codec->get_encoder();
     auto& r_decoder = m_codec->get_decoder_siho();
-
 #ifdef ENABLE_REPORTERS
     // create reporters to display results in the terminal
     std::vector<tools::Reporter*> reporters =
@@ -195,8 +229,6 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
     }
     catch (const std::exception&) { /* do nothing if there is no interleaver */ }
 }
-
-#endif 
 
 
 

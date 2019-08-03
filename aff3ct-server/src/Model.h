@@ -32,12 +32,12 @@ struct Parameters{
 class Model {
 
 protected:
-    /*factory::Source          ::parameters p_src;
-    factory::Codec_repetition::parameters p_cdc;
-    factory::Modem           ::parameters p_mdm;
-    factory::Channel         ::parameters p_chn;
-    factory::Monitor_BFER    ::parameters p_mnt;
-    factory::Terminal        ::parameters p_ter;
+    std::unique_ptr<factory::Source          ::parameters>   p_src;
+    std::unique_ptr<factory::Codec_repetition::parameters>   p_cdc;
+    std::unique_ptr<factory::Modem           ::parameters>   p_mdm;
+    std::unique_ptr<factory::Channel         ::parameters>   p_chn;
+    std::unique_ptr<factory::Monitor_BFER    ::parameters>   p_mnt;
+    std::unique_ptr<factory::Terminal        ::parameters>   p_ter;
     
     std::vector<factory::Factory::parameters*> m_paramsList;
     
@@ -49,15 +49,16 @@ protected:
     std::unique_ptr<module::Channel         <R_TYPE>> m_channel;
     std::unique_ptr<module::Monitor_BFER    <B_TYPE>> m_monitor;
     
-    std::vector<const module::Module*> m_modules;*/
+    std::vector<const module::Module*> m_modules;
 
     void setNoise(float ebn0);
     
     factory::Launcher::parameters m_params;
     
     std::unique_ptr<launcher::Launcher>         m_launcher;
-    
-    
+
+    void constructCodec();
+    void construct();
 public:
     Model() = default;
     virtual ~Model() = default;

@@ -11,3 +11,6 @@ nbproject
 .idea
 *.cmake
 compile_commands.json
+.cproject
+.project
+.settings

@@ -62,13 +62,10 @@ protected:
 public:
     Model() = default;
     virtual ~Model() = default;
-    
-    
-    
-    static std::string getAff3CTVersionString();
-     
+         
     bool init(std::list<std::string> &arg_vec, std::ostream& err_stream = std::cerr);
-    
+    bool reset();
+    void iterate();
     
     
 };

@@ -6,7 +6,7 @@ project (aff3ct-server)
 # Enable C++11
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
-#set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
 # Specify bin path
 set (EXECUTABLE_OUTPUT_PATH bin/)
 

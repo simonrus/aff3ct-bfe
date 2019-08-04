@@ -1,0 +1,1 @@
+cmd init -p 32 -C "REP" -K "1" -N "3" --src-implem "FAST" --chn-implem "FAST" --dec-implem "FAST" -e "500" 

@@ -16,17 +16,6 @@
 #include "aff3ct-utils.h"
 #include "aff3ct-errc.h"
 
-std::string Model::getAff3CTVersionString()
-{
-    //determine version
-    std::string v = "v" + std::to_string(version_major()) + "." +
-	                            std::to_string(version_minor()) + "." +
-	                            std::to_string(version_release());
-    
-    return v;
-}
-
-
 
 void Model::constructCodec()
 {   
@@ -93,6 +82,7 @@ void Model::constructCodec()
 
 	if (m_params.cde_type == "UNCODED")
 	{
+            //m_codec =  std::unique_ptr<module::Codec_uncoded<B_TYPE, Q_TYPE>> (p_cdc->build()); 
 //		if (this->sim_type == "BFER" ) return new launcher::Uncoded<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
 //		if (this->sim_type == "BFERI") return new launcher::Uncoded<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
 	}
@@ -110,6 +100,22 @@ void Model::construct()
 
 }
 
+bool Model::reset()
+{
+    std::unique_ptr<factory::Source          ::parameters>   src(new factory::Source::parameters());
+    std::unique_ptr<factory::Codec_repetition::parameters>   cdc(new factory::Codec_repetition::parameters());
+    std::unique_ptr<factory::Modem           ::parameters>   mdm(new factory::Modem           ::parameters());
+    std::unique_ptr<factory::Channel         ::parameters>   chn(new factory::Channel         ::parameters());
+    std::unique_ptr<factory::Monitor_BFER    ::parameters>   mnt(new factory::Monitor_BFER    ::parameters());
+    std::unique_ptr<factory::Terminal        ::parameters>   ter(new factory::Terminal        ::parameters());
+    
+    p_src.swap(src);
+    p_cdc.swap(cdc);
+    p_mdm.swap(mdm);
+    p_chn.swap(chn);
+    p_mnt.swap(mnt);
+    p_ter.swap(ter);
+}
 
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
@@ -125,6 +131,8 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
         argv.push_back(arg.c_str());
     }
 
+    reset();
+    
     exit_code = aff3ct::utils::read_arguments (arg_vec.size(), (const char**)&argv[0], m_params);
     
     if (exit_code == EXIT_FAILURE)
@@ -154,9 +162,7 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
         //FIXME: Redirect std::cout to log!
         return false;
     }
-    
-    TRACELOG(INFO,"aff3ct version is %s", getAff3CTVersionString().c_str());
-    
+       
     // display the headers (= print the AFF3CT parameters on the screen)
     factory::Header::print_parameters(m_paramsList); 
     cp.print_warnings();
@@ -228,15 +234,18 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
             interleaver->init();
     }
     catch (const std::exception&) { /* do nothing if there is no interleaver */ }
+    
+    iterate();
 }
 
 
 
 void Model::setNoise(float ebn0) 
 {
-    /*tools::Sigma<> noise;
+    tools::Sigma<> noise;
+            
+    const float R = (float) p_cdc->enc->K / (float)p_cdc->enc->N_cw;
     
-    const float R = (float) p_cdc.enc->K / (float)p_cdc.enc->N_cw;
     
     // compute the current sigma for the channel noise
     const auto esn0  = tools::ebn0_to_esn0 (ebn0, R);
@@ -247,7 +256,33 @@ void Model::setNoise(float ebn0)
     // update the sigma of the modem and the channel
     m_codec  ->set_noise(noise);
     m_modem  ->set_noise(noise);
-    m_channel->set_noise(noise);*/
+    m_channel->set_noise(noise);
+}
+
+void Model::iterate()
+{
+    using namespace module;
+    setNoise(1.0); //
+ 
+    TRACELOG(INFO,"K=%d, N=%d",p_cdc->enc->K, p_cdc->enc->N_cw);
+    
+    // get the r_encoder and r_decoder modules from the codec module
+    auto& r_encoder = m_codec->get_encoder();
+    auto& r_decoder = m_codec->get_decoder_siho();
+    
+    (*m_source )[src::tsk::generate    ].exec();
+    (*r_encoder)[enc::tsk::encode      ].exec();
+    (*m_modem  )[mdm::tsk::modulate    ].exec();
+    (*m_channel)[chn::tsk::add_noise   ].exec();
+    (*m_modem  )[mdm::tsk::demodulate  ].exec();
+    (*r_decoder)[dec::tsk::decode_siho ].exec();
+    (*m_monitor)[mnt::tsk::check_errors].exec();
+    
+    //u.terminal->final_report();
+    
+    // reset the monitor and the terminal for the next SNR
+    m_monitor->reset();
+    //u.terminal->reset();
 }
 /*
 void Model::process()

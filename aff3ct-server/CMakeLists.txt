@@ -48,21 +48,23 @@ set(LOGURU_SRCS ${LOGURU_DIR}/loguru.cpp)
 
 #set main sources
 set(MAIN_SRCS
-${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp 
 ${CMAKE_CURRENT_SOURCE_DIR}/src/Model.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-errc.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-utils.cpp
 )
 
-add_executable(aff3ct-server ${MAIN_SRCS} ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
+add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${MAIN_SRCS} ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
+add_executable(aff3ct-test ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp ${MAIN_SRCS} ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
 
 # Link with AFF3CT
 set (AFF3CT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
 find_package(AFF3CT)
 target_include_directories(aff3ct-server PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-test PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
 
 if(NOT WIN32)
     set(DL_LIBRARY dl)
 endif()
 
 target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
+target_link_libraries(aff3ct-test PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})

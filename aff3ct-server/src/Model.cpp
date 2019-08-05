@@ -16,76 +16,67 @@
 #include "aff3ct-utils.h"
 #include "aff3ct-errc.h"
 
+void Model::constructCodec() {
 
-void Model::constructCodec()
-{   
+    if (m_params.cde_type == "POLAR") {
+        /*if (this->sim_type == "BFER" ) return new launcher::Polar<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+        if (this->sim_type == "BFERI") return new launcher::Polar<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);*/
+
+    }
+
+    if (m_params.cde_type == "RSC") {
+        /*if (this->sim_type == "BFER" ) return new launcher::RSC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+        if (this->sim_type == "BFERI") return new launcher::RSC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);*/
+    }
+
+    if (m_params.cde_type == "RSC_DB") {
+        //		if (this->sim_type == "BFER" ) return new launcher::RSC_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+        //		if (this->sim_type == "BFERI") return new launcher::RSC_DB<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+    }
+
+    if (m_params.cde_type == "TURBO") {
+        //		if (this->sim_type == "BFER") return new launcher::Turbo<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+    }
+
+    if (m_params.cde_type == "TURBO_DB") {
+        //		if (this->sim_type == "BFER") return new launcher::Turbo_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+    }
+
+    if (m_params.cde_type == "TPC") {
+        //		if (this->sim_type == "BFER") return new launcher::Turbo_product<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+    }
+
+    if (m_params.cde_type == "REP") {
+        m_codec = std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE >> (p_cdc->build());
+        //		if (this->sim_type == "BFER") return new launcher::Repetition<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+        return;
+    }
+
+    if (m_params.cde_type == "BCH") {
+        //		if (this->sim_type == "BFER") return new launcher::BCH<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+    }
+
+    if (m_params.cde_type == "RS") {
+        //		if (this->sim_type == "BFER") return new launcher::RS<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+    }
+
+    if (m_params.cde_type == "RA") {
+        //		if (this->sim_type == "BFER") return new launcher::RA<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+    }
+
+    if (m_params.cde_type == "LDPC") {
+        //		if (this->sim_type == "BFER" ) return new launcher::LDPC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+        //		if (this->sim_type == "BFERI") return new launcher::LDPC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+    }
+
+    if (m_params.cde_type == "UNCODED") {
+        //m_codec =  std::unique_ptr<module::Codec_uncoded<B_TYPE, Q_TYPE>> (p_cdc->build()); 
+        //		if (this->sim_type == "BFER" ) return new launcher::Uncoded<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
+        //		if (this->sim_type == "BFERI") return new launcher::Uncoded<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
+    }
     
-    if (m_params.cde_type == "POLAR")
-	{
-		/*if (this->sim_type == "BFER" ) return new launcher::Polar<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-		if (this->sim_type == "BFERI") return new launcher::Polar<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);*/
-	}
-
-	if (m_params.cde_type == "RSC")
-	{
-		/*if (this->sim_type == "BFER" ) return new launcher::RSC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-		if (this->sim_type == "BFERI") return new launcher::RSC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);*/
-	}
-
-	if (m_params.cde_type == "RSC_DB")
-	{
-//		if (this->sim_type == "BFER" ) return new launcher::RSC_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-//		if (this->sim_type == "BFERI") return new launcher::RSC_DB<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "TURBO")
-	{
-//		if (this->sim_type == "BFER") return new launcher::Turbo<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "TURBO_DB")
-	{
-//		if (this->sim_type == "BFER") return new launcher::Turbo_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "TPC")
-	{
-//		if (this->sim_type == "BFER") return new launcher::Turbo_product<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "REP")
-	{
-                m_codec   = std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE>> (p_cdc->build()); 
-//		if (this->sim_type == "BFER") return new launcher::Repetition<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "BCH")
-	{
-//		if (this->sim_type == "BFER") return new launcher::BCH<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "RS")
-	{
-//		if (this->sim_type == "BFER") return new launcher::RS<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "RA")
-	{
-//		if (this->sim_type == "BFER") return new launcher::RA<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "LDPC")
-	{
-//		if (this->sim_type == "BFER" ) return new launcher::LDPC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-//		if (this->sim_type == "BFERI") return new launcher::LDPC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
-	}
-
-	if (m_params.cde_type == "UNCODED")
-	{
-            //m_codec =  std::unique_ptr<module::Codec_uncoded<B_TYPE, Q_TYPE>> (p_cdc->build()); 
-//		if (this->sim_type == "BFER" ) return new launcher::Uncoded<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-//		if (this->sim_type == "BFERI") return new launcher::Uncoded<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
-	}
+    //Some error happend
+    TRACELOG(ERROR, "Unknown codec = %s", m_params.cde_type.c_str());
 }
 void Model::construct()
 {
@@ -132,11 +123,6 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
     }
 
     reset();
-    
-    exit_code = aff3ct::utils::read_arguments (arg_vec.size(), (const char**)&argv[0], m_params);
-    
-    if (exit_code == EXIT_FAILURE)
-        return false;
 
     m_paramsList =  {p_src.get(), 
                         p_cdc.get(), 
@@ -283,6 +269,14 @@ void Model::iterate()
     // reset the monitor and the terminal for the next SNR
     m_monitor->reset();
     //u.terminal->reset();
+    
+    //Print sockets
+    Task& task = (*m_source)[src::tsk::generate    ];
+    for (auto it = task.sockets.begin(); it != task.sockets.end(); ++it)
+    {
+        std::shared_ptr<Socket> sock = *it;
+        TRACELOG(INFO, "Socket: %s found ", sock->get_name().c_str());
+    }
 }
 /*
 void Model::process()

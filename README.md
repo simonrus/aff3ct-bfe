@@ -1,11 +1,13 @@
-# Intoroduction
-This project provides the remote interface to aff3ct library. It implements the following
+# Introduction
+This project provides backend and sample python-frontend for the Fast Forward Error Correction toolbox. 
 
-- Remote server accepts the requests from remote clients and runs the encoding/decoding of testvectors using aff3ct-library
-
-- Protocol that provides synchronious commands to configure aff3ct-library server, to push/pull vectors/matrices from client and server and to execute operations on the vectors/matrix using aff3ct-library
-
-- Interactive command shell, that allows users to control remote aff3ct server
+It has the following parts:
+- Aff3ct-server is a backend. It runs as a stand-alone server, executes RPC commands and allows to remotely 
+- Protocol describes RPC asynchronous mechanism to 
+    -- configure aff3ct-library server
+    -- push/pull vectors/matrices from frontend to backend 
+    -- execute operations on the vectors/matrix using aff3ct-library
+- Aff3ct-client is a simple frontend, written in Python. It provides an interactive command shell to control remote aff3ct server
 
 # Repo management
 ## 1.1 Sync procedure with main repo

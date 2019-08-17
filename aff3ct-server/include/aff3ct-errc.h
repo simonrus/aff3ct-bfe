@@ -34,9 +34,8 @@ char* getLastLogEntry();
 enum class Aff3ctErrc
 {
   // no 0
-  NoError      = 0,
-  ParsingError = 10, //Parsing data error
- 
+  NoError               = 0,
+  ParsingError          = 1 //Parsing data error
 };
  
 namespace std

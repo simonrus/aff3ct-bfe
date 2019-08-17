@@ -27,17 +27,14 @@ const char* Aff3ctErrCategory::name() const noexcept
 {
   return "aff3ct-server errors";
 }
-  
-std::string Aff3ctErrCategory::message(int ev) const
-{
-  switch (static_cast<Aff3ctErrc>(ev))
-  {
-  case Aff3ctErrc::ParsingError:
-    return "General parsing error";
-   
-  default:
-    return "(OK)";
-  }
+
+std::string Aff3ctErrCategory::message(int ev) const {
+    switch (static_cast<Aff3ctErrc> (ev)) {
+        case Aff3ctErrc::ParsingError:
+            return "General parsing error";           
+        default:
+            return "(Uknown error)";
+    }
 }
   
 const Aff3ctErrCategory theAff3ctErrCategory {};

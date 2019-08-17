@@ -13,82 +13,18 @@
 
 #include "Model.h"
 
-#include "aff3ct-utils.h"
-#include "aff3ct-errc.h"
-
-void Model::constructCodec() {
-
-    if (m_params.cde_type == "POLAR") {
-        /*if (this->sim_type == "BFER" ) return new launcher::Polar<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-        if (this->sim_type == "BFERI") return new launcher::Polar<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);*/
-
-    }
-
-    if (m_params.cde_type == "RSC") {
-        /*if (this->sim_type == "BFER" ) return new launcher::RSC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-        if (this->sim_type == "BFERI") return new launcher::RSC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);*/
-    }
-
-    if (m_params.cde_type == "RSC_DB") {
-        //		if (this->sim_type == "BFER" ) return new launcher::RSC_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-        //		if (this->sim_type == "BFERI") return new launcher::RSC_DB<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
-    }
-
-    if (m_params.cde_type == "TURBO") {
-        //		if (this->sim_type == "BFER") return new launcher::Turbo<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-    }
-
-    if (m_params.cde_type == "TURBO_DB") {
-        //		if (this->sim_type == "BFER") return new launcher::Turbo_DB<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-    }
-
-    if (m_params.cde_type == "TPC") {
-        //		if (this->sim_type == "BFER") return new launcher::Turbo_product<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-    }
-
-    if (m_params.cde_type == "REP") {
-        m_codec = std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE >> (p_cdc->build());
-        //		if (this->sim_type == "BFER") return new launcher::Repetition<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-        return;
-    }
-
-    if (m_params.cde_type == "BCH") {
-        //		if (this->sim_type == "BFER") return new launcher::BCH<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-    }
-
-    if (m_params.cde_type == "RS") {
-        //		if (this->sim_type == "BFER") return new launcher::RS<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-    }
-
-    if (m_params.cde_type == "RA") {
-        //		if (this->sim_type == "BFER") return new launcher::RA<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-    }
-
-    if (m_params.cde_type == "LDPC") {
-        //		if (this->sim_type == "BFER" ) return new launcher::LDPC<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-        //		if (this->sim_type == "BFERI") return new launcher::LDPC<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
-    }
-
-    if (m_params.cde_type == "UNCODED") {
-        //m_codec =  std::unique_ptr<module::Codec_uncoded<B_TYPE, Q_TYPE>> (p_cdc->build()); 
-        //		if (this->sim_type == "BFER" ) return new launcher::Uncoded<launcher::BFER_std<B,R,Q>,B,R,Q>(argc, argv);
-        //		if (this->sim_type == "BFERI") return new launcher::Uncoded<launcher::BFER_ite<B,R,Q>,B,R,Q>(argc, argv);
-    }
-    
-    //Some error happend
-    TRACELOG(ERROR, "Unknown codec = %s", m_params.cde_type.c_str());
-}
-void Model::construct()
+std::error_code Model::constructAll()
 {
+    std::error_code ec = make_error_code(Aff3ctErrc::NoError);
     m_source  = std::unique_ptr<module::Source          <B_TYPE>>                   (p_src->build());  
     
-    constructCodec();
-    
+    m_codec   =  std::unique_ptr<module::Codec_repetition <B_TYPE, Q_TYPE>>         (p_cdc->build());  
+
     m_modem   = std::unique_ptr<module::Modem           <B_TYPE, R_TYPE, Q_TYPE>>   (p_mdm->build()); 
     m_channel = std::unique_ptr<module::Channel         <R_TYPE>>                   (p_chn->build()); 
     m_monitor = std::unique_ptr<module::Monitor_BFER    <B_TYPE>>                   (p_mnt->build()); 
     
-
+    return ec;
 }
 
 bool Model::reset()
@@ -108,12 +44,35 @@ bool Model::reset()
     p_ter.swap(ter);
 }
 
+void Model::printParameters(std::vector<factory::Factory::parameters*> &paramsList)
+{
+    for (auto const &ptr : paramsList)
+    {
+        aff3ct::tools::Argument_map_info args;
+        ptr->get_description(args);
+        
+        for (auto const& it : args)
+        {
+            
+            for (auto const &param: it.first)
+            {
+                std::cout << "[" << param << "]";
+            }
+            std::cout << ":";
+            std::cout << " doc=" << it.second->doc;
+            std::cout << " key=" << it.second->key;
+            std::cout << std::endl;
+        }
+        
+        
+    }
+}
+
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
  */
-bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
+bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream)
 {
-    int exit_code;
     std::vector<const char *> argv;
 
     argv.reserve(arg_vec.size());
@@ -132,6 +91,8 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
                         p_ter.get()};
     factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
     
+    //printParameters(m_paramsList);
+        
     if (cp.help_required())
     {
         cp.print_help    ();
@@ -153,7 +114,10 @@ bool Model::init(std::list<std::string> &arg_vec, std::ostream& err_stream)
     factory::Header::print_parameters(m_paramsList); 
     cp.print_warnings();
     
-    construct();
+    ec = constructAll();
+    if (ec)
+        return false; 
+       
 
     // get the r_encoder and r_decoder modules from the codec module
     auto& r_encoder = m_codec->get_encoder();
@@ -255,6 +219,15 @@ void Model::iterate()
     // get the r_encoder and r_decoder modules from the codec module
     auto& r_encoder = m_codec->get_encoder();
     auto& r_decoder = m_codec->get_decoder_siho();
+    
+    (*m_source )[src::tsk::generate    ].set_debug(true);
+    (*r_encoder)[enc::tsk::encode      ].set_debug(true);
+    (*m_modem  )[mdm::tsk::modulate    ].set_debug(true);
+    (*m_channel)[chn::tsk::add_noise   ].set_debug(true);
+    (*m_modem  )[mdm::tsk::demodulate  ].set_debug(true);
+    (*r_decoder)[dec::tsk::decode_siho ].set_debug(true);
+    (*m_monitor)[mnt::tsk::check_errors].set_debug(true);
+    
     
     (*m_source )[src::tsk::generate    ].exec();
     (*r_encoder)[enc::tsk::encode      ].exec();

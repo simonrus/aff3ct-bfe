@@ -21,13 +21,9 @@
 #include <aff3ct.hpp>
 #include <list>
 #include <memory>
+#include "aff3ct-errc.h"
 
 using namespace aff3ct;
-
-struct Parameters{
-
-
-};
 
 class Model {
 
@@ -52,18 +48,17 @@ protected:
     std::vector<const module::Module*> m_modules;
 
     void setNoise(float ebn0);
-    
-    factory::Launcher::parameters m_params;
-    
+
     std::unique_ptr<launcher::Launcher>         m_launcher;
 
-    void constructCodec();
-    void construct();
+    std::error_code constructAll();
+    void printParameters(std::vector<factory::Factory::parameters*> &paramsList);
 public:
     Model() = default;
     virtual ~Model() = default;
-         
-    bool init(std::list<std::string> &arg_vec, std::ostream& err_stream = std::cerr);
+    
+    
+    bool init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream = std::cerr);
     bool reset();
     void iterate();
     

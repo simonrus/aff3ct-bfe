@@ -12,6 +12,8 @@ Compile the code on Linux/MacOS/MinGW:
 	$ mkdir build
 	$ cd build
 	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-funroll-loops -march=native"
+    or 
+    $ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-march=native -ggdb"
 	$ make
 
 Compile the code on Windows (Visual Studio project)

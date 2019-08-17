@@ -70,8 +70,14 @@ bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
         
     if (front == "init")
     {   
+        std::error_code ec;
+        result = g_model.init(args, ec, err_stream);
         
-        result = g_model.init(args, err_stream);
+        if (ec)
+        {
+            std::cout << ec << std::endl;
+            TRACELOG(ERROR, "Model failed to init: %s", ec.message().c_str());    
+        }
         
         return result;
     }
@@ -98,9 +104,9 @@ int main(int argc, char** argv)
         "-C",
         "REP",
         "-K",
-        "1",
+        "8",
         "-N",
-        "3",
+        "24",
         "--src-implem",
         "FAST",
         "--chn-implem",

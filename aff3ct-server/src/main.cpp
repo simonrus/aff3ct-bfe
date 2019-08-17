@@ -132,7 +132,13 @@ bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
         
     if (front == "init")
     {   
-        result = g_model.init(args, err_stream);
+        std::error_code ec;
+        result = g_model.init(args, ec, err_stream);
+        
+        if (ec)
+        {
+            TRACELOG(ERROR, "Model failed to init: %s", ec.message().c_str());    
+        }
         
         return result;
     }

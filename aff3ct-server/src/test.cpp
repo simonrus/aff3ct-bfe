@@ -38,6 +38,7 @@
 #include <unistd.h>
 #include <string.h>
 #include <assert.h>
+#include <chrono>
 
 //Libraries to Capture signal 
 #include <signal.h>
@@ -118,6 +119,9 @@ int main(int argc, char** argv)
 
     loguru::init(argc, argv);
     
+    using namespace std::chrono;
+    milliseconds us = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
+    unsigned int seed = (unsigned int) us.count() % 65536;
     std::vector<std::string> all_args = {
         "init",
         //"--cde-type",
@@ -130,6 +134,8 @@ int main(int argc, char** argv)
         "8",
         "-N",
         "24",
+        "--chn-seed",
+        std::to_string(seed),
         "--src-implem",
         "FAST",
         "--chn-implem",

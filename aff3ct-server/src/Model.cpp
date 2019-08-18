@@ -25,16 +25,25 @@
 
 #include "Model.h"
 
+void check_callback(Model *model)
+{
+    std::cout << "Callback with model " << (unsigned long) model << std::endl;
+}
+
 std::error_code Model::constructAll()
 {
     std::error_code ec = make_error_code(Aff3ctErrc::NoError);
-    m_source  = std::unique_ptr<module::Source          <B_TYPE>>                   (p_src->build());  
     
-    m_codec   =  std::unique_ptr<module::Codec_repetition <B_TYPE, Q_TYPE>>         (p_cdc->build());  
-
-    m_modem   = std::unique_ptr<module::Modem           <B_TYPE, R_TYPE, Q_TYPE>>   (p_mdm->build()); 
-    m_channel = std::unique_ptr<module::Channel         <R_TYPE>>                   (p_chn->build()); 
-    m_monitor = std::unique_ptr<module::Monitor_BFER    <B_TYPE>>                   (p_mnt->build()); 
+    m_source = std::unique_ptr<module::Source<B_TYPE>>                          (new module::Source_memory<B_TYPE>(p_src->K, m_inputData));
+    m_codec   =  std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE>>      (p_cdc->build());  
+    m_modem   = std::unique_ptr<module::Modem<B_TYPE, R_TYPE, Q_TYPE>>          (p_mdm->build()); 
+    m_channel = std::unique_ptr<module::Channel<R_TYPE>>                        (p_chn->build()); 
+    //m_monitor = std::unique_ptr<module::Monitor_BFER_detailed<B_TYPE>>          (p_mnt->build()); 
+    m_monitor = std::unique_ptr<module::Monitor_BFER_detailed<B_TYPE>>(
+           new module::Monitor_BFER_detailed<B_TYPE>(p_mnt->K, p_mnt->n_frame_errors,p_mnt->max_frame = 0, false, p_mnt->n_frames));  
+           
+    std::function<void(          void)> callback_fn = std::bind(check_callback, this);
+    m_monitor->add_handler_check(callback_fn);
     
     return ec;
 }
@@ -103,6 +112,10 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
                         p_ter.get()};
     factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
     
+    std::cout << "Detected K " << p_src->K << std::endl;
+    
+    std::vector<B_TYPE> vectorBuffer(p_src->K);
+    m_inputData.push_back(vectorBuffer);
     //printParameters(m_paramsList);
         
     if (cp.help_required())

@@ -38,6 +38,8 @@
 #include <list>
 #include <memory>
 #include "aff3ct-errc.h"
+#include "aff3ct-addons/Source_memory.hpp"
+#include "aff3ct-addons/Monitor_BFER_detailed.hpp"
 
 using namespace aff3ct;
 
@@ -55,11 +57,11 @@ protected:
     
     tools::Sigma<> m_noise;
     // create the AFF3CT modules
-    std::unique_ptr<module::Source          <B_TYPE>> m_source; 
-    std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE>> m_codec;  
-    std::unique_ptr<module::Modem           <B_TYPE, R_TYPE, Q_TYPE>> m_modem;  
-    std::unique_ptr<module::Channel         <R_TYPE>> m_channel;
-    std::unique_ptr<module::Monitor_BFER    <B_TYPE>> m_monitor;
+    std::unique_ptr<module::Source<B_TYPE>>                     m_source; 
+    std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE>>   m_codec;  
+    std::unique_ptr<module::Modem<B_TYPE, R_TYPE, Q_TYPE>>      m_modem;  
+    std::unique_ptr<module::Channel<R_TYPE>>                    m_channel;
+    std::unique_ptr<module::Monitor_BFER_detailed<B_TYPE>>      m_monitor;
     
     std::vector<const module::Module*> m_modules;
 
@@ -69,6 +71,8 @@ protected:
 
     std::error_code constructAll();
     void printParameters(std::vector<factory::Factory::parameters*> &paramsList);
+    
+    std::vector<std::vector<B_TYPE>>            m_inputData;
 public:
     Model() = default;
     virtual ~Model() = default;

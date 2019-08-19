@@ -82,6 +82,9 @@ public:
     bool reset();
     void iterate();
     
+    int getK() {
+        return p_src->K;
+    }
     
 };
 

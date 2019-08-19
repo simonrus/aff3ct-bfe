@@ -25,10 +25,8 @@
  */
 
 /* 
- * File:   Monitor_BFER_detailed.hpp
- * Author: simon
- *
- * Created on August 18, 2019, 11:36 PM
+ * Implements a detailed monitor that allows to extract 
+ * source and decoded vectors
  */
 
 #ifndef MONITOR_BFER_DETAILED_HPP
@@ -40,15 +38,33 @@ namespace aff3ct
 {
 namespace module
 {
-template <typename B>
+template <typename B=int>
 class Monitor_BFER_detailed : public Monitor_BFER<B>
 {
+    protected:
+        std::vector<std::function<void(const B *, const B *, const int)>> callbacks_detailed_check;
     public:
 	//Use the same contructors!
         Monitor_BFER_detailed(const int K, const unsigned max_fe, const unsigned max_n_frames = 0, const bool count_unknown_values = false, const int n_frames = 1):
             Monitor_BFER<B>(K, max_fe, max_n_frames, count_unknown_values, n_frames) {}
-            
+        
+        
         virtual ~Monitor_BFER_detailed() = default;
+        
+        virtual int check_errors(const B *U, const B *V, const int frame_id = -1) override  
+        {   
+            int n_be = Monitor_BFER<B>::check_errors(U, V, frame_id);
+           
+            for (auto& c : this->callbacks_detailed_check)
+                c(U, V, frame_id);
+                        
+            return n_be;
+        }
+        virtual void add_handler_detailed_check (std::function<void(const B *, const B *, const int)> callback)
+        {
+             this->callbacks_detailed_check.push_back(callback);
+        }
+        
         
 };
 } //namespace module

@@ -30,6 +30,16 @@ void check_callback(Model *model)
     std::cout << "Callback with model " << (unsigned long) model << std::endl;
 }
 
+void check_detailed_callback(const B_TYPE *, const B_TYPE *, const int frame_id, Model *model)
+{
+    std::cout << "Detailed Callback with model " << (unsigned long) model << 
+            " and frame_id " << frame_id << 
+            " and K " << model->getK() <<
+            std::endl;
+    
+    
+}
+
 std::error_code Model::constructAll()
 {
     std::error_code ec = make_error_code(Aff3ctErrc::NoError);
@@ -44,6 +54,13 @@ std::error_code Model::constructAll()
            
     std::function<void(          void)> callback_fn = std::bind(check_callback, this);
     m_monitor->add_handler_check(callback_fn);
+    
+    std::function<void(const B_TYPE *, const B_TYPE *, const int)> callback_detailed_fn = std::bind(check_detailed_callback, 
+                                                                                                    std::placeholders::_1,
+                                                                                                    std::placeholders::_2,
+                                                                                                    std::placeholders::_3,
+                                                                                                    this);
+    m_monitor->add_handler_detailed_check(callback_detailed_fn);
     
     return ec;
 }

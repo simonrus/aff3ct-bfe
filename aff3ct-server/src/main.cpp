@@ -282,8 +282,7 @@ int main(int argc, char** argv)
 
     loguru::init(argc, argv);
     
-    //enableSIGTermHandler();
-
+    enableSIGTermHandler();
 
     zmq::context_t context(1);
     zmq::socket_t socket(context, ZMQ_REP);

@@ -30,12 +30,27 @@ void check_callback(Model *model)
     std::cout << "Callback with model " << (unsigned long) model << std::endl;
 }
 
-void check_detailed_callback(const B_TYPE *, const B_TYPE *, const int frame_id, Model *model)
+void check_detailed_callback(const B_TYPE *U, const B_TYPE *Y, const int frame_id, Model *model)
 {
+    
     std::cout << "Detailed Callback with model " << (unsigned long) model << 
             " and frame_id " << frame_id << 
             " and K " << model->getK() <<
             std::endl;
+    
+    std::cout << "{U}: ";
+    for (int i = 0; i < model->getK();i++)
+    {
+        std::cout << U[i] << " "; 
+    }
+    std::cout << std::endl;
+    
+    std::cout << "{Y}: ";
+    for (int i = 0; i < model->getK();i++)
+    {
+        std::cout << Y[i] << " "; 
+    }
+    std::cout << std::endl;
     
     
 }
@@ -65,6 +80,27 @@ std::error_code Model::constructAll()
     return ec;
 }
 
+void Model::setDebugPrint(bool bEnabled) 
+{
+    m_bDebugPrint = bEnabled;
+     
+    if (m_bInitialized) 
+    {
+        using namespace module;
+    
+        auto& r_encoder = m_codec->get_encoder();
+        auto& r_decoder = m_codec->get_decoder_siho();
+    
+        (*m_source )[src::tsk::generate    ].set_debug(true);
+        (*r_encoder)[enc::tsk::encode      ].set_debug(true);
+        (*m_modem  )[mdm::tsk::modulate    ].set_debug(true);
+        (*m_channel)[chn::tsk::add_noise   ].set_debug(true);
+        (*m_modem  )[mdm::tsk::demodulate  ].set_debug(true);
+        (*r_decoder)[dec::tsk::decode_siho ].set_debug(true);
+        (*m_monitor)[mnt::tsk::check_errors].set_debug(true);
+    }
+}
+
 bool Model::reset()
 {
     std::unique_ptr<factory::Source          ::parameters>   src(new factory::Source::parameters());
@@ -80,30 +116,6 @@ bool Model::reset()
     p_chn.swap(chn);
     p_mnt.swap(mnt);
     p_ter.swap(ter);
-}
-
-void Model::printParameters(std::vector<factory::Factory::parameters*> &paramsList)
-{
-    for (auto const &ptr : paramsList)
-    {
-        aff3ct::tools::Argument_map_info args;
-        ptr->get_description(args);
-        
-        for (auto const& it : args)
-        {
-            
-            for (auto const &param: it.first)
-            {
-                std::cout << "[" << param << "]";
-            }
-            std::cout << ":";
-            std::cout << " doc=" << it.second->doc;
-            std::cout << " key=" << it.second->key;
-            std::cout << std::endl;
-        }
-        
-        
-    }
 }
 
 /*
@@ -129,11 +141,8 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
                         p_ter.get()};
     factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
     
-    std::cout << "Detected K " << p_src->K << std::endl;
-    
     std::vector<B_TYPE> vectorBuffer(p_src->K);
     m_inputData.push_back(vectorBuffer);
-    //printParameters(m_paramsList);
         
     if (cp.help_required())
     {
@@ -226,81 +235,53 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
             interleaver->init();
     }
     catch (const std::exception&) { /* do nothing if there is no interleaver */ }
+
+    m_bInitialized = true;
     
-    iterate();
+    //postponed initialization
+    setDebugPrint(m_bDebugPrint);
+    setNoise(m_fNoise);
 }
-
-
 
 void Model::setNoise(float ebn0) 
 {
-    tools::Sigma<> noise;
-            
-    const float R = (float) p_cdc->enc->K / (float)p_cdc->enc->N_cw;
-    
-    
-    // compute the current sigma for the channel noise
-    const auto esn0  = tools::ebn0_to_esn0 (ebn0, R);
-    const auto sigma = tools::esn0_to_sigma(esn0   );
-
-    noise.set_noise(sigma, ebn0, esn0);
-
-    // update the sigma of the modem and the channel
-    m_codec  ->set_noise(noise);
-    m_modem  ->set_noise(noise);
-    m_channel->set_noise(noise);
-}
-
-void Model::iterate()
-{
-    using namespace module;
-    setNoise(1.0); //
- 
-    TRACELOG(INFO,"K=%d, N=%d",p_cdc->enc->K, p_cdc->enc->N_cw);
-    
-    // get the r_encoder and r_decoder modules from the codec module
-    auto& r_encoder = m_codec->get_encoder();
-    auto& r_decoder = m_codec->get_decoder_siho();
-    
-    (*m_source )[src::tsk::generate    ].set_debug(true);
-    (*r_encoder)[enc::tsk::encode      ].set_debug(true);
-    (*m_modem  )[mdm::tsk::modulate    ].set_debug(true);
-    (*m_channel)[chn::tsk::add_noise   ].set_debug(true);
-    (*m_modem  )[mdm::tsk::demodulate  ].set_debug(true);
-    (*r_decoder)[dec::tsk::decode_siho ].set_debug(true);
-    (*m_monitor)[mnt::tsk::check_errors].set_debug(true);
-    
-    
-    (*m_source )[src::tsk::generate    ].exec();
-    (*r_encoder)[enc::tsk::encode      ].exec();
-    (*m_modem  )[mdm::tsk::modulate    ].exec();
-    (*m_channel)[chn::tsk::add_noise   ].exec();
-    (*m_modem  )[mdm::tsk::demodulate  ].exec();
-    (*r_decoder)[dec::tsk::decode_siho ].exec();
-    (*m_monitor)[mnt::tsk::check_errors].exec();
-    
-    //u.terminal->final_report();
-    
-    // reset the monitor and the terminal for the next SNR
-    m_monitor->reset();
-    //u.terminal->reset();
-    
-    //Print sockets
-    Task& task = (*m_source)[src::tsk::generate    ];
-    for (auto it = task.sockets.begin(); it != task.sockets.end(); ++it)
+    this->m_fNoise = ebn0;
+    if (m_bInitialized) 
     {
-        std::shared_ptr<Socket> sock = *it;
-        TRACELOG(INFO, "Socket: %s found ", sock->get_name().c_str());
+        tools::Sigma<> noise;
+
+        const float R = (float) p_cdc->enc->K / (float)p_cdc->enc->N_cw;
+
+
+        // compute the current sigma for the channel noise
+        const auto esn0  = tools::ebn0_to_esn0 (ebn0, R);
+        const auto sigma = tools::esn0_to_sigma(esn0   );
+
+        noise.set_noise(sigma, ebn0, esn0);
+
+        // update the sigma of the modem and the channel
+        m_codec  ->set_noise(noise);
+        m_modem  ->set_noise(noise);
+        m_channel->set_noise(noise);
     }
 }
-/*
-void Model::process()
+
+
+void Model::resetMonitor() 
 {
+    if (m_bInitialized)
+        m_monitor->reset();
+}
+
+
+void Model::iterate(void)
+{
+    using namespace module;
+     
     // get the r_encoder and r_decoder modules from the codec module
     auto& r_encoder = m_codec->get_encoder();
-    auto& r_decoder = m_codec->get_decoder_siho();
-
-    using namespace module;
+    auto& r_decoder = m_codec->get_decoder_siho();    
+    
     (*m_source )[src::tsk::generate    ].exec();
     (*r_encoder)[enc::tsk::encode      ].exec();
     (*m_modem  )[mdm::tsk::modulate    ].exec();
@@ -308,10 +289,5 @@ void Model::process()
     (*m_modem  )[mdm::tsk::demodulate  ].exec();
     (*r_decoder)[dec::tsk::decode_siho ].exec();
     (*m_monitor)[mnt::tsk::check_errors].exec();
+   
 }
- * */
-
-
-
-
-

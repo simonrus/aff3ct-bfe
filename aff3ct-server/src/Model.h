@@ -65,25 +65,32 @@ protected:
     
     std::vector<const module::Module*> m_modules;
 
-    void setNoise(float ebn0);
+
 
     std::unique_ptr<launcher::Launcher>         m_launcher;
 
     std::error_code constructAll();
-    void printParameters(std::vector<factory::Factory::parameters*> &paramsList);
     
     std::vector<std::vector<B_TYPE>>            m_inputData;
+    bool                                        m_bDebugPrint = false;
+    bool                                        m_bInitialized = false;
+    float                                       m_fNoise = 0.0;
 public:
+    void setNoise(float ebn0);
+    
     Model() = default;
     virtual ~Model() = default;
     
-    
     bool init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream = std::cerr);
     bool reset();
-    void iterate();
     
-    int getK() {
-        return p_src->K;
+    void iterate(void);
+    void setDebugPrint(bool bEnabled=true);
+    
+    void resetMonitor();
+    
+    int getK() {        
+        return (p_src)?(p_src->K):0;
     }
     
 };

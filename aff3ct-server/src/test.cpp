@@ -116,7 +116,9 @@ int main(int argc, char** argv)
 {
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
-
+#ifndef NDEBUG    
+    g_model.setDebugPrint(true);
+#endif
     loguru::init(argc, argv);
     
     using namespace std::chrono;

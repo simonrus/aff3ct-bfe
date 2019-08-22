@@ -126,8 +126,8 @@ int main(int argc, char** argv)
     unsigned int seed = (unsigned int) us.count() % 65536;
     std::vector<std::string> all_args = {
         "init",
-        //"--cde-type",
-        //"REP",
+        "-C",
+        "REP",
         "-p",
         "32",
         "-C",

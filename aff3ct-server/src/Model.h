@@ -53,6 +53,8 @@ protected:
     std::unique_ptr<factory::Monitor_BFER    ::parameters>   p_mnt;
     std::unique_ptr<factory::Terminal        ::parameters>   p_ter;
     
+    std::unique_ptr<factory::Launcher        ::parameters>   p_launcher;
+    
     std::vector<factory::Factory::parameters*> m_paramsList;
     
     tools::Sigma<> m_noise;
@@ -63,11 +65,9 @@ protected:
     std::unique_ptr<module::Channel<R_TYPE>>                    m_channel;
     std::unique_ptr<module::Monitor_BFER_detailed<B_TYPE>>      m_monitor;
     
-    std::vector<const module::Module*> m_modules;
+    std::unique_ptr<launcher::Launcher>                         m_launcher;
 
-
-
-    std::unique_ptr<launcher::Launcher>         m_launcher;
+    std::vector<const module::Module*> 				m_modules;
 
     std::error_code constructAll();
     

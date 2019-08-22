@@ -110,12 +110,16 @@ bool Model::reset()
     std::unique_ptr<factory::Monitor_BFER    ::parameters>   mnt(new factory::Monitor_BFER    ::parameters());
     std::unique_ptr<factory::Terminal        ::parameters>   ter(new factory::Terminal        ::parameters());
     
+    std::unique_ptr<factory::Launcher        ::parameters>   launcher(new factory::Launcher        ::parameters());
+    
     p_src.swap(src);
     p_cdc.swap(cdc);
     p_mdm.swap(mdm);
     p_chn.swap(chn);
     p_mnt.swap(mnt);
     p_ter.swap(ter);
+    
+    p_launcher.swap(launcher);
 }
 
 /*
@@ -138,7 +142,9 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
                         p_mdm.get(), 
                         p_chn.get(), 
                         p_mnt.get(), 
-                        p_ter.get()};
+                        p_ter.get(), 
+                        p_launcher.get()};
+
     factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
     
     std::vector<B_TYPE> vectorBuffer(p_src->K);
@@ -164,6 +170,8 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     // display the headers (= print the AFF3CT parameters on the screen)
     factory::Header::print_parameters(m_paramsList); 
     cp.print_warnings();
+
+    m_launcher = std::unique_ptr<launcher::Launcher> (p_launcher->build<B_TYPE, R_TYPE, Q_TYPE>(argv.size(), (const char**)&argv[0]));
     
     ec = constructAll();
     if (ec)

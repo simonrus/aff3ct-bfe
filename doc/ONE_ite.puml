@@ -1,0 +1,70 @@
+@startuml
+' *********** launcher ***********************
+
+namespace launcher {
+class Launcher {
+ {abstract} Sumulation* build_simu()
+}
+class ONE_ite{
+    #params
+    Sumulation* build_simu()
+}
+
+Launcher *- Simulation: builds > 
+Launcher <|-- ONE_ite
+}
+
+launcher.ONE_ite *- factory.ONE_ite__parameters
+
+' *********** simulation ***********************
+namespace simulation {
+    class Simulations {
+        {virtual} launch()
+    }
+    class ONE_ite {
+        launch()
+    }
+
+    Simulations <|-- ONE_ite
+
+    
+}
+
+class simulation.ONE_ite
+note left: build_communication_chain()\nsockets_binding()\n...\nMainLOOP()
+
+' *********** factory ***********************
+namespace factory {
+class Factory
+class Factory__parameters
+Factory <- Factory__parameters
+
+class Launcher
+class Launcher__parameters
+Launcher <- Launcher__parameters
+
+class Simulation
+class Simulation__parameters
+Simulation <- Simulation__parameters
+
+class ONE_ite
+class ONE_ite__parameters
+ONE_ite <- ONE_ite__parameters
+
+Factory <|-- Launcher 
+Launcher <|-- Simulation
+Simulation <|-- ONE_ite
+class Launcher__parameters
+
+Simulation__parameters <|-- ONE_ite__parameters
+Launcher__parameters <|-- Simulation__parameters 
+Factory__parameters <|-- Launcher__parameters
+
+class ONE_ite {
+    + static simulation.ONE_ite build(ONE_ite__parameters &params)
+}
+}
+
+factory.ONE_ite ->simulation.ONE_ite
+
+@enduml

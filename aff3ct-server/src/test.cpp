@@ -89,8 +89,6 @@ bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
         return false;
     }
     std::string front = args.front();
-    
-    args.pop_front();
         
     if (front == "init")
     {   
@@ -130,8 +128,6 @@ int main(int argc, char** argv)
         "REP",
         "-p",
         "32",
-        "-C",
-        "REP",
         "-K",
         "8",
         "-N",

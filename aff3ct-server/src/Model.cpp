@@ -124,6 +124,7 @@ bool Model::reset()
 
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
+ * \param arg_vec - vector arguments where arg_vec[0] shall be interpreted as a program name
  */
 bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream)
 {

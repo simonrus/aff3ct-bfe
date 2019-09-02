@@ -48,6 +48,8 @@ set(LOGURU_SRCS ${LOGURU_DIR}/loguru.cpp)
 
 set(AFF3CT_ADDONS_SRCS
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Source_memory.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Factory/OnlyCodec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Launcher/OnlyCodec.cpp
 )
     
 #set main sources

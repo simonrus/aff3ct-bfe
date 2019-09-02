@@ -1,0 +1,26 @@
+@startuml
+namespace aff3ct::simulation {
+class Simulation {
+    Simulation(const factory::Simulation::parameters& simu)
+    build_communication_chain()
+    {abstract} void launch() = 0
+    # {abstract} _build_communication_chain() = 0
+}
+
+class "BFER<B,R,Q>" as BFER {
+    BFER(const factory::BFER::parameters& params_BFER);
+    void launch() = 0
+    # _build_communication_chain()
+    # {abstract} void __build_communication_chain(const int tid = 0) 
+}
+
+class "BFER_std<B,R,Q>" as BFER_std {
+    #std::unique_ptr<module::Codec_SIHO<B,Q  > codec;
+    #std::unique_ptr<module::Codec_SIHO<B,Q  >> build_codec     (const int tid = 0);
+    #void __build_communication_chain(const int tid = 0) 
+}
+
+Simulation <|-- BFER 
+BFER <|-- BFER_std 
+}
+@enduml

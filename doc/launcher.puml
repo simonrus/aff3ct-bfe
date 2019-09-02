@@ -1,0 +1,30 @@
+@startuml
+namespace aff3ct::launcher {
+class Launcher {
+    Launcher(argc, **argv, factory::Simulation::parameters &params, 
+                std::ostream);
+}
+class "TBase<B,R,Q>" as TBase {
+    TBase(argc, **argv, std::ostream): UpCall
+    get_description_args()
+    store_args()
+    #tools::Argument_map_info        args;   
+    #factory::Simulation::parameters params;
+}
+
+class "Repetition<TBase<B,R,Q>, B, R, Q>>" as Repetition {
+    Repetition(argc, **argv, std::ostream): UpCall
+    get_description_args(): UpCall
+    store_args(): UpCall
+}
+class "BCH<TBase<B,R,Q>, B, R, Q>>" as BCH {
+    BCH(argc, **argv, std::ostream): UpCall
+    get_description_args(): UpCall
+    store_args(): UpCall
+}
+
+Launcher <|-- TBase 
+TBase <|-- Repetition
+TBase <|-- BCH
+}
+@enduml

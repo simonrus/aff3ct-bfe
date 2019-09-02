@@ -40,6 +40,7 @@
 #include "aff3ct-errc.h"
 #include "aff3ct-addons/Source_memory.hpp"
 #include "aff3ct-addons/Monitor_BFER_detailed.hpp"
+#include "aff3ct-addons/Factory/OnlyCodec.hpp"
 
 using namespace aff3ct;
 
@@ -53,7 +54,7 @@ protected:
     std::unique_ptr<factory::Monitor_BFER    ::parameters>   p_mnt;
     std::unique_ptr<factory::Terminal        ::parameters>   p_ter;
     
-    std::unique_ptr<factory::Launcher        ::parameters>   p_launcher;
+    std::unique_ptr<factory::CodecParameters             >   p_params;
     
     std::vector<factory::Factory::parameters*> m_paramsList;
     
@@ -65,7 +66,6 @@ protected:
     std::unique_ptr<module::Channel<R_TYPE>>                    m_channel;
     std::unique_ptr<module::Monitor_BFER_detailed<B_TYPE>>      m_monitor;
     
-    std::unique_ptr<launcher::Launcher>                         m_launcher;
 
     std::vector<const module::Module*> 				m_modules;
 

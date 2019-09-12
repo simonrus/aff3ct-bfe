@@ -48,7 +48,7 @@ class Model {
 
 protected:
     
-    std::unique_ptr<factory::CodecParameters             >   p_params;
+    std::unique_ptr<factory::OnlyCodec::parameters >   p_params;
     
     std::vector<factory::Factory::parameters*> m_paramsList;
     

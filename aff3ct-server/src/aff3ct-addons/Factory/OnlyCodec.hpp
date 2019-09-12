@@ -55,39 +55,42 @@ namespace factory
 extern const std::string OnlyCodecSimulation_name;
 extern const std::string OnlyCodecSimulation_prefix;
 
-class CodecParameters : public aff3ct::factory::Simulation::parameters
+struct OnlyCodec:public aff3ct::factory::Simulation
 {
-public:
+    class parameters : public Simulation::parameters
+    {
+    public:
         // ------------------------------------------------------------------------------------------------- PARAMETERS
         std::string cde_type;
-        
+
         tools::auto_cloned_unique_ptr<Codec        ::parameters> cdc;
         // ---------------------------------------------------------------------------------------------------- METHODS
-        CodecParameters(const std::string &p = OnlyCodecSimulation_prefix);
-        virtual ~CodecParameters() = default;
-        virtual CodecParameters* clone() const;
+        parameters(const std::string &p = OnlyCodecSimulation_prefix);
+        virtual ~parameters() = default;
+        virtual parameters* clone() const;
 
-        // CodecParameters construction
+        // parameters construction
         virtual void get_description(tools::Argument_map_info &args) const;
         virtual void store          (const tools::Argument_map_value &vals);
         virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
-        
+
         // Get supported names
         virtual std::vector<std::string> get_names      () const;
         virtual std::vector<std::string> get_short_names() const;
         virtual std::vector<std::string> get_prefixes   () const;
-                
+
         //Codec settings
         void set_cdc   (Codec       ::parameters *cdc);
         const Codec::parameters* get_cdc() const;
 
         // builder
-	template <typename B = int, typename R = float, typename Q = R>
+        template <typename B = int, typename R = float, typename Q = R>
         simulation::OnlyCodec<B,R,Q>* build() const;
-        
-protected:
-        CodecParameters(const std::string &n, const std::string &p);
-};
+
+    protected:
+        parameters(const std::string &n, const std::string &p);
+    }; 
+}; //struct OnlyCodec
 } //namespace factory
 } //namespace aff3ct
 

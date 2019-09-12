@@ -43,7 +43,7 @@ namespace launcher{
 template <typename B = int, typename R = float, typename Q = R>
 class OnlyCodec: public Launcher {
     protected:
-	factory::CodecParameters params;
+	factory::OnlyCodec::parameters params;
 
     public:
 	OnlyCodec(const int argc, const char **argv, std::ostream &stream = std::cout);

@@ -38,7 +38,7 @@ using namespace aff3ct::simulation;
 
 template <typename B, typename R, typename Q>
 OnlyCodec<B,R,Q>
-::OnlyCodec(const factory::CodecParameters& params_OnlyCodec)
+::OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec)
 : Simulation(params_OnlyCodec), 
         params_OnlyCodec(params_OnlyCodec)
 {

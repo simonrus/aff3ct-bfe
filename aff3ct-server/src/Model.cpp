@@ -50,7 +50,7 @@ void Model::setDebugPrint(bool bEnabled)
 bool Model::reset()
 {
     
-    std::unique_ptr<factory::CodecParameters>                params(new factory::CodecParameters());
+    std::unique_ptr<factory::OnlyCodec::parameters>                params(new factory::OnlyCodec::parameters());
     
     p_params.swap(params);
 }

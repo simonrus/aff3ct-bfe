@@ -46,10 +46,10 @@ namespace simulation
 template <typename B = int, typename R = float, typename Q = R>
 class OnlyCodec : public Simulation {
 private:
-    const aff3ct::factory::CodecParameters& params_OnlyCodec;
+    const aff3ct::factory::OnlyCodec::parameters& params_OnlyCodec;
 public:
     
-    explicit OnlyCodec(const factory::CodecParameters& params_OnlyCodec);
+    explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);
     virtual ~OnlyCodec() = default;
     void launch();
    

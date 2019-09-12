@@ -41,6 +41,15 @@
 
 namespace aff3ct
 {
+namespace simulation
+{
+template <typename B = int, typename R = float, typename Q = R>
+class OnlyCodec;
+}
+}
+
+namespace aff3ct
+{
 namespace factory
 {
 extern const std::string OnlyCodecSimulation_name;
@@ -72,6 +81,10 @@ public:
         void set_cdc   (Codec       ::parameters *cdc);
         const Codec::parameters* get_cdc() const;
 
+        // builder
+	template <typename B = int, typename R = float, typename Q = R>
+        simulation::OnlyCodec<B,R,Q>* build() const;
+        
 protected:
         CodecParameters(const std::string &n, const std::string &p);
 };

@@ -25,57 +25,12 @@
 
 #include "Model.h"
 
-void check_callback(Model *model)
-{
-    std::cout << "Callback with model " << (unsigned long) model << std::endl;
-}
 
-void check_detailed_callback(const B_TYPE *U, const B_TYPE *Y, const int frame_id, Model *model)
-{
-    
-    std::cout << "Detailed Callback with model " << (unsigned long) model << 
-            " and frame_id " << frame_id << 
-            " and K " << model->getK() <<
-            std::endl;
-    
-    std::cout << "{U}: ";
-    for (int i = 0; i < model->getK();i++)
-    {
-        std::cout << U[i] << " "; 
-    }
-    std::cout << std::endl;
-    
-    std::cout << "{Y}: ";
-    for (int i = 0; i < model->getK();i++)
-    {
-        std::cout << Y[i] << " "; 
-    }
-    std::cout << std::endl;
-    
-    
-}
 
 std::error_code Model::constructAll()
 {
     std::error_code ec = make_error_code(Aff3ctErrc::NoError);
     
-    m_source = std::unique_ptr<module::Source<B_TYPE>>                          (new module::Source_memory<B_TYPE>(p_src->K, m_inputData));
-    m_codec   =  std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE>>      (p_cdc->build());  
-    m_modem   = std::unique_ptr<module::Modem<B_TYPE, R_TYPE, Q_TYPE>>          (p_mdm->build()); 
-    m_channel = std::unique_ptr<module::Channel<R_TYPE>>                        (p_chn->build()); 
-    //m_monitor = std::unique_ptr<module::Monitor_BFER_detailed<B_TYPE>>          (p_mnt->build()); 
-    m_monitor = std::unique_ptr<module::Monitor_BFER_detailed<B_TYPE>>(
-           new module::Monitor_BFER_detailed<B_TYPE>(p_mnt->K, p_mnt->n_frame_errors,p_mnt->max_frame = 0, false, p_mnt->n_frames));  
-           
-    std::function<void(          void)> callback_fn = std::bind(check_callback, this);
-    m_monitor->add_handler_check(callback_fn);
-    
-    std::function<void(const B_TYPE *, const B_TYPE *, const int)> callback_detailed_fn = std::bind(check_detailed_callback, 
-                                                                                                    std::placeholders::_1,
-                                                                                                    std::placeholders::_2,
-                                                                                                    std::placeholders::_3,
-                                                                                                    this);
-    m_monitor->add_handler_detailed_check(callback_detailed_fn);
     
     return ec;
 }
@@ -88,36 +43,14 @@ void Model::setDebugPrint(bool bEnabled)
     {
         using namespace module;
     
-        auto& r_encoder = m_codec->get_encoder();
-        auto& r_decoder = m_codec->get_decoder_siho();
-    
-        (*m_source )[src::tsk::generate    ].set_debug(true);
-        (*r_encoder)[enc::tsk::encode      ].set_debug(true);
-        (*m_modem  )[mdm::tsk::modulate    ].set_debug(true);
-        (*m_channel)[chn::tsk::add_noise   ].set_debug(true);
-        (*m_modem  )[mdm::tsk::demodulate  ].set_debug(true);
-        (*r_decoder)[dec::tsk::decode_siho ].set_debug(true);
-        (*m_monitor)[mnt::tsk::check_errors].set_debug(true);
+       
     }
 }
 
 bool Model::reset()
 {
-    std::unique_ptr<factory::Source          ::parameters>   src(new factory::Source::parameters());
-    std::unique_ptr<factory::Codec_repetition::parameters>   cdc(new factory::Codec_repetition::parameters());
-    std::unique_ptr<factory::Modem           ::parameters>   mdm(new factory::Modem           ::parameters());
-    std::unique_ptr<factory::Channel         ::parameters>   chn(new factory::Channel         ::parameters());
-    std::unique_ptr<factory::Monitor_BFER    ::parameters>   mnt(new factory::Monitor_BFER    ::parameters());
-    std::unique_ptr<factory::Terminal        ::parameters>   ter(new factory::Terminal        ::parameters());
     
     std::unique_ptr<factory::CodecParameters>                params(new factory::CodecParameters());
-        
-    p_src.swap(src);
-    p_cdc.swap(cdc);
-    p_mdm.swap(mdm);
-    p_chn.swap(chn);
-    p_mnt.swap(mnt);
-    p_ter.swap(ter);
     
     p_params.swap(params);
 }
@@ -138,18 +71,10 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
 
     reset();
 
-    m_paramsList =  {p_src.get(), 
-                        p_cdc.get(), 
-                        p_mdm.get(), 
-                        p_chn.get(), 
-                        p_mnt.get(), 
-                        p_ter.get(),
-                        p_params.get()};
+    m_paramsList =  {p_params.get()};
 
     factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
     
-    std::vector<B_TYPE> vectorBuffer(p_src->K);
-    m_inputData.push_back(vectorBuffer);
         
     if (cp.help_required())
     {
@@ -177,9 +102,6 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
         return false; 
        
 
-    // get the r_encoder and r_decoder modules from the codec module
-    auto& r_encoder = m_codec->get_encoder();
-    auto& r_decoder = m_codec->get_decoder_siho();
 #ifdef ENABLE_REPORTERS
     // create reporters to display results in the terminal
     std::vector<tools::Reporter*> reporters =
@@ -198,15 +120,10 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     // display the legend in the terminal
     terminal->legend();
 #endif // ENABLE_REPORTERS
-    
-    m_modules = {m_source.get(), 
-                    r_encoder.get(), 
-                    m_modem.get(), 
-                    m_channel.get(),
-                    r_decoder.get(), 
-                    m_monitor.get()};
+
 
     //use default parameters
+    /* DEBUG MODE FOR LAUNCHER ?
     for (auto& m : m_modules)
         for (auto& t : m->tasks)
         {
@@ -219,30 +136,9 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
             // enable the fast mode (= disable the useless verifs in the tasks) if there is no debug and stats modes
             t->set_fast(!t->is_debug() && !t->is_stats());
         }
+     * */
     
     
-    // sockets binding (connect the sockets of the tasks = fill the input sockets with the output sockets)
-    using namespace module;
-    
-    (*r_encoder)[enc::sck::encode      ::U_K ].bind((*m_source )[src::sck::generate   ::U_K ]);
-    (*m_modem  )[mdm::sck::modulate    ::X_N1].bind((*r_encoder)[enc::sck::encode     ::X_N ]);
-    (*m_channel)[chn::sck::add_noise   ::X_N ].bind((*m_modem  )[mdm::sck::modulate   ::X_N2]);
-    (*m_modem  )[mdm::sck::demodulate  ::Y_N1].bind((*m_channel)[chn::sck::add_noise  ::Y_N ]);
-    (*r_decoder)[dec::sck::decode_siho ::Y_N ].bind((*m_modem  )[mdm::sck::demodulate ::Y_N2]);
-    (*m_monitor)[mnt::sck::check_errors::U   ].bind((*r_encoder)[enc::sck::encode     ::U_K ]);
-    (*m_monitor)[mnt::sck::check_errors::V   ].bind((*r_decoder)[dec::sck::decode_siho::V_K ]);
-    
-    // reset the memory of the r_decoder after the end of each communicatio
-    m_monitor->add_handler_check(std::bind(&module::Decoder::reset, r_decoder));
-
-    // initialize the interleaver if this code use an interleaver
-    try
-    {
-            auto& interleaver = m_codec->get_interleaver();
-            interleaver->init();
-    }
-    catch (const std::exception&) { /* do nothing if there is no interleaver */ }
-
     m_bInitialized = true;
     
     //postponed initialization
@@ -257,27 +153,27 @@ void Model::setNoise(float ebn0)
     {
         tools::Sigma<> noise;
 
-        const float R = (float) p_cdc->enc->K / (float)p_cdc->enc->N_cw;
+        //const float R = (float) p_cdc->enc->K / (float)p_cdc->enc->N_cw;
 
 
         // compute the current sigma for the channel noise
-        const auto esn0  = tools::ebn0_to_esn0 (ebn0, R);
-        const auto sigma = tools::esn0_to_sigma(esn0   );
-
-        noise.set_noise(sigma, ebn0, esn0);
+        //        const auto esn0  = tools::ebn0_to_esn0 (ebn0, R);
+        //        const auto sigma = tools::esn0_to_sigma(esn0   );
+        //
+        //        noise.set_noise(sigma, ebn0, esn0);
 
         // update the sigma of the modem and the channel
-        m_codec  ->set_noise(noise);
-        m_modem  ->set_noise(noise);
-        m_channel->set_noise(noise);
+        //        m_codec  ->set_noise(noise);
+        //        m_modem  ->set_noise(noise);
+        //        m_channel->set_noise(noise);
     }
 }
 
 
 void Model::resetMonitor() 
 {
-    if (m_bInitialized)
-        m_monitor->reset();
+//    if (m_bInitialized)
+//        m_monitor->reset();
 }
 
 
@@ -285,16 +181,6 @@ void Model::iterate(void)
 {
     using namespace module;
      
-    // get the r_encoder and r_decoder modules from the codec module
-    auto& r_encoder = m_codec->get_encoder();
-    auto& r_decoder = m_codec->get_decoder_siho();    
     
-    (*m_source )[src::tsk::generate    ].exec();
-    (*r_encoder)[enc::tsk::encode      ].exec();
-    (*m_modem  )[mdm::tsk::modulate    ].exec();
-    (*m_channel)[chn::tsk::add_noise   ].exec();
-    (*m_modem  )[mdm::tsk::demodulate  ].exec();
-    (*r_decoder)[dec::tsk::decode_siho ].exec();
-    (*m_monitor)[mnt::tsk::check_errors].exec();
    
 }

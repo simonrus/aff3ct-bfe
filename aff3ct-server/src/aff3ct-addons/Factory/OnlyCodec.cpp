@@ -64,7 +64,7 @@ const Codec::parameters* CodecParameters::get_cdc() const
     return this->cdc.get();
 }
 
-void CodecParameters
+    void CodecParameters
 ::get_description(tools::Argument_map_info &args) const {
     auto p = this->get_prefix();
     const std::string class_name = "factory::CodecParameters::";
@@ -118,4 +118,15 @@ std::vector<std::string> CodecParameters::get_prefixes() const
     if (cdc    != nullptr) { auto nn = cdc   ->get_prefixes(); for (auto &x : nn) n.push_back(x); }
     
     return n;
+}
+
+template <typename B, typename R, typename Q>
+simulation::OnlyCodec<B,R,Q>* CodecParameters::build() const
+{
+#if defined(AFF3CT_SYSTEMC_SIMU)
+        #error "SystemC module for OnlyCodec is not implemented"
+#else
+//	return new simulation::BFER_ite_threads<B,R,Q>(*this);
+        return nullptr;
+#endif
 }

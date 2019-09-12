@@ -47,31 +47,14 @@ using namespace aff3ct;
 class Model {
 
 protected:
-    std::unique_ptr<factory::Source          ::parameters>   p_src;
-    std::unique_ptr<factory::Codec_repetition::parameters>   p_cdc;
-    std::unique_ptr<factory::Modem           ::parameters>   p_mdm;
-    std::unique_ptr<factory::Channel         ::parameters>   p_chn;
-    std::unique_ptr<factory::Monitor_BFER    ::parameters>   p_mnt;
-    std::unique_ptr<factory::Terminal        ::parameters>   p_ter;
     
     std::unique_ptr<factory::CodecParameters             >   p_params;
     
     std::vector<factory::Factory::parameters*> m_paramsList;
     
-    tools::Sigma<> m_noise;
-    // create the AFF3CT modules
-    std::unique_ptr<module::Source<B_TYPE>>                     m_source; 
-    std::unique_ptr<module::Codec_repetition<B_TYPE, Q_TYPE>>   m_codec;  
-    std::unique_ptr<module::Modem<B_TYPE, R_TYPE, Q_TYPE>>      m_modem;  
-    std::unique_ptr<module::Channel<R_TYPE>>                    m_channel;
-    std::unique_ptr<module::Monitor_BFER_detailed<B_TYPE>>      m_monitor;
-    
-
-    std::vector<const module::Module*> 				m_modules;
-
     std::error_code constructAll();
     
-    std::vector<std::vector<B_TYPE>>            m_inputData;
+    
     bool                                        m_bDebugPrint = false;
     bool                                        m_bInitialized = false;
     float                                       m_fNoise = 0.0;
@@ -88,10 +71,8 @@ public:
     void setDebugPrint(bool bEnabled=true);
     
     void resetMonitor();
-    
-    int getK() {        
-        return (p_src)?(p_src->K):0;
-    }
+  
+
     
 };
 

@@ -63,8 +63,9 @@ void OnlyCodec<B,R,Q>
     
     //TODO: CHECK /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Simulation/BFER_std.cpp
     
-    /*
+    
     params.     get_description(this->args);
+    /*
     params.src->get_description(this->args);
     */
     
@@ -77,6 +78,8 @@ void OnlyCodec<B,R,Q>
     if (this->args.exist({penc+"-info-bits", "K"}) || this->args.exist({ppct+"-info-bits", "K"}))
 		this->args.erase({psrc+"-info-bits", "K"});
      */
+    
+    auto penc = params.cdc->enc->get_prefix();
 }
 
 template <typename B, typename R, typename Q>

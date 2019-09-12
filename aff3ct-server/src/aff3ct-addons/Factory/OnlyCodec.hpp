@@ -37,6 +37,7 @@
 #include <string>
 #include <Factory/Factory.hpp>
 #include <Factory/Simulation/Simulation.hpp>
+#include <Factory/Module/Codec/Codec.hpp>
 
 namespace aff3ct
 {
@@ -50,6 +51,8 @@ class CodecParameters : public aff3ct::factory::Simulation::parameters
 public:
         // ------------------------------------------------------------------------------------------------- PARAMETERS
         std::string cde_type;
+        
+        tools::auto_cloned_unique_ptr<Codec        ::parameters> cdc;
         // ---------------------------------------------------------------------------------------------------- METHODS
         CodecParameters(const std::string &p = OnlyCodecSimulation_prefix);
         virtual ~CodecParameters() = default;
@@ -59,6 +62,15 @@ public:
         virtual void get_description(tools::Argument_map_info &args) const;
         virtual void store          (const tools::Argument_map_value &vals);
         virtual void get_headers    (std::map<std::string,header_list>& headers, const bool full = true) const;
+        
+        // Get supported names
+        virtual std::vector<std::string> get_names      () const;
+        virtual std::vector<std::string> get_short_names() const;
+        virtual std::vector<std::string> get_prefixes   () const;
+                
+        //Codec settings
+        void set_cdc   (Codec       ::parameters *cdc);
+        const Codec::parameters* get_cdc() const;
 
 protected:
         CodecParameters(const std::string &n, const std::string &p);

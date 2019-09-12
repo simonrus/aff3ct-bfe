@@ -54,6 +54,17 @@ CodecParameters* CodecParameters
 }
 
 void CodecParameters
+::set_cdc(Codec::parameters *cdc)
+{
+    this->cdc.reset(cdc);
+}
+
+const Codec::parameters* CodecParameters::get_cdc() const
+{
+    return this->cdc.get();
+}
+
+void CodecParameters
 ::get_description(tools::Argument_map_info &args) const {
     auto p = this->get_prefix();
     const std::string class_name = "factory::CodecParameters::";
@@ -77,5 +88,34 @@ void CodecParameters
     auto p = this->get_prefix();
 
     headers[p].push_back(std::make_pair("Code type (C)", this->cde_type));
+    
+    if (this->cdc != nullptr) { this->cdc->get_headers(headers, full); }
+    
+}
 
+std::vector<std::string> CodecParameters::get_names() const
+{
+    auto n = Simulation::parameters::get_names();
+    
+    if (cdc    != nullptr) { auto nn = cdc   ->get_names(); for (auto &x : nn) n.push_back(x); }
+    
+    return n;
+}
+
+std::vector<std::string> CodecParameters::get_short_names() const
+{
+    auto n = Simulation::parameters::get_short_names();
+    
+    if (cdc    != nullptr) { auto nn = cdc   ->get_short_names(); for (auto &x : nn) n.push_back(x); }
+    
+    return n;
+}
+
+std::vector<std::string> CodecParameters::get_prefixes() const
+{
+    auto n = Simulation::parameters::get_prefixes();
+    
+    if (cdc    != nullptr) { auto nn = cdc   ->get_prefixes(); for (auto &x : nn) n.push_back(x); }
+    
+    return n;
 }

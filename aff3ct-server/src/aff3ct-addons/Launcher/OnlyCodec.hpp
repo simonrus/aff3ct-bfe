@@ -54,7 +54,6 @@ class OnlyCodec: public Launcher {
 	virtual void store_args();
 
 	virtual simulation::Simulation* build_simu();
-
 };
 
 

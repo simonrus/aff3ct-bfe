@@ -33,14 +33,29 @@
 
 #include "CodecRun.hpp"
 
+#include <Tools/Display/rang_format/rang_format.h>
 using namespace aff3ct;
 using namespace aff3ct::launcher;
 
+//FIXME:: CopyAndPaste
+
 CodecRun::CodecRun(const int argc, const char **argv, 
             factory::OnlyCodec::parameters &params, 
-            std::ostream &stream)
+            std::ostream &stream):
+ah(argc, argv), params_common(params), stream(stream)
 {
-    
+    std::string cmd_line = "";
+    cmd_line += std::string(argv[0]) + std::string(" ");
+    for (auto i = 1; i < argc; i++)
+    {
+            if (argv[i][0] == '-')
+                    cmd_line += std::string(argv[i]);
+            else
+                    cmd_line += std::string("\"") + std::string(argv[i]) + std::string("\"");
+
+            cmd_line += std::string(" ");
+    }
+    std::cout << "launcher::CodecRun::CodecRun() cmd_line " << cmd_line << std::endl;
 }
 
 void CodecRun::get_description_args()
@@ -51,4 +66,64 @@ void CodecRun::store_args()
 {
     
 }
+
+int CodecRun::read_arguments()
+{
+	this->get_description_args();
+
+	std::vector<std::string> cmd_error;
+
+	this->arg_vals = ah.parse_arguments(this->args, this->cmd_warn, cmd_error);
+
+	try
+	{
+		this->store_args();
+		ah.set_help_display_keys(params_common.display_keys);
+	}
+	catch(const std::exception& e)
+	{
+		auto save = tools::exception::no_backtrace;
+		tools::exception::no_backtrace = true;
+		cmd_error.emplace_back(e.what());
+		tools::exception::no_backtrace = save;
+	}
+
+#ifdef AFF3CT_MPI
+	if (this->params_common.mpi_rank == 0)
+	{
+#endif
+		if (params_common.display_help)
+		{
+			auto grps = factory::Factory::create_groups({&params_common});
+			ah.print_help(this->args, grps, params_common.display_adv_help);
+		}
+
+		// print usage
+		if (!cmd_error.empty() && !params_common.display_help)
+			ah.print_usage(this->args);
+
+		// print the errors
+		if (!cmd_error.empty()) std::cerr << std::endl;
+		for (unsigned e = 0; e < cmd_error.size(); e++)
+			std::cerr << rang::tag::error << cmd_error[e] << std::endl;
+
+		// print the help tags
+		if (!cmd_error.empty() && !params_common.display_help)
+		{
+			tools::Argument_tag help_tag = {"help", "h"};
+
+			std::string message = "For more information please display the help (\"";
+			message += tools::Argument_handler::print_tag(help_tag) += "\").";
+
+			std::cerr << std::endl << rang::tag::info << message << std::endl;
+		}
+#ifdef AFF3CT_MPI
+	}
+#endif
+
+        
+        FIXME!!!
+	return (!cmd_error.empty() || params_common.display_help) ? EXIT_FAILURE : EXIT_SUCCESS;
+}
+
     

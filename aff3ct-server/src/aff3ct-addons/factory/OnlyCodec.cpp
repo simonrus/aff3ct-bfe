@@ -135,10 +135,10 @@ launcher::CodecRun* OnlyCodec::parameters::build(const int argc, const char **ar
         
 
         return new launcher::Repetition<launcher::OnlyCodec<B,R,Q>,B,R,Q>(argc, argv, stream); //FIXME
-    }else
-    {
-        std::cout << "Constructing NON REP codec" << std::endl;
     }
+    
+    std::cout << "Constructing NON REP codec" << std::endl;
+    
 #if defined(AFF3CT_SYSTEMC_SIMU)
         #error "SystemC module for OnlyCodec is not implemented"
 #else

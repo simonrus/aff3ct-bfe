@@ -56,6 +56,7 @@ class OnlyCodec: public CodecRun {
 	OnlyCodec(const int argc, const char **argv, std::ostream &stream = std::cout);
 	virtual ~OnlyCodec() = default;
 
+        simulation::CodecRun* build_simu();
     protected:
 	virtual void get_description_args();
 	virtual void store_args();

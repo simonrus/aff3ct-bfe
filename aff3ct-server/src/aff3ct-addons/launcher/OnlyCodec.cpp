@@ -59,7 +59,10 @@ template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::get_description_args()
 {
+    std::cout << "launcher::OnlyCodec::get_description_args() " << std::endl;
     CodecRun::get_description_args();
+    
+    params.     get_description(this->args);
     
     //TODO: CHECK /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Simulation/BFER_std.cpp
     
@@ -79,13 +82,16 @@ void OnlyCodec<B,R,Q>
 		this->args.erase({psrc+"-info-bits", "K"});
      */
     
-    auto penc = params.cdc->enc->get_prefix();
+    std::string penc_prefix = params.cdc->enc->get_prefix();
+    std::cout << "penc_prefix " << penc_prefix << std::endl;
+    
 }
 
 template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::store_args()
 {
+    std::cout << "launcher::OnlyCodec::store_args() " << std::endl;
     CodecRun::store_args();
     
     //TODO: CHECK /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Simulation/BFER_std.cpp
@@ -99,16 +105,21 @@ void OnlyCodec<B,R,Q>
     auto psrc = params.src->get_prefix();
      */
 }
-/*
+
 template <typename B, typename R, typename Q>
 simulation::CodecRun* OnlyCodec<B,R,Q>
 ::build_simu()
 {
+    std::vector<aff3ct::factory::Factory::parameters*> paramsPtrs;
+    paramsPtrs.push_back(&params);
+    
+    aff3ct::factory::Header::print_parameters(paramsPtrs, true, std::cout);
+    
+    //return FIXME;
     return nullptr;
     //TODO !
     //return factory::OnlyCodec::build<B,R,Q>(params); 
 }
- * */
 
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"

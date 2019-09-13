@@ -35,6 +35,9 @@
 #define LAUNCHER_CODECRUN_HPP
 
 #include <aff3ct-addons/factory/OnlyCodec.hpp>
+#include <aff3ct-addons/simulation/CodecRun.hpp>
+
+#include <Tools/Arguments/Argument_handler.hpp>
 namespace aff3ct
 {
 namespace launcher
@@ -54,14 +57,19 @@ public:
     virtual void store_args();
         
     virtual ~CodecRun() = default;
-private:
-    
+    virtual simulation::CodecRun* build_simu() = 0;
+  
 protected:
-    //see /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Launcher.hpp
+    tools::Argument_handler         ah;       /*!< An argument reader to manage the parsing and the documentation of the command line parameters. */
     tools::Argument_map_info        args;     /*!< List of the arguments to find in the command line */
     tools::Argument_map_value       arg_vals; /*!< List of the arguments with their values */
     
-
+    factory::OnlyCodec::parameters  &params_common; /*!< A structure of parameters to store and pass to the simulation. */
+    std::ostream                    &stream;  /*!< The dedicated stream in which the Launcher writes the parameters. */
+    
+private:
+    int read_arguments();
+    std::vector<std::string>         cmd_warn;
 };
 } //namespace launcher
 } //namespace aff3ct

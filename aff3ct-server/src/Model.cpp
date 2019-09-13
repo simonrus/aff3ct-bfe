@@ -24,6 +24,7 @@
  */
 
 #include "Model.h"
+#include <aff3ct-addons/launcher/CodecRun.hpp>
 
 std::error_code Model::constructAll()
 {
@@ -120,16 +121,17 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     
     }
 
+    std::unique_ptr<launcher::CodecRun> codecLauncher;
         
 #ifdef AFF3CT_MULTI_PREC
         std::cout << "sim_prec " << m_params.sim_prec << std::endl;
         switch (m_params.sim_prec) {
             
-            //case 8: m_codec =  std::unique_ptr<simulation::CodecRun> (factory::OnlyCodec::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
+            //case 8: m_codecLauncher =  std::unique_ptr<simulation::CodecRun> (factory::OnlyCodec::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
             //case 16: launcher = factory::OnlyCodec::build<B_16, R_16, Q_16>(m_params); break;
             case 32: 
                 launcher::CodecRun *codecrun = factory::OnlyCodec::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout);
-                //m_codec =  std::unique_ptr<simulation::CodecRun> (codecrun);    
+                codecLauncher =  std::unique_ptr<launcher::CodecRun> (codecrun);    
                 break;
             //case 64: launcher = factory::OnlyCodec::build<B_64, R_64, Q_64>(m_params); break;
             //default: launcher = nullptr;
@@ -160,12 +162,20 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
 //    factory::Header::print_parameters(m_paramsList); 
 //    cp.print_warnings();
         
+    if (!codecLauncher) {
+        std::cout << "CodecLauncher is not initialized" << std::endl;
+        return false;
+    }
+        
+    simulation::CodecRun* codec = codecLauncher->build_simu();
+    
+    m_codec =  std::unique_ptr<simulation::CodecRun> (codec);
+    
     if (!m_codec) {
         std::cout << "Codec is not initialized" << std::endl;
         return false;
     }
-        
-    m_codec->initialize();
+    
     ec = constructAll();
     if (ec)
         return false; 
@@ -232,7 +242,7 @@ void Model::setNoise(float ebn0)
         //        noise.set_noise(sigma, ebn0, esn0);
 
         // update the sigma of the modem and the channel
-        //        m_codec  ->set_noise(noise);
+        //        m_codecLauncher  ->set_noise(noise);
         //        m_modem  ->set_noise(noise);
         //        m_channel->set_noise(noise);
     }
@@ -254,7 +264,7 @@ void Model::iterate(void)
     try {           
         if (m_codec)
         {
-            m_codec->iterate(nullptr, nullptr);
+            //m_codec->iterate(nullptr, nullptr);
         }
     } catch (std::exception const& e) {
         std::cout << "Exception:" << e.what() << std::endl;

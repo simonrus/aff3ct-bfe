@@ -54,8 +54,7 @@ protected:
     //std::unique_ptr<factory::OnlyCodec::parameters >   p_params;
     
     //std::vector<factory::Factory::parameters*> m_paramsList;
-    
-    std::unique_ptr<simulation::CodecRun>               m_codec;
+    std::unique_ptr<simulation::CodecRun>       m_codec;
     factory::OnlyCodec::parameters              m_params;
     
     std::error_code constructAll();

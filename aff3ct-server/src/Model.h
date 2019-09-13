@@ -40,7 +40,10 @@
 #include "aff3ct-errc.h"
 #include "aff3ct-addons/Source_memory.hpp"
 #include "aff3ct-addons/Monitor_BFER_detailed.hpp"
-#include "aff3ct-addons/Simulation/OnlyCodec.hpp"
+
+
+#include "aff3ct-addons/simulation/CodecRun.hpp"
+#include "aff3ct-addons/factory/OnlyCodec.hpp"
 
 using namespace aff3ct;
 

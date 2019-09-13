@@ -31,8 +31,8 @@
  * Created on September 13, 2019, 11:15 AM
  */
 
-#ifndef CODECRUN_HPP
-#define CODECRUN_HPP
+#ifndef SIMULATION_CODECRUN_HPP
+#define SIMULATION_CODECRUN_HPP
 
 namespace aff3ct
 {
@@ -43,12 +43,14 @@ public:
     CodecRun();
     virtual ~CodecRun() = default;
     
+    virtual void initialize() = 0;
     virtual void iterate(void *in, void *out) = 0;
+    
 private:
 
 };
 } //namespace simulation
 } //namespace aff3ct
 
-#endif /* CODECRUN_HPP */
+#endif /* SIMULATION_CODECRUN_HPP */
 

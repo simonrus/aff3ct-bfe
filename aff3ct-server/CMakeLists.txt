@@ -48,10 +48,11 @@ set(LOGURU_SRCS ${LOGURU_DIR}/loguru.cpp)
 
 set(AFF3CT_ADDONS_SRCS
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Source_memory.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Factory/OnlyCodec.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Launcher/OnlyCodec.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Simulation/CodecRun.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Simulation/OnlyCodec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/factory/OnlyCodec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/launcher/CodecRun.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/launcher/OnlyCodec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/simulation/CodecRun.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/simulation/OnlyCodec.cpp
 )
     
 #set main sources
@@ -69,7 +70,7 @@ find_package(AFF3CT)
 
 set(LOCAL_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/include 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 #target_include_directories(aff3ct-server PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})

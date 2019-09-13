@@ -36,12 +36,16 @@
 
 #include <string>
 #include <Factory/Factory.hpp>
+
+#include <Factory/Module/Quantizer/Quantizer.hpp>
+#include <Factory/Module/Source/Source.hpp>
+
 #include <Factory/Simulation/Simulation.hpp>
 #include <Factory/Module/Codec/Codec.hpp>
 
 namespace aff3ct
 {
-namespace simulation
+namespace launcher
 {
 template <typename B, typename R, typename Q>
 class OnlyCodec;
@@ -63,7 +67,9 @@ struct OnlyCodec:public aff3ct::factory::Simulation
         // ------------------------------------------------------------------------------------------------- PARAMETERS
         std::string cde_type;
 
+        tools::auto_cloned_unique_ptr<Source       ::parameters> src;
         tools::auto_cloned_unique_ptr<Codec        ::parameters> cdc;
+        tools::auto_cloned_unique_ptr<Quantizer    ::parameters> qnt;
         // ---------------------------------------------------------------------------------------------------- METHODS
         parameters(const std::string &p = OnlyCodecSimulation_prefix);
         virtual ~parameters() = default;
@@ -85,7 +91,7 @@ struct OnlyCodec:public aff3ct::factory::Simulation
 
         // builder
         template <typename B = int, typename R = float, typename Q = R>
-        simulation::OnlyCodec<B,R,Q>* build() const;
+        launcher::OnlyCodec<B,R,Q>* build(const int argc, const char **argv, std::ostream &stream) const;
 
     protected:
         parameters(const std::string &n, const std::string &p);
@@ -93,7 +99,7 @@ struct OnlyCodec:public aff3ct::factory::Simulation
     
     
     template <typename B = int, typename R = float, typename Q = R>
-    static simulation::OnlyCodec<B,R,Q>* build(const parameters &params);
+    static launcher::OnlyCodec<B,R,Q>* build(const parameters &params, const int argc, const char **argv, std::ostream &stream);
 }; //struct OnlyCodec
 } //namespace factory
 } //namespace aff3ct

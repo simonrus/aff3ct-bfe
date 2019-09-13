@@ -33,7 +33,11 @@
 
 #include "OnlyCodec.hpp"
 #include "Tools/Documentation/documentation.h"
-#include "Simulation/OnlyCodec.hpp"
+#include "Launcher/Code/Repetition/Repetition.hpp"
+
+#include "aff3ct-addons/simulation/OnlyCodec.hpp"
+#include "aff3ct-addons/launcher/OnlyCodec.hpp"
+
 
 using namespace aff3ct;
 using namespace aff3ct::factory;
@@ -122,30 +126,53 @@ std::vector<std::string> OnlyCodec::parameters::get_prefixes() const
 }
 
 template <typename B, typename R, typename Q>
-simulation::OnlyCodec<B,R,Q>* OnlyCodec::parameters::build() const
+launcher::OnlyCodec<B,R,Q>* OnlyCodec::parameters::build(const int argc, const char **argv, std::ostream &stream) const
 {
+    if (this->cde_type == "REP")
+    {
+        std::cout << "Constructing REP codec" << std::endl;
+        // See: /home/simon/work/phd/missfec/lib/aff3ct/src/Factory/Launcher/Launcher.cpp
+        
+
+        return new launcher::Repetition<launcher::OnlyCodec<B,R,Q>,B,R,Q>(argc, argv, stream); //FIXME
+    }else
+    {
+        std::cout << "Constructing NON REP codec" << std::endl;
+    }
 #if defined(AFF3CT_SYSTEMC_SIMU)
         #error "SystemC module for OnlyCodec is not implemented"
 #else
 //	return new simulation::BFER_ite_threads<B,R,Q>(*this);
-    return new simulation::OnlyCodec<B,R,Q> (*this);
-//        return nullptr;
+//    return new simulation::OnlyCodec<B,R,Q> (*this);
+    return nullptr;
 #endif
 }
 
 template <typename B, typename R, typename Q>
-simulation::OnlyCodec<B,R,Q>* OnlyCodec::build(const parameters &params)
+launcher::OnlyCodec<B,R,Q>* OnlyCodec::build(const parameters &params, const int argc, const char **argv, std::ostream &stream)
 {
-	return params.template build<B,R,Q>();
+	return params.template build<B,R,Q>(argc, argv, stream);
 }
 
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"
 #ifdef AFF3CT_MULTI_PREC
-template simulation::OnlyCodec<B_8,R_8,Q_8>* OnlyCodec::parameters::build<B_8,R_8,Q_8>() const;
-template simulation::OnlyCodec<B_32,R_32,Q_32>* OnlyCodec::parameters::build<B_32,R_32,Q_32>() const;
-template simulation::OnlyCodec<B_8,R_8,Q_8>* OnlyCodec::build(const aff3ct::factory::OnlyCodec::parameters &params);
-template simulation::OnlyCodec<B_32,R_32,Q_32>* OnlyCodec::build(const aff3ct::factory::OnlyCodec::parameters &params);
+template launcher::OnlyCodec<B_8,R_8,Q_8>* OnlyCodec::parameters::build<B_8,R_8,Q_8>(const int argc, const char **argv, std::ostream &stream) const;
+template launcher::OnlyCodec<B_32,R_32,Q_32>* OnlyCodec::parameters::build<B_32,R_32,Q_32>(const int argc, const char **argv, std::ostream &stream) const;
+template launcher::OnlyCodec<B_8,R_8,Q_8>* OnlyCodec::build(const aff3ct::factory::OnlyCodec::parameters &params,const int argc, const char **argv, std::ostream &stream);
+template launcher::OnlyCodec<B_32,R_32,Q_32>* OnlyCodec::build(const aff3ct::factory::OnlyCodec::parameters &params,const int argc, const char **argv, std::ostream &stream);
+
+//all codecs
+
+//BECAUSE IT IS TEMPLATE LIBRARY!!!
+#include <Launcher/Code/Repetition/Repetition.hpp>
+#include <Launcher/Code/Repetition/Repetition.cpp>
+
+template class launcher::Repetition<launcher::OnlyCodec<B_8,R_8,Q_8>,B_8,R_8,Q_8>;
+template class launcher::Repetition<launcher::OnlyCodec<B_32,R_32,Q_32>,B_32,R_32,Q_32>;
+
+
+
 #else
 #error "Not implemented"
 #endif

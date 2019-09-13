@@ -25,39 +25,45 @@
  */
 
 /* 
- * File:   OnlyCodec.cpp
+ * File:   OnlyCodec.hpp
  * Author: simon
- * 
+ *
  * Created on September 12, 2019, 3:06 PM
  */
 
-#include "OnlyCodec.hpp"
+#ifndef SIMULATION_ONLYCODEC_HPP
+#define SIMULATION_ONLYCODEC_HPP
 
-using namespace aff3ct;
-using namespace aff3ct::simulation;
 
-template <typename B, typename R, typename Q>
-OnlyCodec<B,R,Q>
-::OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec):
-// Simulation(params_OnlyCodec), 
-        params_OnlyCodec(params_OnlyCodec)
+#include <aff3ct-addons/factory/OnlyCodec.hpp>
+#include <Simulation/Simulation.hpp>
+
+#include <Module/Codec/Codec_SISO_SIHO.hpp>
+
+#include "CodecRun.hpp"
+
+namespace aff3ct
 {
+namespace simulation
+{
+template <typename B = int, typename R = float, typename Q = R>
+class OnlyCodec : public CodecRun {
+protected:
+    const aff3ct::factory::OnlyCodec::parameters& params_OnlyCodec;
     
-}
+    std::unique_ptr<module::Codec_SISO_SIHO <B,  Q>>        codec;
+    
+public:
+    explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);
+    virtual ~OnlyCodec() = default;
+   
+    virtual void iterate(void *in, void *out);
+    virtual void initialize();
+private:
 
-template <typename B, typename R, typename Q>
-void OnlyCodec<B,R,Q>
-::iterate(void *in, void *out)
-{
-    std::cout << "OnlyCodec::iterate() " << std::endl;
-}
+};
+} //namespace simulation
+} //namespace aff3ct
 
-// ==================================================================================== explicit template instantiation
-#include "Tools/types.h"
-#ifdef AFF3CT_MULTI_PREC
-template class aff3ct::simulation::OnlyCodec<B_8,R_8,Q_8>;
-template class aff3ct::simulation::OnlyCodec<B_32,R_32,Q_32>;
-#else
-#error "Not yet implemented"
-#endif
-// ==================================================================================== explicit template instantiation
+#endif /* SIMULATION_ONLYCODEC_HPP */
+

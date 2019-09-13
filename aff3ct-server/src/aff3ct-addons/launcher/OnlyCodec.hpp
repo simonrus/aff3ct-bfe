@@ -25,40 +25,47 @@
  */
 
 /* 
- * File:   OnlyCodec.hpp
+ * Launcher to run stand-alone codec with encode/decode operations
  * Author: simon
  *
- * Created on September 12, 2019, 3:06 PM
+ * Created on September 2, 2019, 10:10 PM
  */
 
-#ifndef SIMULATION_ONLYCODEC_HPP
-#define SIMULATION_ONLYCODEC_HPP
+#ifndef LAUNCHER_ONLYCODEC_HPP
+#define LAUNCHER_ONLYCODEC_HPP
 
+#include <aff3ct-addons/launcher/CodecRun.hpp>
+#include <aff3ct-addons/factory/OnlyCodec.hpp>
 
-#include <Factory/OnlyCodec.hpp>
-#include <Simulation/Simulation.hpp>
+/*
+namespace aff3ct {
+namespace simulation{
+    class CodecRun;
+}
+}*/
 
-#include "CodecRun.hpp"
-
-namespace aff3ct
-{
-namespace simulation
-{
-template <typename B = int, typename R = float, typename Q = R>
-class OnlyCodec : public CodecRun {
-private:
-    const aff3ct::factory::OnlyCodec::parameters& params_OnlyCodec;
-public:
+namespace aff3ct {
+namespace launcher{
     
-    explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);
-    virtual ~OnlyCodec() = default;
-    virtual void iterate(void *in, void *out);
-   
-private:
+template <typename B = int, typename R = float, typename Q = R>
+class OnlyCodec: public CodecRun {
+    protected:
+	factory::OnlyCodec::parameters params;
 
+    public:
+	OnlyCodec(const int argc, const char **argv, std::ostream &stream = std::cout);
+	virtual ~OnlyCodec() = default;
+
+    protected:
+	virtual void get_description_args();
+	virtual void store_args();
+
+	//virtual simulation::CodecRun* build_simu();
 };
-} //namespace simulation
+
+
+} //namespace launcher
 } //namespace aff3ct
 
-#endif /* SIMULATION_ONLYCODEC_HPP */
+#endif /* LAUNCHER_ONLYCODEC_HPP */
 

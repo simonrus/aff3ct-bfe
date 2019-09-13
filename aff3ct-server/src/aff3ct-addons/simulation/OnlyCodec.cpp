@@ -25,40 +25,47 @@
  */
 
 /* 
- * Launcher to run stand-alone codec with encode/decode operations
+ * File:   OnlyCodec.cpp
  * Author: simon
- *
- * Created on September 2, 2019, 10:10 PM
+ * 
+ * Created on September 12, 2019, 3:06 PM
  */
 
-#ifndef LAUNCHER_ONLYCODEC_HPP
-#define LAUNCHER_ONLYCODEC_HPP
-#include <Factory/OnlyCodec.hpp>
+#include "OnlyCodec.hpp"
 
-#include <Launcher/Launcher.hpp>
+using namespace aff3ct;
+using namespace aff3ct::simulation;
 
-namespace aff3ct {
-namespace launcher{
+template <typename B, typename R, typename Q>
+OnlyCodec<B,R,Q>
+::OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec):
+// Simulation(params_OnlyCodec), 
+        params_OnlyCodec(params_OnlyCodec)
+{
     
-template <typename B = int, typename R = float, typename Q = R>
-class OnlyCodec: public Launcher {
-    protected:
-	factory::OnlyCodec::parameters params;
-
-    public:
-	OnlyCodec(const int argc, const char **argv, std::ostream &stream = std::cout);
-	virtual ~OnlyCodec() = default;
-
-    protected:
-	virtual void get_description_args();
-	virtual void store_args();
-
-	virtual simulation::Simulation* build_simu();
-};
+}
 
 
-} //namespace launcher
-} //namespace aff3ct
+template <typename B, typename R, typename Q>
+void OnlyCodec<B,R,Q>
+::initialize()
+{
+    std::cout << "OnlyCodec::initialize() " << std::endl;
+}
 
-#endif /* LAUNCHER_ONLYCODEC_HPP */
+template <typename B, typename R, typename Q>
+void OnlyCodec<B,R,Q>
+::iterate(void *in, void *out)
+{
+    std::cout << "OnlyCodec::iterate() " << std::endl;
+}
 
+// ==================================================================================== explicit template instantiation
+#include "Tools/types.h"
+#ifdef AFF3CT_MULTI_PREC
+template class aff3ct::simulation::OnlyCodec<B_8,R_8,Q_8>;
+template class aff3ct::simulation::OnlyCodec<B_32,R_32,Q_32>;
+#else
+#error "Not yet implemented"
+#endif
+// ==================================================================================== explicit template instantiation

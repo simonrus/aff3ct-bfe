@@ -40,7 +40,7 @@ using namespace aff3ct::launcher;
 template <typename B, typename R, typename Q>
 OnlyCodec<B,R,Q>
 ::OnlyCodec(const int argc, const char **argv, std::ostream &stream)
-: Launcher(argc, argv, params, stream)
+: CodecRun(argc, argv, params, stream)
 {
 	/*
         params.set_src(new factory::Source      ::parameters("src"));
@@ -59,12 +59,12 @@ template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::get_description_args()
 {
-    Launcher::get_description_args();
+    CodecRun::get_description_args();
     
     //TODO: CHECK /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Simulation/BFER_std.cpp
     
     
-    params.     get_description(this->args);
+    //params.     get_description(this->args);
     /*
     params.src->get_description(this->args);
     */
@@ -86,7 +86,7 @@ template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::store_args()
 {
-    Launcher::store_args();
+    CodecRun::store_args();
     
     //TODO: CHECK /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Simulation/BFER_std.cpp
     /*
@@ -99,15 +99,16 @@ void OnlyCodec<B,R,Q>
     auto psrc = params.src->get_prefix();
      */
 }
-
+/*
 template <typename B, typename R, typename Q>
-simulation::Simulation* OnlyCodec<B,R,Q>
+simulation::CodecRun* OnlyCodec<B,R,Q>
 ::build_simu()
 {
     return nullptr;
     //TODO !
     //return factory::OnlyCodec::build<B,R,Q>(params); 
 }
+ * */
 
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"

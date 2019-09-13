@@ -25,8 +25,6 @@
 
 #include "Model.h"
 
-
-
 std::error_code Model::constructAll()
 {
     std::error_code ec = make_error_code(Aff3ctErrc::NoError);
@@ -50,17 +48,57 @@ void Model::setDebugPrint(bool bEnabled)
 bool Model::reset()
 {
     
-    std::unique_ptr<factory::OnlyCodec::parameters>                params(new factory::OnlyCodec::parameters());
+   // std::unique_ptr<factory::OnlyCodec::parameters>                params(new factory::OnlyCodec::parameters());
     
-    p_params.swap(params);
+    //p_params.swap(params);
 }
 
+bool Model::read_arguments(const int argc, const char** argv, factory::OnlyCodec::parameters &params)
+{
+    tools::Argument_handler ah(argc, argv);
+
+    tools::Argument_map_info args;
+    tools::Argument_map_group arg_group;
+
+    std::vector<std::string> cmd_warn, cmd_error;
+
+    params.get_description(args);
+
+    auto arg_vals = ah.parse_arguments(args, cmd_warn, cmd_error);
+
+    bool display_help = false;
+    try {
+        params.store(arg_vals);
+        ah.set_help_display_keys(params.display_keys);
+    } catch (std::exception&) {
+        display_help = true;
+    }
+
+    //if (params.display_version)
+    //    print_version();
+
+    if (cmd_error.size() || display_help) {
+        arg_group["sim"] = "Simulation parameter(s)";
+        ah.print_help(args, arg_group, params.display_adv_help);
+
+        if (cmd_error.size()) std::cerr << std::endl;
+        for (auto w = 0; w < (int) cmd_error.size(); w++)
+            std::cerr << rang::tag::error << cmd_error[w] << std::endl;
+
+        if (cmd_warn.size()) std::cerr << std::endl;
+        for (auto w = 0; w < (int) cmd_warn.size(); w++)
+            std::cerr << rang::tag::warning << cmd_warn[w] << std::endl;
+    }
+    return (cmd_error.size() || display_help) ? EXIT_FAILURE : EXIT_SUCCESS;
+}
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
  * \param arg_vec - vector arguments where arg_vec[0] shall be interpreted as a program name
  */
 bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream)
 {
+    int exit_code;
+    
     std::vector<const char *> argv;
 
     argv.reserve(arg_vec.size());
@@ -71,31 +109,53 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
 
     reset();
 
-    m_paramsList =  {p_params.get()};
+    
+    //m_paramsList =  {p_params.get()};
 
-    factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
+    //factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
+    if (read_arguments(argv.size(), (const char**)&argv[0], m_params) == EXIT_FAILURE) 
+    {
+        err_stream << "Failed" << std::endl;
+        return false;
     
+    }
+
         
-    if (cp.help_required())
-    {
-        cp.print_help    ();
-        return false;
-    }
-    
+#ifdef AFF3CT_MULTI_PREC
+        std::cout << "sim_prec " << m_params.sim_prec << std::endl;
+        switch (m_params.sim_prec) {
+            
+            case 8: m_codec =  std::unique_ptr<simulation::CodecRun> (factory::OnlyCodec::build<B_8, R_8, Q_8 >(m_params));    break;
+            //case 16: launcher = factory::OnlyCodec::build<B_16, R_16, Q_16>(m_params); break;
+            case 32: m_codec =  std::unique_ptr<simulation::CodecRun> (factory::OnlyCodec::build<B_32, R_32, Q_32 >(m_params));    break;
+            //case 64: launcher = factory::OnlyCodec::build<B_64, R_64, Q_64>(m_params); break;
+            //default: launcher = nullptr;
+                break;
+        }
+#else
+#error Not implemented
+#endif
+        
+//    if (cp.help_required())
+//    {
+//        cp.print_help    ();
+//        return false;
+//    }
+//    
     // parse the command for the given parameters and fill them
-    if (cp.parsing_failed())
-    {
-        cp.print_warnings();
-        cp.print_errors  ();
-    
-        //TRACELOG(ERROR,"cp.parsing_failed");
-        //FIXME: Redirect std::cout to log!
-        return false;
-    }
-       
-    // display the headers (= print the AFF3CT parameters on the screen)
-    factory::Header::print_parameters(m_paramsList); 
-    cp.print_warnings();
+//    if (cp.parsing_failed())
+//    {
+//        cp.print_warnings();
+//        cp.print_errors  ();
+//    
+//        //TRACELOG(ERROR,"cp.parsing_failed");
+//        //FIXME: Redirect std::cout to log!
+//        return false;
+//    }
+//       
+//    // display the headers (= print the AFF3CT parameters on the screen)
+//    factory::Header::print_parameters(m_paramsList); 
+//    cp.print_warnings();
         
     ec = constructAll();
     if (ec)
@@ -181,6 +241,14 @@ void Model::iterate(void)
 {
     using namespace module;
      
-    
+    std::cout << "Model::iterate()" << std::endl;
+    try {           
+        if (m_codec)
+        {
+            m_codec->iterate(nullptr, nullptr);
+        }
+    } catch (std::exception const& e) {
+        std::cout << "Exception:" << e.what() << std::endl;
+    }
    
 }

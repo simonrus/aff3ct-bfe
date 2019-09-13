@@ -38,16 +38,26 @@ using namespace aff3ct::simulation;
 
 template <typename B, typename R, typename Q>
 OnlyCodec<B,R,Q>
-::OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec)
-: Simulation(params_OnlyCodec), 
+::OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec):
+// Simulation(params_OnlyCodec), 
         params_OnlyCodec(params_OnlyCodec)
 {
     
 }
 
 template <typename B, typename R, typename Q>
-OnlyCodec<B,R,Q>
-::launch()
+void OnlyCodec<B,R,Q>
+::iterate(void *in, void *out)
 {
-    
+    std::cout << "OnlyCodec::iterate() " << std::endl;
 }
+
+// ==================================================================================== explicit template instantiation
+#include "Tools/types.h"
+#ifdef AFF3CT_MULTI_PREC
+template class aff3ct::simulation::OnlyCodec<B_8,R_8,Q_8>;
+template class aff3ct::simulation::OnlyCodec<B_32,R_32,Q_32>;
+#else
+#error "Not yet implemented"
+#endif
+// ==================================================================================== explicit template instantiation

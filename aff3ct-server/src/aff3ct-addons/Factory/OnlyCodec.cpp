@@ -33,6 +33,7 @@
 
 #include "OnlyCodec.hpp"
 #include "Tools/Documentation/documentation.h"
+#include "Simulation/OnlyCodec.hpp"
 
 using namespace aff3ct;
 using namespace aff3ct::factory;
@@ -127,6 +128,25 @@ simulation::OnlyCodec<B,R,Q>* OnlyCodec::parameters::build() const
         #error "SystemC module for OnlyCodec is not implemented"
 #else
 //	return new simulation::BFER_ite_threads<B,R,Q>(*this);
-        return nullptr;
+    return new simulation::OnlyCodec<B,R,Q> (*this);
+//        return nullptr;
 #endif
 }
+
+template <typename B, typename R, typename Q>
+simulation::OnlyCodec<B,R,Q>* OnlyCodec::build(const parameters &params)
+{
+	return params.template build<B,R,Q>();
+}
+
+// ==================================================================================== explicit template instantiation
+#include "Tools/types.h"
+#ifdef AFF3CT_MULTI_PREC
+template simulation::OnlyCodec<B_8,R_8,Q_8>* OnlyCodec::parameters::build<B_8,R_8,Q_8>() const;
+template simulation::OnlyCodec<B_32,R_32,Q_32>* OnlyCodec::parameters::build<B_32,R_32,Q_32>() const;
+template simulation::OnlyCodec<B_8,R_8,Q_8>* OnlyCodec::build(const aff3ct::factory::OnlyCodec::parameters &params);
+template simulation::OnlyCodec<B_32,R_32,Q_32>* OnlyCodec::build(const aff3ct::factory::OnlyCodec::parameters &params);
+#else
+#error "Not implemented"
+#endif
+// ==================================================================================== explicit template instantiation

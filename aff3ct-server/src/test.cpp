@@ -79,6 +79,14 @@ int enableSIGTermHandler()
 
 std::map<std::string, std::vector<float>> g_MemoryContainer;
 
+enum ECommand {
+    eInit, 
+    eIter
+};
+
+std::map<std::string, enum ECommand> g_supportedCommands = { {"init", eInit},
+                                                     {"iter", eIter}};
+
 bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
 {    
     bool result;
@@ -89,25 +97,49 @@ bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
         return false;
     }
     std::string front = args.front();
-        
-    if (front == "init")
-    {   
-        std::error_code ec;
-        result = g_model.init(args, ec, err_stream);
-        
-        if (ec)
-        {
-            std::cout << ec << std::endl;
-            TRACELOG(ERROR, "Model failed to init: %s", ec.message().c_str());    
-        }
-        
-        return result;
-    }
-    else {
+    
+    if (g_supportedCommands.find(front) == g_supportedCommands.end()) 
+    {
         TRACELOG(ERROR, "wrong command %s", front.c_str());  
         return false;
     }
     
+    std::error_code ec;
+    ECommand eCommand = g_supportedCommands[front];
+
+    switch (eCommand) {
+        case eInit:
+            result = g_model.init(args, ec, err_stream);
+            if (ec) {
+                std::cout << ec << std::endl;
+                TRACELOG(ERROR, "Model failed to init: %s", ec.message().c_str());
+            } else {
+                std::cout << "Model initialized" << std::endl;
+            }
+
+            break;
+
+        case eIter:
+            g_model.iterate();
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
+}
+
+void sendCommand(std::vector<std::string> &command)
+{
+    std::list<std::string> args;
+
+    for (int i = 0; i < command.size(); i++) 
+    {
+        args.push_back(command[i]);
+    }
+    
+    processCommand(args, getErrStream());
 }
 
 int main(int argc, char** argv)
@@ -122,7 +154,7 @@ int main(int argc, char** argv)
     using namespace std::chrono;
     milliseconds us = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
     unsigned int seed = (unsigned int) us.count() % 65536;
-    std::vector<std::string> all_args = {
+    std::vector<std::string> init_command = {
         "init",
         "-C",
         "REP",
@@ -143,15 +175,12 @@ int main(int argc, char** argv)
         "-e",
         "500"};
     
-    std::list<std::string> args;
+    sendCommand(init_command);
 
-    for (int i = 0; i < all_args.size(); i++) 
-    {
-        args.push_back(all_args[i]);
-    }
+    std::vector<std::string> iter_command = {"iter"};
+    sendCommand(iter_command);
     
-    processCommand(args, getErrStream());
+        
     TRACELOG(INFO, "ErrStream is %s", getErrStream().str().c_str());
-    
     return 0;
 }

@@ -40,7 +40,7 @@
 #include "aff3ct-errc.h"
 #include "aff3ct-addons/Source_memory.hpp"
 #include "aff3ct-addons/Monitor_BFER_detailed.hpp"
-#include "aff3ct-addons/Factory/OnlyCodec.hpp"
+#include "aff3ct-addons/Simulation/OnlyCodec.hpp"
 
 using namespace aff3ct;
 
@@ -48,9 +48,12 @@ class Model {
 
 protected:
     
-    std::unique_ptr<factory::OnlyCodec::parameters >   p_params;
+    //std::unique_ptr<factory::OnlyCodec::parameters >   p_params;
     
-    std::vector<factory::Factory::parameters*> m_paramsList;
+    //std::vector<factory::Factory::parameters*> m_paramsList;
+    
+    std::unique_ptr<simulation::CodecRun>               m_codec;
+    factory::OnlyCodec::parameters              m_params;
     
     std::error_code constructAll();
     
@@ -61,7 +64,7 @@ protected:
 public:
     void setNoise(float ebn0);
     
-    Model() = default;
+    Model():m_params("sim") { };
     virtual ~Model() = default;
     
     bool init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream = std::cerr);
@@ -72,7 +75,8 @@ public:
     
     void resetMonitor();
   
-
+    
+    static bool read_arguments(const int argc, const char** argv, factory::OnlyCodec::parameters &params);
     
 };
 

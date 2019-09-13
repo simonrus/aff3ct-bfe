@@ -113,9 +113,8 @@ simulation::Simulation* OnlyCodec<B,R,Q>
 #include "Tools/types.h"
 #ifdef AFF3CT_MULTI_PREC
 template class aff3ct::launcher::OnlyCodec<B_8,R_8,Q_8>;
-template class aff3ct::launcher::OnlyCodec<B_16,R_16,Q_16>;
 template class aff3ct::launcher::OnlyCodec<B_32,R_32,Q_32>;
-template class aff3ct::launcher::OnlyCodec<B_64,R_64,Q_64>;
 #else
 template class aff3ct::launcher::OnlyCodec<B,R,Q>;
+#error "Not implemented"
 #endif

@@ -25,40 +25,20 @@
  */
 
 /* 
- * File:   OnlyCodec.hpp
+ * File:   CodecRun.cpp
  * Author: simon
- *
- * Created on September 12, 2019, 3:06 PM
+ * 
+ * Created on September 13, 2019, 11:15 AM
  */
-
-#ifndef SIMULATION_ONLYCODEC_HPP
-#define SIMULATION_ONLYCODEC_HPP
-
-
-#include <Factory/OnlyCodec.hpp>
-#include <Simulation/Simulation.hpp>
 
 #include "CodecRun.hpp"
 
-namespace aff3ct
-{
-namespace simulation
-{
-template <typename B = int, typename R = float, typename Q = R>
-class OnlyCodec : public CodecRun {
-private:
-    const aff3ct::factory::OnlyCodec::parameters& params_OnlyCodec;
-public:
-    
-    explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);
-    virtual ~OnlyCodec() = default;
-    virtual void iterate(void *in, void *out);
-   
-private:
 
-};
-} //namespace simulation
-} //namespace aff3ct
+using namespace aff3ct;
+using namespace aff3ct::simulation;
 
-#endif /* SIMULATION_ONLYCODEC_HPP */
+CodecRun::CodecRun() {
+}
+
+
 

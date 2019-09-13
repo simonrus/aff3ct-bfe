@@ -43,7 +43,7 @@ namespace aff3ct
 {
 namespace simulation
 {
-template <typename B = int, typename R = float, typename Q = R>
+template <typename B, typename R, typename Q>
 class OnlyCodec;
 }
 }
@@ -90,6 +90,10 @@ struct OnlyCodec:public aff3ct::factory::Simulation
     protected:
         parameters(const std::string &n, const std::string &p);
     }; 
+    
+    
+    template <typename B = int, typename R = float, typename Q = R>
+    static simulation::OnlyCodec<B,R,Q>* build(const parameters &params);
 }; //struct OnlyCodec
 } //namespace factory
 } //namespace aff3ct

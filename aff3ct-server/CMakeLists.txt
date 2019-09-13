@@ -50,6 +50,8 @@ set(AFF3CT_ADDONS_SRCS
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Source_memory.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Factory/OnlyCodec.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Launcher/OnlyCodec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Simulation/CodecRun.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/Simulation/OnlyCodec.cpp
 )
     
 #set main sources

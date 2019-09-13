@@ -127,7 +127,10 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
             
             //case 8: m_codec =  std::unique_ptr<simulation::CodecRun> (factory::OnlyCodec::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
             //case 16: launcher = factory::OnlyCodec::build<B_16, R_16, Q_16>(m_params); break;
-            //case 32: m_codec =  std::unique_ptr<launcher::CodecRun> (factory::OnlyCodec::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
+            case 32: 
+                launcher::CodecRun *codecrun = factory::OnlyCodec::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout);
+                //m_codec =  std::unique_ptr<simulation::CodecRun> (codecrun);    
+                break;
             //case 64: launcher = factory::OnlyCodec::build<B_64, R_64, Q_64>(m_params); break;
             //default: launcher = nullptr;
                 break;
@@ -158,7 +161,7 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
 //    cp.print_warnings();
         
     if (!m_codec) {
-        std::cout << "Codec is not initialized";
+        std::cout << "Codec is not initialized" << std::endl;
         return false;
     }
         

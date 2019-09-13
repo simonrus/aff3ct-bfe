@@ -47,8 +47,7 @@ namespace aff3ct
 {
 namespace launcher
 {
-template <typename B, typename R, typename Q>
-class OnlyCodec;
+class CodecRun;
 }
 }
 
@@ -91,7 +90,7 @@ struct OnlyCodec:public aff3ct::factory::Simulation
 
         // builder
         template <typename B = int, typename R = float, typename Q = R>
-        launcher::OnlyCodec<B,R,Q>* build(const int argc, const char **argv, std::ostream &stream) const;
+        launcher::CodecRun* build(const int argc, const char **argv, std::ostream &stream) const;
 
     protected:
         parameters(const std::string &n, const std::string &p);
@@ -99,7 +98,7 @@ struct OnlyCodec:public aff3ct::factory::Simulation
     
     
     template <typename B = int, typename R = float, typename Q = R>
-    static launcher::OnlyCodec<B,R,Q>* build(const parameters &params, const int argc, const char **argv, std::ostream &stream);
+    static launcher::CodecRun* build(const parameters &params, const int argc, const char **argv, std::ostream &stream);
 }; //struct OnlyCodec
 } //namespace factory
 } //namespace aff3ct

@@ -50,14 +50,14 @@ template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::initialize()
 {
-    std::cout << "OnlyCodec::initialize() " << std::endl;
+    PRINT_POINT();
 }
 
 template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::iterate(void *in, void *out)
 {
-    std::cout << "OnlyCodec::iterate() " << std::endl;
+    PRINT_POINT();
 }
 
 // ==================================================================================== explicit template instantiation

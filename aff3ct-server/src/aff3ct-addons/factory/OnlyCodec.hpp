@@ -43,6 +43,8 @@
 #include <Factory/Simulation/Simulation.hpp>
 #include <Factory/Module/Codec/Codec.hpp>
 
+#define PRINT_POINT(x)      std::cout << __PRETTY_FUNCTION__ << std::endl;
+
 namespace aff3ct
 {
 namespace launcher
@@ -85,8 +87,12 @@ struct OnlyCodec:public aff3ct::factory::Simulation
         virtual std::vector<std::string> get_prefixes   () const;
 
         //Codec settings
+        
+        void set_src   (Source      ::parameters *src);
+        
         void set_cdc   (Codec       ::parameters *cdc);
         const Codec::parameters* get_cdc() const;
+        
 
         // builder
         template <typename B = int, typename R = float, typename Q = R>

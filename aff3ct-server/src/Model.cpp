@@ -56,6 +56,7 @@ bool Model::reset()
 
 bool Model::read_arguments(const int argc, const char** argv, factory::OnlyCodec::parameters &params)
 {
+    PRINT_POINT();
     tools::Argument_handler ah(argc, argv);
 
     tools::Argument_map_info args;
@@ -67,7 +68,7 @@ bool Model::read_arguments(const int argc, const char** argv, factory::OnlyCodec
 
     auto arg_vals = ah.parse_arguments(args, cmd_warn, cmd_error);
 
-    bool display_help = false;
+    bool display_help = true;
     try {
         params.store(arg_vals);
         ah.set_help_display_keys(params.display_keys);
@@ -90,7 +91,7 @@ bool Model::read_arguments(const int argc, const char** argv, factory::OnlyCodec
         for (auto w = 0; w < (int) cmd_warn.size(); w++)
             std::cerr << rang::tag::warning << cmd_warn[w] << std::endl;
     }
-    return (cmd_error.size() || display_help) ? EXIT_FAILURE : EXIT_SUCCESS;
+    return (cmd_error.size()) ? EXIT_FAILURE : EXIT_SUCCESS;
 }
 /*
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
@@ -98,6 +99,8 @@ bool Model::read_arguments(const int argc, const char** argv, factory::OnlyCodec
  */
 bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream)
 {
+    PRINT_POINT();
+    
     int exit_code;
     
     std::vector<const char *> argv;
@@ -113,13 +116,17 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     
     //m_paramsList =  {p_params.get()};
 
+    std::cout << "********** 1st args parsing *********** " << std::endl;
     //factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
     if (read_arguments(argv.size(), (const char**)&argv[0], m_params) == EXIT_FAILURE) 
     {
-        err_stream << "Failed" << std::endl;
+        std::cout << "read_arguments failed" << std::endl;
         return false;
     
     }
+    
+    std::cout << "read_arguments finished" << std::endl;
+    
 
     std::unique_ptr<launcher::CodecRun> codecLauncher;
         

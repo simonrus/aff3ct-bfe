@@ -38,6 +38,7 @@
 #include <aff3ct-addons/simulation/CodecRun.hpp>
 
 #include <Tools/Arguments/Argument_handler.hpp>
+
 namespace aff3ct
 {
 namespace launcher
@@ -53,7 +54,7 @@ public:
             factory::OnlyCodec::parameters &params, 
             std::ostream &stream = std::cout);
     
-    virtual void get_description_args();
+    virtual void get_description_args();        /*< function that declares arguments for this module. Result shall be saved to this->args*/
     virtual void store_args();
         
     virtual ~CodecRun() = default;
@@ -66,8 +67,7 @@ protected:
     
     factory::OnlyCodec::parameters  &params_common; /*!< A structure of parameters to store and pass to the simulation. */
     std::ostream                    &stream;  /*!< The dedicated stream in which the Launcher writes the parameters. */
-    
-private:
+
     int read_arguments();
     std::vector<std::string>         cmd_warn;
 };

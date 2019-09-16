@@ -64,6 +64,13 @@ void OnlyCodec::parameters
     this->cdc.reset(cdc);
 }
 
+void OnlyCodec::parameters
+::set_src(Source::parameters *src)
+{
+	this->src.reset(src);
+}
+
+
 const Codec::parameters* OnlyCodec::parameters::get_cdc() const
 {
     return this->cdc.get();

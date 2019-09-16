@@ -42,16 +42,19 @@ OnlyCodec<B,R,Q>
 ::OnlyCodec(const int argc, const char **argv, std::ostream &stream)
 : CodecRun(argc, argv, params, stream)
 {
-	/*
-        params.set_src(new factory::Source      ::parameters("src"));
-	params.set_crc(new factory::CRC         ::parameters("crc"));
-	params.set_mdm(new factory::Modem       ::parameters("mdm"));
-	params.set_chn(new factory::Channel     ::parameters("chn"));
-	params.set_qnt(new factory::Quantizer   ::parameters("qnt"));
-	params.set_mnt_mi(new factory::Monitor_MI  ::parameters("mnt"));
-	params.set_mnt_er(new factory::Monitor_BFER::parameters("mnt"));
-	params.set_ter(new factory::Terminal    ::parameters("ter"));
-        */
+    PRINT_POINT();
+    params.set_src(new factory::Source      ::parameters("src"));
+    
+    /*
+
+    params.set_crc(new factory::CRC         ::parameters("crc"));
+    params.set_mdm(new factory::Modem       ::parameters("mdm"));
+    params.set_chn(new factory::Channel     ::parameters("chn"));
+    params.set_qnt(new factory::Quantizer   ::parameters("qnt"));
+    params.set_mnt_mi(new factory::Monitor_MI  ::parameters("mnt"));
+    params.set_mnt_er(new factory::Monitor_BFER::parameters("mnt"));
+    params.set_ter(new factory::Terminal    ::parameters("ter"));
+    */
 }
 
 
@@ -59,18 +62,18 @@ template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::get_description_args()
 {
-    std::cout << "launcher::OnlyCodec::get_description_args() " << std::endl;
+    PRINT_POINT();
+    
     CodecRun::get_description_args();
     
     params.     get_description(this->args);
+    params.src->get_description(this->args);
     
     //TODO: CHECK /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Simulation/BFER_std.cpp
     
     
     //params.     get_description(this->args);
-    /*
-    params.src->get_description(this->args);
-    */
+    
     
     /*
     auto psrc = params.src     ->get_prefix();
@@ -91,6 +94,8 @@ template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::store_args()
 {
+    PRINT_POINT();
+    
     std::cout << "launcher::OnlyCodec::store_args() " << std::endl;
     CodecRun::store_args();
     
@@ -110,6 +115,13 @@ template <typename B, typename R, typename Q>
 simulation::CodecRun* OnlyCodec<B,R,Q>
 ::build_simu()
 {
+    PRINT_POINT();
+    if (this->read_arguments() == EXIT_FAILURE) {
+        std::cout << "build_simu failed " << std::endl;
+        return nullptr;
+    }
+    
+    
     std::vector<aff3ct::factory::Factory::parameters*> paramsPtrs;
     paramsPtrs.push_back(&params);
     

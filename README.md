@@ -1,11 +1,18 @@
-# Introduction
+# Introduction (Motivation)
+The project allows 3rd party applications to remotely encode/decode messages using different FEC codecs from AFF3CT library
+
+The messages and codec settings are transmitted using RPC text protocol based on protobuf (will be moved to flatbuffers later).
+
+The project can be used to compare FEC codec implementations with a well-known reference implementation
+
+# Components
 This project provides backend and sample python-frontend for the Fast Forward Error Correction toolbox. 
 
 It has the following parts:
-- Aff3ct-server is a backend. It runs as a stand-alone server, executes RPC commands and allows to remotely 
-- Protocol describes RPC asynchronous mechanism to 
+- Aff3ct-server is a backend. It runs as a stand-alone server, executes RPC commands and allows to encode/decode messages using FEC.
+- RPC Protocol describes synchronous mechanism and messages used to 
     -- configure aff3ct-library server
-    -- push/pull vectors/matrices from frontend to backend 
+    -- push/pull data (vectors/matrices) from frontend to backend 
     -- execute operations on the vectors/matrix using aff3ct-library
 - Aff3ct-client is a simple frontend, written in Python. It provides an interactive command shell to control remote aff3ct server
 

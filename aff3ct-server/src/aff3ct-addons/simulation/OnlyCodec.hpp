@@ -34,12 +34,14 @@
 #ifndef SIMULATION_ONLYCODEC_HPP
 #define SIMULATION_ONLYCODEC_HPP
 
+#include <random>
 
 #include <aff3ct-addons/factory/OnlyCodec.hpp>
 #include <Simulation/Simulation.hpp>
 
 #include <Module/Codec/Codec_SISO_SIHO.hpp>
-
+#include <Factory/Module/Codec/Codec.hpp>
+#include <Factory/Module/Codec/Codec_SISO_SIHO.hpp>
 #include "CodecRun.hpp"
 
 namespace aff3ct
@@ -47,11 +49,12 @@ namespace aff3ct
 namespace simulation
 {
 template <typename B = int, typename R = float, typename Q = R>
-class OnlyCodec : public CodecRun {
+class OnlyCodec : public CodecRun 
+{
 protected:
-    const aff3ct::factory::OnlyCodec::parameters& params_OnlyCodec;
-    
+    const aff3ct::factory::OnlyCodec::parameters&           params_OnlyCodec;
     std::unique_ptr<module::Codec_SISO_SIHO <B,  Q>>        codec;
+    std::mt19937                                            rd_engine_seed;
     
 public:
     explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);

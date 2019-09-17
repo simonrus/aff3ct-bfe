@@ -186,7 +186,9 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     ec = constructAll();
     if (ec)
         return false; 
-       
+    
+    m_codec->initialize();
+    m_codec->iterate(nullptr, nullptr);
 
 #ifdef ENABLE_REPORTERS
     // create reporters to display results in the terminal

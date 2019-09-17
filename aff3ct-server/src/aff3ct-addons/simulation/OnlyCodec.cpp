@@ -38,11 +38,11 @@ using namespace aff3ct::simulation;
 
 template <typename B, typename R, typename Q>
 OnlyCodec<B,R,Q>
-::OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec):
-// Simulation(params_OnlyCodec), 
-        params_OnlyCodec(params_OnlyCodec)
+::OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec)
+:params_OnlyCodec(params_OnlyCodec)
 {
-    
+    PRINT_POINT();
+    rd_engine_seed.seed(params_OnlyCodec.local_seed);
 }
 
 
@@ -51,6 +51,35 @@ void OnlyCodec<B,R,Q>
 ::initialize()
 {
     PRINT_POINT();
+    
+    const auto seed_enc = rd_engine_seed();
+    const auto seed_dec = rd_engine_seed();
+
+    std::unique_ptr<factory::Codec::parameters> params_cdc(params_OnlyCodec.cdc->clone());
+    if (params_cdc) {
+        std::cout << "params_cdc is OK " << std::endl;
+                
+        std::vector<aff3ct::factory::Factory::parameters*> paramsPtrs;
+        paramsPtrs.push_back(params_cdc.get());
+        aff3ct::factory::Header::print_parameters(paramsPtrs, true, std::cout);
+    }
+    else
+        std::cout << "params_cdc are failed " << std::endl;
+    
+    params_cdc->enc->seed = seed_enc;
+    params_cdc->dec->seed = seed_dec;
+
+    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(params_cdc.get());
+    
+    if (param_siso_siho == nullptr)
+        std::cout << "param_siso_siho is null!!!" << std::endl; 
+    
+    codec = std::unique_ptr<module::Codec_SISO_SIHO<B,Q>>(param_siso_siho->template build<B,Q>(nullptr));
+    
+    if (codec)
+        std::cout << "codec is OK " << std::endl;
+    else
+        std::cout << "codec is NULL " << std::endl;
 }
 
 template <typename B, typename R, typename Q>

@@ -51,7 +51,6 @@ template <typename B = int, typename R = float, typename Q = R>
 class OnlyCodec: public CodecRun {
     protected:
 	factory::OnlyCodec::parameters params;
-
     public:
 	OnlyCodec(const int argc, const char **argv, std::ostream &stream = std::cout);
 	virtual ~OnlyCodec() = default;

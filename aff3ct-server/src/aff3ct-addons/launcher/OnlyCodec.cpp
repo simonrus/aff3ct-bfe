@@ -32,6 +32,7 @@
  */
 
 #include "OnlyCodec.hpp"
+#include "aff3ct-addons/simulation/OnlyCodec.hpp"
 
 
 using namespace aff3ct;
@@ -116,21 +117,18 @@ simulation::CodecRun* OnlyCodec<B,R,Q>
 ::build_simu()
 {
     PRINT_POINT();
+    
     if (this->read_arguments() == EXIT_FAILURE) {
         std::cout << "build_simu failed " << std::endl;
         return nullptr;
     }
-    
-    
+        
     std::vector<aff3ct::factory::Factory::parameters*> paramsPtrs;
     paramsPtrs.push_back(&params);
-    
     aff3ct::factory::Header::print_parameters(paramsPtrs, true, std::cout);
     
-    //return FIXME;
-    return nullptr;
-    //TODO !
-    //return factory::OnlyCodec::build<B,R,Q>(params); 
+    return new simulation::OnlyCodec<B,R,Q>(params);
+    
 }
 
 // ==================================================================================== explicit template instantiation

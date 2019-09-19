@@ -45,12 +45,47 @@ OnlyCodec<B,R,Q>
     rd_engine_seed.seed(params_OnlyCodec.local_seed);
 }
 
+template <typename B, typename R, typename Q>
+void OnlyCodec<B,R,Q>
+::printCodecType()
+{
+    
+    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
+    std::cout << "Codec_SISO_SIHO ";
+    if (param_siso_siho != nullptr)
+        std::cout << "[*]" << std::endl; 
+    else
+        std::cout << "[ ]" << std::endl; 
+    
+    auto param_siso = dynamic_cast<factory::Codec_SISO::parameters*>(params_OnlyCodec.cdc.get());    
+    std::cout << "Codec_SISO      ";
+    if (param_siso != nullptr)
+        std::cout << "[*]" << std::endl; 
+    else
+        std::cout << "[ ]" << std::endl; 
+    
+    auto param_siho = dynamic_cast<factory::Codec_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
+    std::cout << "Codec_SIHO      ";
+    if (param_siho != nullptr)
+        std::cout << "[*]" << std::endl; 
+    else
+        std::cout << "[ ]" << std::endl; 
+    
+    auto param_hiho = dynamic_cast<factory::Codec_HIHO::parameters*>(params_OnlyCodec.cdc.get());    
+    std::cout << "Codec_HIHO      ";
+    if (param_siso != nullptr)
+        std::cout << "[*]" << std::endl; 
+    else
+        std::cout << "[ ]" << std::endl; 
+}
 
 template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
 ::initialize()
 {
     PRINT_POINT();
+    
+    printCodecType();
     
     const auto seed_enc = rd_engine_seed();
     const auto seed_dec = rd_engine_seed();
@@ -69,11 +104,8 @@ void OnlyCodec<B,R,Q>
     params_cdc->enc->seed = seed_enc;
     params_cdc->dec->seed = seed_dec;
 
-    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(params_cdc.get());
     
-    if (param_siso_siho == nullptr)
-        std::cout << "param_siso_siho is null!!!" << std::endl; 
-    
+    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
     codec = std::unique_ptr<module::Codec_SISO_SIHO<B,Q>>(param_siso_siho->template build<B,Q>(nullptr));
     
     if (codec)

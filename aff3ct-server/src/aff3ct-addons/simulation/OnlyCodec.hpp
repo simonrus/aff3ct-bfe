@@ -42,6 +42,7 @@
 #include <Module/Codec/Codec_SISO_SIHO.hpp>
 #include <Factory/Module/Codec/Codec.hpp>
 #include <Factory/Module/Codec/Codec_SISO_SIHO.hpp>
+#include <Factory/Module/Codec/Codec_HIHO.hpp>
 #include "CodecRun.hpp"
 
 namespace aff3ct
@@ -63,6 +64,7 @@ public:
     virtual void iterate(void *in, void *out);
     virtual void initialize();
 private:
+    virtual void printCodecType();
 
 };
 } //namespace simulation

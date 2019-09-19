@@ -61,7 +61,15 @@ OnlyCodec::parameters* OnlyCodec::parameters::clone() const
 void OnlyCodec::parameters
 ::set_cdc(Codec::parameters *cdc)
 {
-    this->cdc.reset(cdc);
+    /* 
+     BT
+    aff3ct::factory::OnlyCodec::parameters::set_cdc() at OnlyCodec.cpp:64
+    aff3ct::launcher::Repetition<aff3ct::launcher::OnlyCodec<int, float, float>, int, float, float>::Repetition() at Repetition.cpp:15
+    aff3ct::launcher::CodecRun* aff3ct::factory::OnlyCodec::parameters::build<int, float, float>() const at OnlyCodec.cpp:144
+    aff3ct::launcher::CodecRun* aff3ct::factory::OnlyCodec::build<int, float, float>() at OnlyCodec.cpp:161
+     */ 
+         
+    this->cdc.reset(cdc); //here comes cdc from Codec_!!! FINDME
 }
 
 void OnlyCodec::parameters

@@ -75,6 +75,7 @@ int enableSIGTermHandler()
     sigIntHandler.sa_flags = 0;
 
     sigaction(SIGINT, &sigIntHandler, NULL);
+    return 1;
 }
 
 std::map<std::string, std::vector<float>> g_MemoryContainer;

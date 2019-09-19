@@ -52,6 +52,7 @@ bool Model::reset()
    // std::unique_ptr<factory::OnlyCodec::parameters>                params(new factory::OnlyCodec::parameters());
     
     //p_params.swap(params);
+    return true;
 }
 
 bool Model::read_arguments(const int argc, const char** argv, factory::OnlyCodec::parameters &params)
@@ -232,6 +233,8 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     //postponed initialization
     setDebugPrint(m_bDebugPrint);
     setNoise(m_fNoise);
+
+    return true;
 }
 
 void Model::setNoise(float ebn0) 

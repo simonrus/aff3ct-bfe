@@ -19,7 +19,7 @@ extern char g_log_buffer[LOG_BUF_SIZE];
 extern std::ostringstream g_err_stream;
 
 inline std::ostringstream &getErrStream() {return g_err_stream;} 
-inline std::ostringstream &clearErrStream() {g_err_stream.str(""); g_err_stream.clear(); } 
+inline void clearErrStream() {g_err_stream.str(""); g_err_stream.clear(); } 
 
 #define TRACELOG(LEVEL, ...) {g_log_buffer[0] = 0; \
                                         snprintf(g_log_buffer, LOG_BUF_SIZE, __VA_ARGS__); \

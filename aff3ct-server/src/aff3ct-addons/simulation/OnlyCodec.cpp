@@ -46,37 +46,62 @@ OnlyCodec<B,R,Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B,R,Q>
-::printCodecType()
+CodecType OnlyCodec<B,R,Q>
+::getCodecType(factory::Codec::parameters *param)
 {
-    
-    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
-    std::cout << "Codec_SISO_SIHO ";
+    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(param);    
     if (param_siso_siho != nullptr)
-        std::cout << "[*]" << std::endl; 
-    else
-        std::cout << "[ ]" << std::endl; 
+        return Type_SISO_SIHO;
     
-    auto param_siso = dynamic_cast<factory::Codec_SISO::parameters*>(params_OnlyCodec.cdc.get());    
-    std::cout << "Codec_SISO      ";
+    auto param_siso = dynamic_cast<factory::Codec_SISO::parameters*>(param);    
     if (param_siso != nullptr)
-        std::cout << "[*]" << std::endl; 
-    else
-        std::cout << "[ ]" << std::endl; 
+        return Type_SISO;
     
-    auto param_siho = dynamic_cast<factory::Codec_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
-    std::cout << "Codec_SIHO      ";
+    auto param_siho = dynamic_cast<factory::Codec_SIHO::parameters*>(param);    
     if (param_siho != nullptr)
-        std::cout << "[*]" << std::endl; 
-    else
-        std::cout << "[ ]" << std::endl; 
+        return Type_SIHO;
     
-    auto param_hiho = dynamic_cast<factory::Codec_HIHO::parameters*>(params_OnlyCodec.cdc.get());    
-    std::cout << "Codec_HIHO      ";
+    auto param_hiho = dynamic_cast<factory::Codec_HIHO::parameters*>(param);    
     if (param_siso != nullptr)
-        std::cout << "[*]" << std::endl; 
+       return Type_HIHO;
+    
+    return Type_Unknown;
+}
+
+template <typename B, typename R, typename Q>
+void OnlyCodec<B,R,Q>
+::detectCodecType() {
+    codecType  = getCodecType(params_OnlyCodec.cdc.get());   
+}
+
+template <typename B, typename R, typename Q>
+void OnlyCodec<B,R,Q>
+::printCodecType(CodecType type, std::ostream &stream) 
+{
+   stream << "Codec_SISO_SIHO ";
+    if (type == Type_SISO_SIHO) 
+       stream << "[*]" << std::endl; 
     else
-        std::cout << "[ ]" << std::endl; 
+       stream << "[ ]" << std::endl; 
+    
+   
+   stream << "Codec_SISO      ";
+     if (type == Type_SISO) 
+       stream << "[*]" << std::endl; 
+    else
+       stream << "[ ]" << std::endl; 
+    
+   stream << "Codec_SIHO      ";
+    if (type == Type_SIHO) 
+       stream << "[*]" << std::endl; 
+    else
+       stream << "[ ]" << std::endl; 
+    
+   stream << "Codec_HIHO      ";
+    if (type == Type_HIHO) 
+       stream << "[*]" << std::endl; 
+    else
+       stream << "[ ]" << std::endl; 
 }
 
 template <typename B, typename R, typename Q>
@@ -85,8 +110,9 @@ void OnlyCodec<B,R,Q>
 {
     PRINT_POINT();
     
-    printCodecType();
-    
+    getCodecType(params_OnlyCodec.cdc.get());
+    printCodecType(codecType, std::cout);
+            
     const auto seed_enc = rd_engine_seed();
     const auto seed_dec = rd_engine_seed();
 
@@ -103,10 +129,36 @@ void OnlyCodec<B,R,Q>
     
     params_cdc->enc->seed = seed_enc;
     params_cdc->dec->seed = seed_dec;
-
     
-    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
-    codec = std::unique_ptr<module::Codec_SISO_SIHO<B,Q>>(param_siso_siho->template build<B,Q>(nullptr));
+    switch(codecType) {
+        case Type_SISO_SIHO: {
+            auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
+            codec = std::unique_ptr<module::Codec<B,Q>>(param_siso_siho->template build<B,Q>(nullptr));
+            break;
+        }
+            
+        case Type_SISO: {
+            auto param_siso = dynamic_cast<factory::Codec_SISO::parameters*>(params_OnlyCodec.cdc.get());    
+            codec = std::unique_ptr<module::Codec<B,Q>>(param_siso->template build<B,Q>(nullptr));
+            break;
+        }
+            
+        case Type_SIHO: {
+            auto param_siho = dynamic_cast<factory::Codec_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
+            codec = std::unique_ptr<module::Codec<B,Q>>(param_siho->template build<B,Q>(nullptr));
+            break;
+        }
+        
+        case Type_HIHO: {
+            auto param_hiho = dynamic_cast<factory::Codec_HIHO::parameters*>(params_OnlyCodec.cdc.get());    
+            codec = std::unique_ptr<module::Codec<B,Q>>(param_hiho->template build<B,Q>(nullptr));
+            break;
+        }
+        
+        default: {
+            std::cout << "codec is not initialized! " << std::endl;
+        }
+    }
     
     if (codec)
         std::cout << "codec is OK " << std::endl;

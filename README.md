@@ -46,6 +46,12 @@ follow https://leimao.github.io/blog/ProtoBuf-Tutorial/
 	$ git clone https://simonrus@bitbucket.org/simonrus/missfec.git
 	$ cd missfec/lib
 	$ git submodule update --init --recursive
+## Select compiler (Optional)
+Aff3ct uses structures inside class to declare i.e. parameters. The GCC toolchain and gdb are not happy with this and ofter cannot find symbols.
+
+For debugging puposes it is better to use CLANG
+    $ export CC=/usr/bin/clang-6.0
+    $ export CXX=/usr/bin/clang++-6.0 
 ## aff3ct library
 	$ cd aff3ct
 	$ mkdir build

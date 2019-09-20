@@ -49,13 +49,30 @@ namespace aff3ct
 {
 namespace simulation
 {
+    
+enum CodecType
+{
+    Type_Unknown        = 0,
+    Type_SISO_SIHO      = 1,
+    Type_SISO           = 2,
+    Type_SIHO           = 3,
+    Type_HIHO           = 4
+};
+
 template <typename B = int, typename R = float, typename Q = R>
 class OnlyCodec : public CodecRun 
 {
+
 protected:
     const aff3ct::factory::OnlyCodec::parameters&           params_OnlyCodec;
-    std::unique_ptr<module::Codec_SISO_SIHO <B,  Q>>        codec;
+    std::unique_ptr<module::Codec <B,Q>>                    codec;
+    
     std::mt19937                                            rd_engine_seed;
+    
+    CodecType                                               codecType;
+    
+    void detectCodecType();
+    
     
 public:
     explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);
@@ -63,8 +80,9 @@ public:
    
     virtual void iterate(void *in, void *out);
     virtual void initialize();
-private:
-    virtual void printCodecType();
+    
+    static void printCodecType(CodecType type, std::ostream &stream = std::cout);
+    static CodecType getCodecType(factory::Codec::parameters *param);
 
 };
 } //namespace simulation

@@ -42,6 +42,7 @@
 #include <Module/Codec/Codec_SISO_SIHO.hpp>
 #include <Factory/Module/Codec/Codec.hpp>
 #include <Factory/Module/Codec/Codec_SISO_SIHO.hpp>
+#include <Factory/Module/Codec/Codec_SIHO_HIHO.hpp>
 #include <Factory/Module/Codec/Codec_HIHO.hpp>
 #include "CodecRun.hpp"
 
@@ -56,7 +57,8 @@ enum CodecType
     Type_SISO_SIHO      = 1,
     Type_SISO           = 2,
     Type_SIHO           = 3,
-    Type_HIHO           = 4
+    Type_SIHO_HIHO      = 4,
+    Type_HIHO           = 5
 };
 
 template <typename B = int, typename R = float, typename Q = R>
@@ -70,10 +72,12 @@ protected:
     std::mt19937                                            rd_engine_seed;
     
     CodecType                                               codecType;
+    float                                                   m_fNoise;
+    bool                                                    m_bInitialized = false;
     
     void detectCodecType();
     
-    
+    void sockets_binding();
 public:
     explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);
     virtual ~OnlyCodec() = default;
@@ -83,6 +87,8 @@ public:
     
     static void printCodecType(CodecType type, std::ostream &stream = std::cout);
     static CodecType getCodecType(factory::Codec::parameters *param);
+    
+    void setNoise(float ebn0) ;
 
 };
 } //namespace simulation

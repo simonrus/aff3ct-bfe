@@ -32,6 +32,7 @@
  */
 
 #include "OnlyCodec.hpp"
+#include <Tools/general_utils.h>
 
 using namespace aff3ct;
 using namespace aff3ct::simulation;
@@ -110,7 +111,7 @@ void OnlyCodec<B,R,Q>
 {
     PRINT_POINT();
     
-    getCodecType(params_OnlyCodec.cdc.get());
+    detectCodecType();
     printCodecType(codecType, std::cout);
             
     const auto seed_enc = rd_engine_seed();
@@ -119,17 +120,15 @@ void OnlyCodec<B,R,Q>
     std::unique_ptr<factory::Codec::parameters> params_cdc(params_OnlyCodec.cdc->clone());
     if (params_cdc) {
         std::cout << "params_cdc is OK " << std::endl;
-                
-        std::vector<aff3ct::factory::Factory::parameters*> paramsPtrs;
-        paramsPtrs.push_back(params_cdc.get());
-        aff3ct::factory::Header::print_parameters(paramsPtrs, true, std::cout);
     }
     else
         std::cout << "params_cdc are failed " << std::endl;
     
-    params_cdc->enc->seed = seed_enc;
+    params_cdc->enc->seed = seed_enc; 
     params_cdc->dec->seed = seed_dec;
     
+#warning "FIXME!!! We do here some COPY! WTF!"
+
     switch(codecType) {
         case Type_SISO_SIHO: {
             auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*>(params_OnlyCodec.cdc.get());    
@@ -164,6 +163,130 @@ void OnlyCodec<B,R,Q>
         std::cout << "codec is OK " << std::endl;
     else
         std::cout << "codec is NULL " << std::endl;
+    
+    m_bInitialized = true;
+}
+
+
+template <typename B, typename R, typename Q>
+void OnlyCodec<B,R,Q>
+::sockets_binding()
+{	
+    std::vector<const module::Module*> m_modules;
+    using namespace module;
+    
+    // get the r_encoder and r_decoder modules from the codec module
+    auto& r_encoder = codec->get_encoder();
+//    auto& r_decoder = codec->get_decoder_siho();
+    
+    m_modules = {   /*m_source.get(), */
+                    r_encoder.get(), 
+                    /*m_modem.get(), 
+                    m_channel.get(), */
+//                    r_decoder.get(), 
+                    /*m_monitor.get() */};
+        
+
+    switch (codecType) {
+        case Type_SISO_SIHO: {
+            module::Codec_SISO_SIHO<B,Q> *codecPtr;
+            codecPtr =  dynamic_cast<module::Codec_SISO_SIHO<B,Q> *>(codec.get());
+            auto& r_decoder = codecPtr->get_decoder_siho();
+            m_modules.push_back(r_decoder.get());
+            break;
+        }
+
+        //FIXME!!! get_decoder_siho() or get_decoder_siso()
+        
+        case Type_SISO: {
+            module::Codec_SISO<B,Q> *codecPtr;
+            codecPtr =  dynamic_cast<module::Codec_SISO<B,Q> *>(codec.get());
+            auto& r_decoder = codecPtr->get_decoder_siso();
+            m_modules.push_back(r_decoder.get());
+            break;
+        }
+        
+        case Type_SIHO: {
+            module::Codec_SIHO<B,Q> *codecPtr;
+            codecPtr =  dynamic_cast<module::Codec_SIHO<B,Q> *>(codec.get());
+            auto& r_decoder = codecPtr->get_decoder_siho();
+            m_modules.push_back(r_decoder.get());
+            break;
+        }
+        
+        case Type_SIHO_HIHO: {
+            module::Codec_SIHO_HIHO<B,Q> *codecPtr;
+            codecPtr =  dynamic_cast<module::Codec_SIHO_HIHO<B,Q> *>(codec.get());
+            auto& r_decoder = codecPtr->get_decoder_siho();
+            m_modules.push_back(r_decoder.get());
+            break;
+        }
+        
+         case Type_HIHO: {
+            module::Codec_HIHO<B,Q> *codecPtr;
+            codecPtr =  dynamic_cast<module::Codec_HIHO<B,Q> *>(codec.get());
+             auto& r_decoder = codecPtr->get_decoder_hiho();
+            m_modules.push_back(r_decoder.get());
+            break;
+        }
+         
+         default:
+            //FIXME: call assert?
+            std::cout << "FAILED" << std::endl;
+            return;
+            
+    }
+
+    //use default parameters
+    for (auto& m : m_modules)
+        for (auto& t : m->tasks)
+        {
+            t->set_autoalloc  (true ); // enable the automatic allocation of the data in the tasks
+            t->set_autoexec   (false); // disable the auto execution mode of the tasks
+            t->set_debug      (false); // disable the debug mode
+            t->set_debug_limit(16   ); // display only the 16 first bits if the debug mode is enabled
+            t->set_stats      (true ); // enable the statistics
+
+            // enable the fast mode (= disable the useless verifs in the tasks) if there is no debug and stats modes
+            t->set_fast(!t->is_debug() && !t->is_stats());
+        }
+    
+
+    
+//    TODO: (*r_encoder)[enc::sck::encode      ::U_K ].bind((*m_source )[src::sck::generate   ::U_K ]);
+    
+    /*(*m_modem  )[mdm::sck::modulate    ::X_N1].bind((*r_encoder)[enc::sck::encode     ::X_N ]);
+    (*m_channel)[chn::sck::add_noise   ::X_N ].bind((*m_modem  )[mdm::sck::modulate   ::X_N2]);
+    (*m_modem  )[mdm::sck::demodulate  ::Y_N1].bind((*m_channel)[chn::sck::add_noise  ::Y_N ]);
+    (*r_decoder)[dec::sck::decode_siho ::Y_N ].bind((*m_modem  )[mdm::sck::demodulate ::Y_N2]);
+    (*m_monitor)[mnt::sck::check_errors::U   ].bind((*r_encoder)[enc::sck::encode     ::U_K ]);
+    (*m_monitor)[mnt::sck::check_errors::V   ].bind((*r_decoder)[dec::sck::decode_siho::V_K ]);*/
+    
+}
+
+template <typename B, typename R, typename Q>
+void OnlyCodec<B,R,Q>
+::setNoise(float ebn0) 
+{
+    this->m_fNoise = ebn0;
+    if (m_bInitialized) 
+    {
+        tools::Sigma<> noise;
+
+        const float Rate = (float) params_OnlyCodec.cdc->enc->K / (float)params_OnlyCodec.cdc->enc->N_cw;
+
+
+        // compute the current sigma for the channel noise
+        const auto esn0  = tools::ebn0_to_esn0 (ebn0, Rate);
+        const auto sigma = tools::esn0_to_sigma(esn0   );
+
+        noise.set_noise(sigma, ebn0, esn0);
+
+        // update the sigma of the modem and the channel
+        codec  ->set_noise(noise);
+        //m_modem  ->set_noise(noise);
+        //m_channel->set_noise(noise);
+    }
 }
 
 template <typename B, typename R, typename Q>

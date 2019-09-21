@@ -44,7 +44,8 @@ public:
     virtual ~CodecRun() = default;
     
     virtual void initialize() = 0;
-    virtual void iterate(void *in, void *out) = 0;
+       
+    virtual void encode(int *in, int *out) = 0;
     
 private:
 

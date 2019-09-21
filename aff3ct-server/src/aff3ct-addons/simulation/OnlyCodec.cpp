@@ -252,7 +252,11 @@ void OnlyCodec<B,R,Q>
         }
     
 
+    ///home/simon/work/phd/missfec/examples/tasks/src/main.cpp!!
+      
     
+    
+    //(*r_decoder)
 //    TODO: (*r_encoder)[enc::sck::encode      ::U_K ].bind((*m_source )[src::sck::generate   ::U_K ]);
     
     /*(*m_modem  )[mdm::sck::modulate    ::X_N1].bind((*r_encoder)[enc::sck::encode     ::X_N ]);
@@ -291,11 +295,74 @@ void OnlyCodec<B,R,Q>
 
 template <typename B, typename R, typename Q>
 void OnlyCodec<B,R,Q>
-::iterate(void *in, void *out)
+::encode(int *in, int *out)
 {
     PRINT_POINT();
-}
 
+    if ((!codec) || (m_bInitialized == false)) {
+        std::cout << "Codec is null" << std::endl;
+    }
+
+    auto& r_encoder = codec->get_encoder();
+    
+    using namespace module;
+    
+    {
+        Socket &socket = (*r_encoder)[enc::sck::encode      ::U_K ];
+        std::cout << "Socket (enc::sck::encode      ::U_K ) getName " << socket.get_name() << std::endl;
+        std::cout << "Socket (enc::sck::encode      ::U_K ) get_databytes " << socket.get_databytes() << std::endl;
+        std::cout << "Socket (enc::sck::encode      ::U_K ) get_datatype_size " << (int) socket.get_datatype_size() << std::endl;
+        std::cout << "Socket (enc::sck::encode      ::U_K ) get_datatype_string " << socket.get_datatype_string() << std::endl;
+        std::cout << "Socket (enc::sck::encode      ::U_K ) get_n_elmts " << socket.get_n_elmts() << std::endl;
+        
+        socket_t type = (*r_encoder)[enc::tsk::encode].get_socket_type(socket);
+        switch (type) {
+            case socket_t::SIN :{
+                std::cout << "Socket (enc::sck::encode      ::U_K ) SIN" << std::endl;
+                break;
+            }
+            case socket_t::SIN_SOUT :{
+                std::cout << "Socket (enc::sck::encode      ::U_K ) SIN_SOUT" << std::endl;
+                break;
+            }
+            case socket_t::SOUT :{
+                std::cout << "Socket (enc::sck::encode      ::U_K ) SOUT" << std::endl;
+                break;
+            }
+        }
+    }   
+    
+    {
+        Socket &socket = (*r_encoder)[enc::sck::encode      ::X_N ];
+        std::cout << "Socket (enc::sck::encode      ::X_N ) getName " << socket.get_name() << std::endl;
+        std::cout << "Socket (enc::sck::encode      ::X_N ) get_databytes " << socket.get_databytes() << std::endl;
+        std::cout << "Socket (enc::sck::encode      ::X_N ) get_datatype_size " << (int) socket.get_datatype_size() << std::endl;
+        std::cout << "Socket (enc::sck::encode      ::X_N ) get_datatype_string " << socket.get_datatype_string() << std::endl;
+        std::cout << "Socket (enc::sck::encode      ::X_N ) get_n_elmts " << socket.get_n_elmts() << std::endl;
+        
+        socket_t type = (*r_encoder)[enc::tsk::encode].get_socket_type(socket);
+        switch (type) {
+            case socket_t::SIN :{
+                std::cout << "Socket (enc::sck::encode      ::U_K ) SIN" << std::endl;
+                break;
+            }
+            case socket_t::SIN_SOUT :{
+                std::cout << "Socket (enc::sck::encode      ::U_K ) SIN_SOUT" << std::endl;
+                break;
+            }
+            case socket_t::SOUT :{
+                std::cout << "Socket (enc::sck::encode      ::U_K ) SOUT" << std::endl;
+                break;
+            }
+        }
+    }
+    
+    //pseudo code looks like
+    //(*r_encoder)[enc::sck::encode      ::U_K ].bind(in)
+    //(*r_encoder)[enc::sck::encode      ::U_K ].bind(out)
+    //(*r_encoder).exec()
+    
+}
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"
 #ifdef AFF3CT_MULTI_PREC

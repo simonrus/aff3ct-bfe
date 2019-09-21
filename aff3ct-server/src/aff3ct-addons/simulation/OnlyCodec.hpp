@@ -81,14 +81,14 @@ protected:
 public:
     explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);
     virtual ~OnlyCodec() = default;
-   
-    virtual void iterate(void *in, void *out);
     virtual void initialize();
     
     static void printCodecType(CodecType type, std::ostream &stream = std::cout);
     static CodecType getCodecType(factory::Codec::parameters *param);
     
     void setNoise(float ebn0) ;
+    
+    virtual void encode(int *in, int *out) ;
 
 };
 } //namespace simulation

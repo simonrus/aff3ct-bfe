@@ -140,6 +140,7 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
             case 32: 
                 launcher::CodecRun *codecrun = factory::OnlyCodec::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout);
                 codecLauncher =  std::unique_ptr<launcher::CodecRun> (codecrun);    
+               
                 break;
             //case 64: launcher = factory::OnlyCodec::build<B_64, R_64, Q_64>(m_params); break;
             //default: launcher = nullptr;
@@ -189,7 +190,13 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
         return false; 
     
     m_codec->initialize();
-    m_codec->iterate(nullptr, nullptr);
+    
+    
+    std::vector<int> in = {1, 0, 1, 1, 1, 1, 1, 0};
+    std::vector<int> out(24);
+    
+    m_codec->encode(&in[0], &out[0]);
+    
 
 #ifdef ENABLE_REPORTERS
     // create reporters to display results in the terminal

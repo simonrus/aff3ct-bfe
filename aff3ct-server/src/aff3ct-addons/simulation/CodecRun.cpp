@@ -33,12 +33,38 @@
 
 #include "CodecRun.hpp"
 
-
 using namespace aff3ct;
 using namespace aff3ct::simulation;
 
-CodecRun::CodecRun() {
+CodecRun::CodecRun() 
+{
 }
 
+void CodecRun::printSocketInfo(std::ostream &stream, module::Socket &socket)
+{
+    stream << "  getName " << socket.get_name() << std::endl;
+    stream << "  get_databytes " << socket.get_databytes() << std::endl;
+    stream << "  get_datatype_size " << (int) socket.get_datatype_size() << std::endl;
+    stream << "  get_datatype_string " << socket.get_datatype_string() << std::endl;
+    stream << "  get_n_elmts " << socket.get_n_elmts() << std::endl;
+}
+void CodecRun::printSocketTypeInfo(std::ostream &stream, module::socket_t type)
+{
+    using namespace module;
+    switch (type) {
+        case socket_t::SIN :{
+            stream << "  SIN" << std::endl;
+            break;
+        }
+        case socket_t::SIN_SOUT :{
+            stream << "  SIN_SOUT" << std::endl;
+            break;
+        }
+        case socket_t::SOUT :{
+            stream << "  SOUT" << std::endl;
+            break;
+        }
+    }
+}
 
 

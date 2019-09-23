@@ -88,7 +88,9 @@ public:
     
     void setNoise(float ebn0) ;
     
-    virtual void encode(int *in, int *out) ;
+    virtual void printCodecInfo(std::ostream &stream);
+    virtual void encode(void *in, void *out) ;
+    
 
 };
 } //namespace simulation

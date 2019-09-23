@@ -34,6 +34,12 @@
 #ifndef SIMULATION_CODECRUN_HPP
 #define SIMULATION_CODECRUN_HPP
 
+#include <ostream>
+
+#include <Module/Task.hpp>
+#include <Module/Socket.hpp>
+
+
 namespace aff3ct
 {
 namespace simulation
@@ -45,9 +51,14 @@ public:
     
     virtual void initialize() = 0;
        
-    virtual void encode(int *in, int *out) = 0;
+    virtual void encode(void *in, void *out) = 0;
     
-private:
+    virtual void printCodecInfo(std::ostream &stream) = 0;
+    
+protected:
+    static void printSocketInfo(std::ostream &stream, module::Socket &socket);
+    static void printSocketTypeInfo(std::ostream &str,module::socket_t type);
+    
 
 };
 } //namespace simulation

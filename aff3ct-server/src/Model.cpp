@@ -191,13 +191,31 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     
     m_codec->initialize();
     
+    m_codec->printCodecInfo(std::cout);
     
+    /* ENCODE TEST STARTS */
     std::vector<int> in = {1, 0, 1, 1, 1, 1, 1, 0};
     std::vector<int> out(24);
     
     m_codec->encode(&in[0], &out[0]);
     
+    std::cout << " input: ";
+    for(int &value: in) 
+        std::cout << value << " ";
+    std::cout << std::endl;
 
+    std::cout << "output: ";
+    for(int &value: out) 
+        std::cout << value << " ";
+    std::cout << std::endl;
+    
+    
+    /* ENCODE TEST ENDS */
+    
+    
+    
+    /* DECODE TEST STARTS */
+    /* DECODE TEST ENDS */
 #ifdef ENABLE_REPORTERS
     // create reporters to display results in the terminal
     std::vector<tools::Reporter*> reporters =

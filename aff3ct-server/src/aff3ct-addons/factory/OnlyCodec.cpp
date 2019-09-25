@@ -32,11 +32,13 @@
  */
 
 #include "OnlyCodec.hpp"
-#include "Tools/Documentation/documentation.h"
-#include "Launcher/Code/Repetition/Repetition.hpp"
 
 #include "aff3ct-addons/simulation/OnlyCodec.hpp"
 #include "aff3ct-addons/launcher/OnlyCodec.hpp"
+
+#include <Tools/Documentation/documentation.h>
+#include <Launcher/Code/Repetition/Repetition.hpp>
+#include <Launcher/Code/LDPC/LDPC.hpp>
 
 
 using namespace aff3ct;
@@ -146,10 +148,13 @@ launcher::CodecRun* OnlyCodec::parameters::build(const int argc, const char **ar
     if (this->cde_type == "REP")
     {
         std::cout << "Constructing REP codec" << std::endl;
-        // See: /home/simon/work/phd/missfec/lib/aff3ct/src/Factory/Launcher/Launcher.cpp
-        
-
-        return new launcher::Repetition<launcher::OnlyCodec<B,R,Q>,B,R,Q>(argc, argv, stream); //FIXME
+        return new launcher::Repetition<launcher::OnlyCodec<B,R,Q>,B,R,Q>(argc, argv, stream); 
+    }
+    
+    if (this->cde_type == "LDPC")
+    {
+        std::cout << "Constructing LDPC codec" << std::endl;
+        return new launcher::LDPC<launcher::OnlyCodec<B,R,Q>,B,R,Q>(argc, argv, stream); 
     }
     
     std::cout << "Constructing NON REP codec" << std::endl;
@@ -185,6 +190,12 @@ template launcher::CodecRun* OnlyCodec::build<B_32,R_32,Q_32>(const aff3ct::fact
 
 template class launcher::Repetition<launcher::OnlyCodec<B_8,R_8,Q_8>,B_8,R_8,Q_8>;
 template class launcher::Repetition<launcher::OnlyCodec<B_32,R_32,Q_32>,B_32,R_32,Q_32>;
+
+#include <Launcher/Code/LDPC/LDPC.hpp>
+#include <Launcher/Code/LDPC/LDPC.cpp>
+
+template class launcher::LDPC<launcher::OnlyCodec<B_8,R_8,Q_8>,B_8,R_8,Q_8>;
+template class launcher::LDPC<launcher::OnlyCodec<B_32,R_32,Q_32>,B_32,R_32,Q_32>;
 
 
 

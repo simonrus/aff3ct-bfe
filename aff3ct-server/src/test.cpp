@@ -155,7 +155,9 @@ int main(int argc, char** argv)
     using namespace std::chrono;
     milliseconds us = duration_cast< milliseconds >(system_clock::now().time_since_epoch());
     unsigned int seed = (unsigned int) us.count() % 65536;
-    std::vector<std::string> init_command = {
+    
+    //REP codec
+    /*std::vector<std::string> init_command = {
         "init",
         "-C",
         "REP",
@@ -174,8 +176,31 @@ int main(int argc, char** argv)
         "--dec-implem",
         "FAST",
         "-e",
-        "500"};
+        "500"};*/
     
+    
+    //LDPC codec (classic approach with identity matrix)
+    std::vector<std::string> init_command = {
+        "init",
+        "-C",
+        "LDPC",
+        "-K",
+        "4",
+        "-N",
+        "7",
+        "--enc-type",
+        "LDPC",
+        "--enc-g-method",
+        "IDENTITY",
+        "--dec-h-path",
+        "codes/ldpc/BCH_7_4_1_strip.alist",
+        "--dec-type",
+        "BP_FLOODING",
+        "--dec-implem",
+        "GALA",
+        "-i",
+        "200"
+        };
     sendCommand(init_command);
 
     std::vector<std::string> iter_command = {"iter"};

@@ -327,21 +327,34 @@ void OnlyCodec<B, R, Q>
 
 template <typename B, typename R, typename Q>
 void OnlyCodec<B, R, Q>
-::encode(void *in, void *out)
+::encode(void *in, void *out, int n_cw)
 {
     PRINT_POINT();
+    
+    int K =  params_OnlyCodec.cdc->enc->K;
+    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    B* input = static_cast<B*> (in);
+    B* output = static_cast<B*> (out); 
 
     if ((!codec) || (m_bInitialized == false)) {
         std::cout << "Codec is null" << std::endl;
     }
 
-    auto& r_encoder = codec->get_encoder();
-
     using namespace module;
 
-    (*r_encoder)[enc::sck::encode      ::U_K ].bind(in);
-    (*r_encoder)[enc::sck::encode      ::X_N ].bind(out);
-    (*r_encoder)[enc::tsk::encode]            .exec();
+    
+    auto& r_encoder = codec->get_encoder();
+
+    
+    (*r_encoder)[enc::tsk::encode].set_debug(true);
+    
+    for (int i = 0 ; i < n_cw; i++) 
+    {
+        (*r_encoder)[enc::sck::encode      ::U_K ].bind(&input[i * K]);
+        (*r_encoder)[enc::sck::encode      ::X_N ].bind(&output[i * N ]);
+        
+        (*r_encoder)[enc::tsk::encode]            .exec();
+    }
 
     //pseudo code looks like
     //(*r_encoder)[enc::sck::encode      ::U_K ].bind(in)

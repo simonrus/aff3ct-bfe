@@ -194,10 +194,10 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     m_codec->printCodecInfo(std::cout);
     
     /* ENCODE TEST STARTS */
-    std::vector<int> in = {1, 0, 1, 1, 1, 1, 1, 0};
+    std::vector<int> in = {1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1}; //12
     std::vector<int> out(24);
     
-    m_codec->encode(&in[0], &out[0]);
+    m_codec->encode(&in[0], &out[0], 3);
     
     std::cout << " input: ";
     for(int &value: in) 

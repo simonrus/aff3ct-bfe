@@ -51,7 +51,7 @@ public:
     
     virtual void initialize() = 0;
        
-    virtual void encode(void *in, void *out) = 0;
+    virtual void encode(void *in, void *out, int n_cw = 1) = 0;
     
     virtual void printCodecInfo(std::ostream &stream) = 0;
     

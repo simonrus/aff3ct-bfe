@@ -189,7 +189,7 @@ int main(int argc, char** argv)
         "-N",
         "7",
         "--enc-type",
-        "LDPC",
+        "LDPC_H",
         "--enc-g-method",
         "IDENTITY",
         "--dec-h-path",

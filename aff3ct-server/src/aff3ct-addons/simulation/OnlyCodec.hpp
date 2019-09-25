@@ -89,7 +89,7 @@ public:
     void setNoise(float ebn0) ;
     
     virtual void printCodecInfo(std::ostream &stream);
-    virtual void encode(void *in, void *out) ;
+    virtual void encode(void *in, void *out, int n_cw = 1) ;
     
 
 };

@@ -52,6 +52,11 @@ public:
     virtual void initialize() = 0;
        
     virtual void encode(void *in, void *out, int n_cw = 1) = 0;
+    virtual bool is_codeword(void *in) = 0;
+    
+    virtual void decodeHIHO(void *in, void *out, int n_cw = 1) = 0;
+    virtual void decodeSISO(void *in, void *out, int n_cw = 1) = 0;
+    virtual void decodeSIHO(void *in, void *out, int n_cw = 1) = 0;
     
     virtual void printCodecInfo(std::ostream &stream) = 0;
     

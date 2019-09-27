@@ -40,10 +40,13 @@
 #include <Simulation/Simulation.hpp>
 
 #include <Module/Codec/Codec_SISO_SIHO.hpp>
+#include <Module/Codec/Codec_SIHO.hxx>
+
 #include <Factory/Module/Codec/Codec.hpp>
 #include <Factory/Module/Codec/Codec_SISO_SIHO.hpp>
 #include <Factory/Module/Codec/Codec_SIHO_HIHO.hpp>
 #include <Factory/Module/Codec/Codec_HIHO.hpp>
+
 #include "CodecRun.hpp"
 
 namespace aff3ct
@@ -90,6 +93,11 @@ public:
     
     virtual void printCodecInfo(std::ostream &stream);
     virtual void encode(void *in, void *out, int n_cw = 1) ;
+    virtual bool is_codeword(void *in);
+
+    virtual void decodeHIHO(void *in, void *out, int n_cw = 1) ;
+    virtual void decodeSISO(void *in, void *out, int n_cw = 1) ; //output is intrinsic information!
+    virtual void decodeSIHO(void *in, void *out, int n_cw = 1) ;
     
 
 };

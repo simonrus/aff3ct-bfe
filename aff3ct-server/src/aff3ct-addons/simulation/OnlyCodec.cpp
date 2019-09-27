@@ -181,7 +181,7 @@ void OnlyCodec<B, R, Q>
 
     // get the r_encoder and r_decoder modules from the codec module
     auto& r_encoder = codec->get_encoder();
-    //    auto& r_decoder = codec->get_decoder_siho();
+    //auto& r_decoder = codec->get_decoder_siho();
 
     m_modules = {/*m_source.get(), */
         r_encoder.get(),
@@ -326,6 +326,19 @@ void OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
+bool OnlyCodec<B, R, Q>::
+is_codeword(void *in)
+{
+    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    B* candidate = static_cast<B*> (in);
+    
+    using namespace module;
+    auto& r_encoder = codec->get_encoder();
+    
+    return r_encoder->is_codeword(candidate);
+}
+
+template <typename B, typename R, typename Q>
 void OnlyCodec<B, R, Q>
 ::encode(void *in, void *out, int n_cw)
 {
@@ -360,7 +373,76 @@ void OnlyCodec<B, R, Q>
     //(*r_encoder)[enc::sck::encode      ::U_K ].bind(in)
     //(*r_encoder)[enc::sck::encode      ::U_K ].bind(out)
     //(*r_encoder).exec()
+}
 
+
+template <typename B, typename R, typename Q>
+void OnlyCodec<B, R, Q>
+::decodeHIHO(void *in, void *out, int n_cw)
+{
+    B* recieved = static_cast<B*>(in);
+    B* decoded = static_cast<B*>(out);
+       
+    int K =  params_OnlyCodec.cdc->enc->K;
+    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    
+    if ((!codec) || (m_bInitialized == false)) {
+        std::cout << "Codec is null" << std::endl;
+    }
+    
+    //TODO: Make HIHO
+}
+
+template <typename B, typename R, typename Q>
+void OnlyCodec<B, R, Q>
+::decodeSISO(void *in, void *out, int n_cw)
+{
+    R* recieved = static_cast<R*>(in);
+    R* decoded = static_cast<R*>(out);
+       
+    int K =  params_OnlyCodec.cdc->enc->K;
+    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    
+    if ((!codec) || (m_bInitialized == false)) {
+        std::cout << "Codec is null" << std::endl;
+    }
+    
+    //TODO: Make SISO
+    
+
+}
+
+template <typename B, typename R, typename Q>
+void OnlyCodec<B, R, Q>
+::decodeSIHO(void *in, void *out, int n_cw)
+{
+    R* recieved = static_cast<R*>(in);
+    B* decoded = static_cast<B*>(out);
+    
+        
+    int K =  params_OnlyCodec.cdc->enc->K;
+    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    
+    if ((!codec) || (m_bInitialized == false)) {
+        std::cout << "Codec is null" << std::endl;
+    }
+    
+       using namespace module;
+
+    //TODO
+#if 0
+    auto& r_decoder = codec->get_decoder_siho();
+    
+    (*r_decoder)[dec::tsk::decode_siho].set_debug(true);
+    for (int i = 0 ; i < n_cw; i++) 
+    {
+        (*r_decoder)[dec::sck::decode_siho::Y_N].bind(&recieved[i * N]);
+        (*r_decoder)[dec::sck::decode_siho::V_K].bind(&decoded[i * K ]);
+        
+        (*r_decoder)[dec::tsk::decode_siho]            .exec();
+    }
+#endif
+    
 }
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"

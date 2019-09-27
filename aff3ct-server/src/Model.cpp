@@ -26,6 +26,8 @@
 #include "Model.h"
 #include <aff3ct-addons/launcher/CodecRun.hpp>
 
+#include <Tools/Algo/Draw_generator/Gaussian_noise_generator/Gaussian_noise_generator.hpp>
+
 std::error_code Model::constructAll()
 {
     std::error_code ec = make_error_code(Aff3ctErrc::NoError);
@@ -193,28 +195,60 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     
     m_codec->printCodecInfo(std::cout);
     
+    int N = 7;
+    int n_frames = 3;
+    
     /* ENCODE TEST STARTS */
-    std::vector<int> in = {1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1}; //12
-    std::vector<int> out(24);
+    std::vector<int32_t> in = {1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1}; //12
+    std::vector<int32_t> codeword(n_frames * N);
     
-    m_codec->encode(&in[0], &out[0], 3);
-    
-    std::cout << " input: ";
-    for(int &value: in) 
-        std::cout << value << " ";
-    std::cout << std::endl;
-
-    std::cout << "output: ";
-    for(int &value: out) 
-        std::cout << value << " ";
-    std::cout << std::endl;
-    
-    
+    m_codec->encode(&in[0], &codeword[0], n_frames);  
     /* ENCODE TEST ENDS */
     
+    /* IS codeword test*/
+    std::cout << "is_codeword test: ";
+    std::cout << ((m_codec->is_codeword(&codeword[0]) == true)?"PASSED":"FAILED");
+    std::cout << std::endl;
+    
+    std::cout << "is_codeword test(not): ";
+    codeword[1] = codeword[1]?0:1; //revert one bit
+    std::cout << ((m_codec->is_codeword(&codeword[0]) == false)?"PASSED":"FAILED");
+    std::cout << std::endl;
     
     
     /* DECODE TEST STARTS */
+    
+    //template <typename R>R aff3ct::tools::ebn0_to_esn0(const R ebn0, const R bit_rate, const int bps)
+    //template <typename R>R aff3ct::tools::esn0_to_sigma(const R esn0, const int upsample_factor)
+    
+    float ebn0 = 0;
+    float esn0 = ebn0 + 10.0f * std::log10(4.0f/7.0f );
+    float sigma = std::sqrt(1 / (2.0f * std::pow(10,(esn0 / 10.0f))));
+    
+    
+    std::unique_ptr<tools::Gaussian_gen<float>> noise_generator;
+    std::vector<float> noise(n_frames * N);
+    noise_generator->generate(noise, sigma);
+    
+    std::vector<float> signal(codeword.size());
+    
+    for (int i = 0; i < codeword.size(); i++) {
+        signal[i] = 1.0 - 2.0*codeword[i];      //BPSK modulatuin
+    }
+    
+    
+    std::vector<float> recieved_llr(n_frames * N);
+    
+    for (int i = 0; i < signal.size(); i++) {
+        signal[i] = signal[i] + noise[i];
+        recieved_llr[i] = 2 * signal[i] / sigma;
+    } 
+    
+    std::vector<int32_t> decoded(in.size());
+    
+    m_codec->decodeSIHO(&recieved_llr[0], &decoded[0], n_frames);
+    
+    
     /* DECODE TEST ENDS */
 #ifdef ENABLE_REPORTERS
     // create reporters to display results in the terminal

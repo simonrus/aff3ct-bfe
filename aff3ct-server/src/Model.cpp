@@ -201,6 +201,7 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     /* ENCODE TEST STARTS */
     std::vector<int32_t> in = {1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 1}; //12
     std::vector<int32_t> codeword(n_frames * N);
+    std::vector<int32_t> non_codeword(n_frames * N);
     
     m_codec->encode(&in[0], &codeword[0], n_frames);  
     /* ENCODE TEST ENDS */
@@ -211,32 +212,38 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     std::cout << std::endl;
     
     std::cout << "is_codeword test(not): ";
-    codeword[1] = codeword[1]?0:1; //revert one bit
-    std::cout << ((m_codec->is_codeword(&codeword[0]) == false)?"PASSED":"FAILED");
+    non_codeword = codeword;
+    
+    non_codeword[1] = codeword[1]?0:1; //revert one bit
+    std::cout << ((m_codec->is_codeword(&non_codeword[0]) == false)?"PASSED":"FAILED");
     std::cout << std::endl;
     
     
-    /* DECODE TEST STARTS */
+    /* DECODE TEST*/
     
     //template <typename R>R aff3ct::tools::ebn0_to_esn0(const R ebn0, const R bit_rate, const int bps)
     //template <typename R>R aff3ct::tools::esn0_to_sigma(const R esn0, const int upsample_factor)
     
+    
     float ebn0 = 0;
     float esn0 = ebn0 + 10.0f * std::log10(4.0f/7.0f );
     float sigma = std::sqrt(1 / (2.0f * std::pow(10,(esn0 / 10.0f))));
+    //sigma = 0.2;
     
     
-    std::unique_ptr<tools::Gaussian_gen<float>> noise_generator;
+    std::unique_ptr<tools::Gaussian_gen<float>> noise_generator = std::unique_ptr<tools::Gaussian_gen<float>> (new tools::Gaussian_gen_fast<float>());
     std::vector<float> noise(n_frames * N);
+    std::cout << "Sigma is " << sigma << std::endl;
     noise_generator->generate(noise, sigma);
+    
     
     std::vector<float> signal(codeword.size());
     
     for (int i = 0; i < codeword.size(); i++) {
-        signal[i] = 1.0 - 2.0*codeword[i];      //BPSK modulatuin
+        signal[i] = 1.0 - 2.0*codeword[i];      //BPSK modulation
     }
     
-    
+    /* SIHO case */
     std::vector<float> recieved_llr(n_frames * N);
     
     for (int i = 0; i < signal.size(); i++) {
@@ -245,8 +252,32 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     } 
     
     std::vector<int32_t> decoded(in.size());
-    
-    m_codec->decodeSIHO(&recieved_llr[0], &decoded[0], n_frames);
+
+    std::cout << "** SIHO case ***************************************" <<  std::endl;
+    /* SIHO case */
+    try {
+        m_codec->decodeSIHO(&recieved_llr[0], &decoded[0], n_frames);
+    } catch (const std::exception& e) {
+        std::cout << "SIHO decoder failed: " << e.what() << std::endl;
+    }
+
+    std::cout << "** HIHO case ***************************************" <<  std::endl;
+    /* HIHO case */
+    try {
+        m_codec->decodeHIHO(&non_codeword[0], &decoded[0], n_frames);
+    } catch (const std::exception& e) {
+        std::cout << "HIHO decoder failed: " << e.what() << std::endl;
+    }
+
+    std::cout << "** SISO case ***************************************" <<  std::endl;
+    /* SISO case */
+    std::vector<float> decoded_llr(recieved_llr.size());
+    try {
+        m_codec->decodeSISO(&recieved_llr[0], &decoded_llr[0], n_frames);
+    } catch (const std::exception& e) {
+        std::cout << "SISO decoder failed: " << e.what() << std::endl;
+    }
+    std::cout << "** DONE ********************************************" <<  std::endl;
     
     
     /* DECODE TEST ENDS */

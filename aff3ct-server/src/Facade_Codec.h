@@ -35,7 +35,7 @@
 #include "aff3ct-addons/Source_memory.hpp"
 #include "aff3ct-addons/Monitor_BFER_detailed.hpp"
 
-#include "aff3ct-addons/simulation/CodecRun.hpp"
+#include "aff3ct-addons/simulation/Codec.hpp"
 #include "aff3ct-addons/factory/OnlyCodec.hpp"
 
 #include <list>
@@ -48,7 +48,7 @@ class Facade_Codec {
 
 protected:
     
-    std::unique_ptr<simulation::CodecRun>       m_codec;
+    std::unique_ptr<simulation::Codec>       m_codec;
     factory::OnlyCodec::parameters              m_params;
     
     std::error_code constructAll();

@@ -25,13 +25,13 @@
  */
 
 /* 
- * File:   CodecRun.cpp
+ * File:   Codec.cpp
  * Author: simon
  * 
  * Created on September 13, 2019, 1:52 PM
  */
 
-#include "CodecRun.hpp"
+#include "Codec.hpp"
 
 #include <Tools/Display/rang_format/rang_format.h>
 using namespace aff3ct;
@@ -39,7 +39,7 @@ using namespace aff3ct::launcher;
 
 //FIXME:: CopyAndPaste
 
-CodecRun::CodecRun(const int argc, const char **argv,
+Codec::Codec(const int argc, const char **argv,
         factory::OnlyCodec::parameters &params,
         std::ostream &stream) :
 ah(argc, argv), params_common(params), stream(stream) 
@@ -56,21 +56,21 @@ ah(argc, argv), params_common(params), stream(stream)
 
         cmd_line += std::string(" ");
     }
-    std::cout << "launcher::CodecRun::CodecRun() cmd_line " << cmd_line << std::endl;
+    std::cout << "launcher::Codec::Codec() cmd_line " << cmd_line << std::endl;
     
     //we need to fill params_common based on argc, argv
 
 }
 
-void CodecRun::get_description_args() {
+void Codec::get_description_args() {
     PRINT_POINT();
 }
 
-void CodecRun::store_args() {
+void Codec::store_args() {
     PRINT_POINT();
 }
 
-int CodecRun::read_arguments() {
+int Codec::read_arguments() {
     PRINT_POINT();
 
     this->get_description_args();

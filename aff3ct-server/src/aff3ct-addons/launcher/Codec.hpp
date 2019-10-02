@@ -25,17 +25,17 @@
  */
 
 /* 
- * File:   CodecRun.hpp
+ * File:   Codec.hpp
  * Author: simon
  *
  * Created on September 13, 2019, 1:52 PM
  */
 
-#ifndef LAUNCHER_CODECRUN_HPP
-#define LAUNCHER_CODECRUN_HPP
+#ifndef LAUNCHER_CODEC_HPP
+#define LAUNCHER_CODEC_HPP
 
 #include <aff3ct-addons/factory/OnlyCodec.hpp>
-#include <aff3ct-addons/simulation/CodecRun.hpp>
+#include <aff3ct-addons/simulation/Codec.hpp>
 
 #include <Tools/Arguments/Argument_handler.hpp>
 
@@ -44,21 +44,21 @@ namespace aff3ct
 namespace launcher
 {
 /*!
- * \class CodecRun
+ * \class Codec
  *
  * \brief Collects the command line parameters and launches the stand alone codec.
  */
-class CodecRun {
+class Codec {
 public:
-    CodecRun(const int argc, const char **argv, 
+    Codec(const int argc, const char **argv, 
             factory::OnlyCodec::parameters &params, 
             std::ostream &stream = std::cout);
     
     virtual void get_description_args();        /*< function that declares arguments for this module. Result shall be saved to this->args*/
     virtual void store_args();
         
-    virtual ~CodecRun() = default;
-    virtual simulation::CodecRun* build_simu() = 0;
+    virtual ~Codec() = default;
+    virtual simulation::Codec* build_simu() = 0;
   
 protected:
     tools::Argument_handler         ah;       /*!< An argument reader to manage the parsing and the documentation of the command line parameters. */
@@ -74,5 +74,5 @@ protected:
 } //namespace launcher
 } //namespace aff3ct
 
-#endif /* LAUNCHER_CODECRUN_HPP */
+#endif /* LAUNCHER_CODEC_HPP */
 

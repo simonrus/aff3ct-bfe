@@ -47,7 +47,7 @@
 #include <Factory/Module/Codec/Codec_SIHO_HIHO.hpp>
 #include <Factory/Module/Codec/Codec_HIHO.hpp>
 
-#include "CodecRun.hpp"
+#include "Codec.hpp"
 
 namespace aff3ct
 {
@@ -65,7 +65,7 @@ enum CodecType
 };
 
 template <typename B = int, typename R = float, typename Q = R>
-class OnlyCodec : public CodecRun 
+class OnlyCodec : public Codec 
 {
 
 protected:

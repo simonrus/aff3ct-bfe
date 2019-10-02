@@ -41,7 +41,7 @@ using namespace aff3ct::launcher;
 template <typename B, typename R, typename Q>
 OnlyCodec<B,R,Q>
 ::OnlyCodec(const int argc, const char **argv, std::ostream &stream)
-: CodecRun(argc, argv, params, stream)
+: Codec(argc, argv, params, stream)
 {
     PRINT_POINT();
     params.set_src(new factory::Source      ::parameters("src"));
@@ -65,7 +65,7 @@ void OnlyCodec<B,R,Q>
 {
     PRINT_POINT();
     
-    CodecRun::get_description_args();
+    Codec::get_description_args();
     
     params.     get_description(this->args);
     params.src->get_description(this->args);
@@ -98,7 +98,7 @@ void OnlyCodec<B,R,Q>
     PRINT_POINT();
     
     std::cout << "launcher::OnlyCodec::store_args() " << std::endl;
-    CodecRun::store_args();
+    Codec::store_args();
     
     //TODO: CHECK /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Simulation/BFER_std.cpp
     /*
@@ -113,7 +113,7 @@ void OnlyCodec<B,R,Q>
 }
 
 template <typename B, typename R, typename Q>
-simulation::CodecRun* OnlyCodec<B,R,Q>
+simulation::Codec* OnlyCodec<B,R,Q>
 ::build_simu()
 {
     PRINT_POINT();

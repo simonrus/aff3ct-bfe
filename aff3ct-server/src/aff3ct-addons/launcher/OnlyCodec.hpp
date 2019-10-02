@@ -34,33 +34,26 @@
 #ifndef LAUNCHER_ONLYCODEC_HPP
 #define LAUNCHER_ONLYCODEC_HPP
 
-#include <aff3ct-addons/launcher/CodecRun.hpp>
+#include <aff3ct-addons/launcher/Codec.hpp>
 #include <aff3ct-addons/factory/OnlyCodec.hpp>
-
-/*
-namespace aff3ct {
-namespace simulation{
-    class CodecRun;
-}
-}*/
 
 namespace aff3ct {
 namespace launcher{
     
 template <typename B = int, typename R = float, typename Q = R>
-class OnlyCodec: public CodecRun {
+class OnlyCodec: public Codec 
+{
     protected:
 	factory::OnlyCodec::parameters params;
     public:
 	OnlyCodec(const int argc, const char **argv, std::ostream &stream = std::cout);
 	virtual ~OnlyCodec() = default;
 
-        simulation::CodecRun* build_simu();
+        simulation::Codec* build_simu();
     protected:
 	virtual void get_description_args();
 	virtual void store_args();
 
-	//virtual simulation::CodecRun* build_simu();
 };
 
 

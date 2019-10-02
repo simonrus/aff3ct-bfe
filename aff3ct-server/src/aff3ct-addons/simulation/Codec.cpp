@@ -25,22 +25,22 @@
  */
 
 /* 
- * File:   CodecRun.cpp
+ * File:   Codec.cpp
  * Author: simon
  * 
  * Created on September 13, 2019, 11:15 AM
  */
 
-#include "CodecRun.hpp"
+#include "Codec.hpp"
 
 using namespace aff3ct;
 using namespace aff3ct::simulation;
 
-CodecRun::CodecRun() 
+Codec::Codec() 
 {
 }
 
-void CodecRun::printSocketInfo(std::ostream &stream, module::Socket &socket)
+void Codec::printSocketInfo(std::ostream &stream, module::Socket &socket)
 {
     stream << "  getName " << socket.get_name() << std::endl;
     stream << "  get_databytes " << socket.get_databytes() << std::endl;
@@ -48,7 +48,7 @@ void CodecRun::printSocketInfo(std::ostream &stream, module::Socket &socket)
     stream << "  get_datatype_string " << socket.get_datatype_string() << std::endl;
     stream << "  get_n_elmts " << socket.get_n_elmts() << std::endl;
 }
-void CodecRun::printSocketTypeInfo(std::ostream &stream, module::socket_t type)
+void Codec::printSocketTypeInfo(std::ostream &stream, module::socket_t type)
 {
     using namespace module;
     switch (type) {

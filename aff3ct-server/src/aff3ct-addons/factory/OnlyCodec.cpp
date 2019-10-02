@@ -67,8 +67,8 @@ void OnlyCodec::parameters
      BT
     aff3ct::factory::OnlyCodec::parameters::set_cdc() at OnlyCodec.cpp:64
     aff3ct::launcher::Repetition<aff3ct::launcher::OnlyCodec<int, float, float>, int, float, float>::Repetition() at Repetition.cpp:15
-    aff3ct::launcher::CodecRun* aff3ct::factory::OnlyCodec::parameters::build<int, float, float>() const at OnlyCodec.cpp:144
-    aff3ct::launcher::CodecRun* aff3ct::factory::OnlyCodec::build<int, float, float>() at OnlyCodec.cpp:161
+    aff3ct::launcher::Codec* aff3ct::factory::OnlyCodec::parameters::build<int, float, float>() const at OnlyCodec.cpp:144
+    aff3ct::launcher::Codec* aff3ct::factory::OnlyCodec::build<int, float, float>() at OnlyCodec.cpp:161
      */ 
          
     this->cdc.reset(cdc); //here comes cdc from Codec_!!! FINDME
@@ -143,7 +143,7 @@ std::vector<std::string> OnlyCodec::parameters::get_prefixes() const
 }
 
 template <typename B, typename R, typename Q>
-launcher::CodecRun* OnlyCodec::parameters::build(const int argc, const char **argv, std::ostream &stream) const
+launcher::Codec* OnlyCodec::parameters::build(const int argc, const char **argv, std::ostream &stream) const
 {
     if (this->cde_type == "REP")
     {
@@ -169,7 +169,7 @@ launcher::CodecRun* OnlyCodec::parameters::build(const int argc, const char **ar
 }
 
 template <typename B, typename R, typename Q>
-launcher::CodecRun* OnlyCodec::build(const parameters &params, const int argc, const char **argv, std::ostream &stream)
+launcher::Codec* OnlyCodec::build(const parameters &params, const int argc, const char **argv, std::ostream &stream)
 {
 	return params.template build<B,R,Q>(argc, argv, stream);
 }
@@ -177,10 +177,10 @@ launcher::CodecRun* OnlyCodec::build(const parameters &params, const int argc, c
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"
 #ifdef AFF3CT_MULTI_PREC
-template launcher::CodecRun* OnlyCodec::parameters::build<B_8,R_8,Q_8>(const int argc, const char **argv, std::ostream &stream) const;
-template launcher::CodecRun* OnlyCodec::parameters::build<B_32,R_32,Q_32>(const int argc, const char **argv, std::ostream &stream) const;
-template launcher::CodecRun* OnlyCodec::build<B_8,R_8,Q_8>(const aff3ct::factory::OnlyCodec::parameters &params,const int argc, const char **argv, std::ostream &stream);
-template launcher::CodecRun* OnlyCodec::build<B_32,R_32,Q_32>(const aff3ct::factory::OnlyCodec::parameters &params,const int argc, const char **argv, std::ostream &stream);
+template launcher::Codec* OnlyCodec::parameters::build<B_8,R_8,Q_8>(const int argc, const char **argv, std::ostream &stream) const;
+template launcher::Codec* OnlyCodec::parameters::build<B_32,R_32,Q_32>(const int argc, const char **argv, std::ostream &stream) const;
+template launcher::Codec* OnlyCodec::build<B_8,R_8,Q_8>(const aff3ct::factory::OnlyCodec::parameters &params,const int argc, const char **argv, std::ostream &stream);
+template launcher::Codec* OnlyCodec::build<B_32,R_32,Q_32>(const aff3ct::factory::OnlyCodec::parameters &params,const int argc, const char **argv, std::ostream &stream);
 
 //all codecs
 

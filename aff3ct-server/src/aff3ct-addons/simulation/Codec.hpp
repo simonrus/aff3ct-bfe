@@ -25,14 +25,14 @@
  */
 
 /* 
- * File:   CodecRun.hpp
+ * File:   Codec.hpp
  * Author: simon
  *
  * Created on September 13, 2019, 11:15 AM
  */
 
-#ifndef SIMULATION_CODECRUN_HPP
-#define SIMULATION_CODECRUN_HPP
+#ifndef SIMULATION_CODEC_HPP
+#define SIMULATION_CODEC_HPP
 
 #include <ostream>
 
@@ -44,10 +44,10 @@ namespace aff3ct
 {
 namespace simulation
 {
-class CodecRun {
+class Codec {
 public:
-    CodecRun();
-    virtual ~CodecRun() = default;
+    Codec();
+    virtual ~Codec() = default;
     
     virtual void initialize() = 0;
        
@@ -69,5 +69,5 @@ protected:
 } //namespace simulation
 } //namespace aff3ct
 
-#endif /* SIMULATION_CODECRUN_HPP */
+#endif /* SIMULATION_CODEC_HPP */
 

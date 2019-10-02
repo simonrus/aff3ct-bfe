@@ -24,7 +24,7 @@
  */
 
 #include "Facade_Codec.h"
-#include <aff3ct-addons/launcher/CodecRun.hpp>
+#include <aff3ct-addons/launcher/Codec.hpp>
 
 #include <Tools/Algo/Draw_generator/Gaussian_noise_generator/Gaussian_noise_generator.hpp>
 
@@ -131,17 +131,17 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
     std::cout << "read_arguments finished" << std::endl;
     
 
-    std::unique_ptr<launcher::CodecRun> codecLauncher;
+    std::unique_ptr<launcher::Codec> codecLauncher;
         
 #ifdef AFF3CT_MULTI_PREC
         std::cout << "sim_prec " << m_params.sim_prec << std::endl;
         switch (m_params.sim_prec) {
             
-            //case 8: m_codecLauncher =  std::unique_ptr<simulation::CodecRun> (factory::OnlyCodec::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
+            //case 8: m_codecLauncher =  std::unique_ptr<simulation::Codec> (factory::OnlyCodec::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
             //case 16: launcher = factory::OnlyCodec::build<B_16, R_16, Q_16>(m_params); break;
             case 32: 
-                launcher::CodecRun *codecrun = factory::OnlyCodec::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout);
-                codecLauncher =  std::unique_ptr<launcher::CodecRun> (codecrun);    
+                launcher::Codec *lau_codec = factory::OnlyCodec::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout);
+                codecLauncher =  std::unique_ptr<launcher::Codec> (lau_codec);    
                
                 break;
             //case 64: launcher = factory::OnlyCodec::build<B_64, R_64, Q_64>(m_params); break;
@@ -178,9 +178,9 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
         return false;
     }
         
-    simulation::CodecRun* codec = codecLauncher->build_simu();
+    simulation::Codec* codec = codecLauncher->build_simu();
     
-    m_codec =  std::unique_ptr<simulation::CodecRun> (codec);
+    m_codec =  std::unique_ptr<simulation::Codec> (codec);
     
     if (!m_codec) {
         std::cout << "Codec is not initialized" << std::endl;

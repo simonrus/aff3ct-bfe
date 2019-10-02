@@ -32,8 +32,6 @@
 
 #include <aff3ct.hpp>
 #include "aff3ct-errc.h"
-#include "aff3ct-addons/Source_memory.hpp"
-#include "aff3ct-addons/Monitor_BFER_detailed.hpp"
 
 #include "aff3ct-addons/simulation/Codec.hpp"
 #include "aff3ct-addons/factory/OnlyCodec.hpp"

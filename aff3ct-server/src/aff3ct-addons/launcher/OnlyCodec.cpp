@@ -1,5 +1,4 @@
 /*
- * 
  * MIT License
  * 
  * Copyright (c) 2017 aff3ct
@@ -45,17 +44,6 @@ OnlyCodec<B,R,Q>
 {
     PRINT_POINT();
     params.set_src(new factory::Source      ::parameters("src"));
-     
-    /*
-
-    params.set_crc(new factory::CRC         ::parameters("crc"));
-    params.set_mdm(new factory::Modem       ::parameters("mdm"));
-    params.set_chn(new factory::Channel     ::parameters("chn"));
-    params.set_qnt(new factory::Quantizer   ::parameters("qnt"));
-    params.set_mnt_mi(new factory::Monitor_MI  ::parameters("mnt"));
-    params.set_mnt_er(new factory::Monitor_BFER::parameters("mnt"));
-    params.set_ter(new factory::Terminal    ::parameters("ter"));
-    */
 }
 
 

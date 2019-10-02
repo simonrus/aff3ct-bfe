@@ -23,7 +23,7 @@
  * SOFTWARE.
  */
 
-#include "Facade_Codec.h"
+#include "Facade_Codec.hpp"
 #include <aff3ct-addons/launcher/Codec.hpp>
 
 #include <Tools/Algo/Draw_generator/Gaussian_noise_generator/Gaussian_noise_generator.hpp>
@@ -51,13 +51,13 @@ void Facade_Codec::setDebugPrint(bool bEnabled)
 bool Facade_Codec::reset()
 {
     
-   // std::unique_ptr<factory::OnlyCodec::parameters>                params(new factory::OnlyCodec::parameters());
+   // std::unique_ptr<factory::Codec_Generic::parameters>                params(new factory::Codec_Generic::parameters());
     
     //p_params.swap(params);
     return true;
 }
 
-bool Facade_Codec::read_arguments(const int argc, const char** argv, factory::OnlyCodec::parameters &params)
+bool Facade_Codec::read_arguments(const int argc, const char** argv, factory::Codec_Generic::parameters &params)
 {
     PRINT_POINT();
     tools::Argument_handler ah(argc, argv);
@@ -137,14 +137,14 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
         std::cout << "sim_prec " << m_params.sim_prec << std::endl;
         switch (m_params.sim_prec) {
             
-            //case 8: m_codecLauncher =  std::unique_ptr<simulation::Codec> (factory::OnlyCodec::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
-            //case 16: launcher = factory::OnlyCodec::build<B_16, R_16, Q_16>(m_params); break;
+            //case 8: m_codecLauncher =  std::unique_ptr<simulation::Codec> (factory::Codec_Generic::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
+            //case 16: launcher = factory::Codec_Generic::build<B_16, R_16, Q_16>(m_params); break;
             case 32: 
-                launcher::Codec *lau_codec = factory::OnlyCodec::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout);
+                launcher::Codec *lau_codec = factory::Codec_Generic::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout);
                 codecLauncher =  std::unique_ptr<launcher::Codec> (lau_codec);    
                
                 break;
-            //case 64: launcher = factory::OnlyCodec::build<B_64, R_64, Q_64>(m_params); break;
+            //case 64: launcher = factory::Codec_Generic::build<B_64, R_64, Q_64>(m_params); break;
             //default: launcher = nullptr;
                 break;
         }

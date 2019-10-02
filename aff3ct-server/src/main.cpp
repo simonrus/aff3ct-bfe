@@ -46,7 +46,7 @@
 
 #include <aff3ct.hpp>
 
-#include "Facade_Codec.h"
+#include "Facade_Codec.hpp"
 
 Aff3ctErrc      g_Error = Aff3ctErrc::NoError;
 

@@ -24,14 +24,14 @@
  */
 
 /* 
- * File:   OnlyCodec.hpp
+ * File:   Codec_Generic.hpp
  * Author: simon
  *
  * Created on September 2, 2019, 10:14 PM
  */
 
-#ifndef FACTORY_ONLYCODEC_HPP
-#define FACTORY_ONLYCODEC_HPP
+#ifndef FACTORY_CODEC_GENERIC_HPP
+#define FACTORY_CODEC_GENERIC_HPP
 
 #include <string>
 #include <Factory/Factory.hpp>
@@ -56,10 +56,10 @@ namespace aff3ct
 {
 namespace factory
 {
-extern const std::string OnlyCodecSimulation_name;
-extern const std::string OnlyCodecSimulation_prefix;
+extern const std::string CodecGenericSimulation_name;
+extern const std::string CodecGenericSimulation_prefix;
 
-struct OnlyCodec:public aff3ct::factory::Simulation
+struct Codec_Generic:public aff3ct::factory::Simulation
 {
     class parameters : public Simulation::parameters
     {
@@ -71,7 +71,7 @@ struct OnlyCodec:public aff3ct::factory::Simulation
         tools::auto_cloned_unique_ptr<Codec        ::parameters> cdc;
         tools::auto_cloned_unique_ptr<Quantizer    ::parameters> qnt;
         // ---------------------------------------------------------------------------------------------------- METHODS
-        parameters(const std::string &p = OnlyCodecSimulation_prefix);
+        parameters(const std::string &p = CodecGenericSimulation_prefix);
         virtual ~parameters() = default;
         virtual parameters* clone() const;
 
@@ -104,10 +104,10 @@ struct OnlyCodec:public aff3ct::factory::Simulation
     
     template <typename B = int, typename R = float, typename Q = R>
     static launcher::Codec* build(const parameters &params, const int argc, const char **argv, std::ostream &stream);
-}; //struct OnlyCodec
+}; //struct Codec_Generic
 } //namespace factory
 } //namespace aff3ct
 
 
-#endif /* ONLYCODEC_HPP */
+#endif /* FACTORY_CODEC_GENERIC_HPP */
 

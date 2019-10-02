@@ -39,7 +39,7 @@ using namespace aff3ct::launcher;
 //FIXME:: CopyAndPaste
 
 Codec::Codec(const int argc, const char **argv,
-        factory::OnlyCodec::parameters &params,
+        factory::Codec_Generic::parameters &params,
         std::ostream &stream) :
 ah(argc, argv), params_common(params), stream(stream) 
 {

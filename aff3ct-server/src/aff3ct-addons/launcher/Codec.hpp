@@ -33,7 +33,7 @@
 #ifndef LAUNCHER_CODEC_HPP
 #define LAUNCHER_CODEC_HPP
 
-#include <aff3ct-addons/factory/OnlyCodec.hpp>
+#include <aff3ct-addons/factory/Codec_Generic.hpp>
 #include <aff3ct-addons/simulation/Codec.hpp>
 
 #include <Tools/Arguments/Argument_handler.hpp>
@@ -50,7 +50,7 @@ namespace launcher
 class Codec {
 public:
     Codec(const int argc, const char **argv, 
-            factory::OnlyCodec::parameters &params, 
+            factory::Codec_Generic::parameters &params, 
             std::ostream &stream = std::cout);
     
     virtual void get_description_args();        /*< function that declares arguments for this module. Result shall be saved to this->args*/
@@ -64,7 +64,7 @@ protected:
     tools::Argument_map_info        args;     /*!< List of the arguments to find in the command line */
     tools::Argument_map_value       arg_vals; /*!< List of the arguments with their values */
     
-    factory::OnlyCodec::parameters  &params_common; /*!< A structure of parameters to store and pass to the simulation. */
+    factory::Codec_Generic::parameters  &params_common; /*!< A structure of parameters to store and pass to the simulation. */
     std::ostream                    &stream;  /*!< The dedicated stream in which the Launcher writes the parameters. */
 
     int read_arguments();

@@ -24,18 +24,18 @@
  */
 
 /* 
- * File:   OnlyCodec.hpp
+ * File:   Codec_Generic.hpp
  * Author: simon
  *
  * Created on September 12, 2019, 3:06 PM
  */
 
-#ifndef SIMULATION_ONLYCODEC_HPP
-#define SIMULATION_ONLYCODEC_HPP
+#ifndef SIMULATION_CODEC_GENERIC_HPP
+#define SIMULATION_CODEC_GENERIC_HPP
 
 #include <random>
 
-#include <aff3ct-addons/factory/OnlyCodec.hpp>
+#include <aff3ct-addons/factory/Codec_Generic.hpp>
 #include <Simulation/Simulation.hpp>
 
 #include <Module/Codec/Codec_SISO_SIHO.hpp>
@@ -64,11 +64,11 @@ enum CodecType
 };
 
 template <typename B = int, typename R = float, typename Q = R>
-class OnlyCodec : public Codec 
+class Codec_Generic : public Codec 
 {
 
 protected:
-    const aff3ct::factory::OnlyCodec::parameters&           params_OnlyCodec;
+    const aff3ct::factory::Codec_Generic::parameters&           params_codec;
     std::unique_ptr<module::Codec <B,Q>>                    codec;
     
     std::mt19937                                            rd_engine_seed;
@@ -81,8 +81,8 @@ protected:
     
     void sockets_binding();
 public:
-    explicit OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec);
-    virtual ~OnlyCodec() = default;
+    explicit Codec_Generic(const factory::Codec_Generic::parameters& params_codec);
+    virtual ~Codec_Generic() = default;
     virtual void initialize();
     
     static void printCodecType(CodecType type, std::ostream &stream = std::cout);
@@ -103,5 +103,5 @@ public:
 } //namespace simulation
 } //namespace aff3ct
 
-#endif /* SIMULATION_ONLYCODEC_HPP */
+#endif /* SIMULATION_CODEC_GENERIC_HPP */
 

@@ -27,14 +27,14 @@
  * Class implements a Codec FACADE to aff3ct 
  */
 
-#ifndef FACADE_CODEC_H
-#define FACADE_CODEC_H
+#ifndef FACADE_CODEC_HPP
+#define FACADE_CODEC_HPP
 
 #include <aff3ct.hpp>
 #include "aff3ct-errc.h"
 
 #include "aff3ct-addons/simulation/Codec.hpp"
-#include "aff3ct-addons/factory/OnlyCodec.hpp"
+#include "aff3ct-addons/factory/Codec_Generic.hpp"
 
 #include <list>
 #include <memory>
@@ -47,7 +47,7 @@ class Facade_Codec {
 protected:
     
     std::unique_ptr<simulation::Codec>       m_codec;
-    factory::OnlyCodec::parameters              m_params;
+    factory::Codec_Generic::parameters              m_params;
     
     std::error_code constructAll();
     
@@ -69,9 +69,9 @@ public:
     void resetMonitor();
   
     
-    static bool read_arguments(const int argc, const char** argv, factory::OnlyCodec::parameters &params);
+    static bool read_arguments(const int argc, const char** argv, factory::Codec_Generic::parameters &params);
     
 };
 
-#endif /* FACADE_CODEC_H */
+#endif /* FACADE_CODEC_HPP */
 

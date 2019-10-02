@@ -24,22 +24,22 @@
  */
 
 /* 
- * File:   OnlyCodec.cpp
+ * File:   Codec_Generic.cpp
  * Author: simon
  * 
  * Created on September 2, 2019, 10:10 PM
  */
 
-#include "OnlyCodec.hpp"
-#include "aff3ct-addons/simulation/OnlyCodec.hpp"
+#include "Codec_Generic.hpp"
+#include "aff3ct-addons/simulation/Codec_Generic.hpp"
 
 
 using namespace aff3ct;
 using namespace aff3ct::launcher;
 
 template <typename B, typename R, typename Q>
-OnlyCodec<B,R,Q>
-::OnlyCodec(const int argc, const char **argv, std::ostream &stream)
+Codec_Generic<B,R,Q>
+::Codec_Generic(const int argc, const char **argv, std::ostream &stream)
 : Codec(argc, argv, params, stream)
 {
     PRINT_POINT();
@@ -48,7 +48,7 @@ OnlyCodec<B,R,Q>
 
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B,R,Q>
+void Codec_Generic<B,R,Q>
 ::get_description_args()
 {
     PRINT_POINT();
@@ -80,12 +80,12 @@ void OnlyCodec<B,R,Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B,R,Q>
+void Codec_Generic<B,R,Q>
 ::store_args()
 {
     PRINT_POINT();
     
-    std::cout << "launcher::OnlyCodec::store_args() " << std::endl;
+    std::cout << "launcher::Codec_Generic::store_args() " << std::endl;
     Codec::store_args();
     
     //TODO: CHECK /home/simon/work/phd/missfec/lib/aff3ct/src/Launcher/Simulation/BFER_std.cpp
@@ -101,7 +101,7 @@ void OnlyCodec<B,R,Q>
 }
 
 template <typename B, typename R, typename Q>
-simulation::Codec* OnlyCodec<B,R,Q>
+simulation::Codec* Codec_Generic<B,R,Q>
 ::build_simu()
 {
     PRINT_POINT();
@@ -115,16 +115,16 @@ simulation::Codec* OnlyCodec<B,R,Q>
     paramsPtrs.push_back(&params);
     aff3ct::factory::Header::print_parameters(paramsPtrs, true, std::cout);
     
-    return new simulation::OnlyCodec<B,R,Q>(params);
+    return new simulation::Codec_Generic<B,R,Q>(params);
     
 }
 
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"
 #ifdef AFF3CT_MULTI_PREC
-template class aff3ct::launcher::OnlyCodec<B_8,R_8,Q_8>;
-template class aff3ct::launcher::OnlyCodec<B_32,R_32,Q_32>;
+template class aff3ct::launcher::Codec_Generic<B_8,R_8,Q_8>;
+template class aff3ct::launcher::Codec_Generic<B_32,R_32,Q_32>;
 #else
-template class aff3ct::launcher::OnlyCodec<B,R,Q>;
+template class aff3ct::launcher::Codec_Generic<B,R,Q>;
 #error "Not implemented"
 #endif

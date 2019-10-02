@@ -24,29 +24,29 @@
  */
 
 /* 
- * File:   OnlyCodec.cpp
+ * File:   Codec_Generic.cpp
  * Author: simon
  * 
  * Created on September 12, 2019, 3:06 PM
  */
 
-#include "OnlyCodec.hpp"
+#include "Codec_Generic.hpp"
 #include <Tools/general_utils.h>
 
 using namespace aff3ct;
 using namespace aff3ct::simulation;
 
 template <typename B, typename R, typename Q>
-OnlyCodec<B, R, Q>
-::OnlyCodec(const factory::OnlyCodec::parameters& params_OnlyCodec)
-: params_OnlyCodec(params_OnlyCodec)
+Codec_Generic<B, R, Q>
+::Codec_Generic(const factory::Codec_Generic::parameters& params_codec)
+: params_codec(params_codec)
 {
     PRINT_POINT();
-    rd_engine_seed.seed(params_OnlyCodec.local_seed);
+    rd_engine_seed.seed(params_codec.local_seed);
 }
 
 template <typename B, typename R, typename Q>
-CodecType OnlyCodec<B, R, Q>
+CodecType Codec_Generic<B, R, Q>
 ::getCodecType(factory::Codec::parameters *param)
 {
     auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*> (param);
@@ -69,14 +69,14 @@ CodecType OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::detectCodecType()
 {
-    codecType = getCodecType(params_OnlyCodec.cdc.get());
+    codecType = getCodecType(params_codec.cdc.get());
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::printCodecType(CodecType type, std::ostream &stream)
 {
     stream << "Codec_SISO_SIHO ";
@@ -106,7 +106,7 @@ void OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::initialize()
 {
     PRINT_POINT();
@@ -117,7 +117,7 @@ void OnlyCodec<B, R, Q>
     const auto seed_enc = rd_engine_seed();
     const auto seed_dec = rd_engine_seed();
 
-    std::unique_ptr<factory::Codec::parameters> params_cdc(params_OnlyCodec.cdc->clone());
+    std::unique_ptr<factory::Codec::parameters> params_cdc(params_codec.cdc->clone());
     if (params_cdc) {
         std::cout << "params_cdc is OK " << std::endl;
     } else
@@ -131,28 +131,28 @@ void OnlyCodec<B, R, Q>
     switch (codecType) {
     case Type_SISO_SIHO:
     {
-        auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*> (params_OnlyCodec.cdc.get());
+        auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO::parameters*> (params_codec.cdc.get());
         codec = std::unique_ptr<module::Codec<B, Q >> (param_siso_siho->template build<B, Q>(nullptr));
         break;
     }
 
     case Type_SISO:
     {
-        auto param_siso = dynamic_cast<factory::Codec_SISO::parameters*> (params_OnlyCodec.cdc.get());
+        auto param_siso = dynamic_cast<factory::Codec_SISO::parameters*> (params_codec.cdc.get());
         codec = std::unique_ptr<module::Codec<B, Q >> (param_siso->template build<B, Q>(nullptr));
         break;
     }
 
     case Type_SIHO:
     {
-        auto param_siho = dynamic_cast<factory::Codec_SIHO::parameters*> (params_OnlyCodec.cdc.get());
+        auto param_siho = dynamic_cast<factory::Codec_SIHO::parameters*> (params_codec.cdc.get());
         codec = std::unique_ptr<module::Codec<B, Q >> (param_siho->template build<B, Q>(nullptr));
         break;
     }
 
     case Type_HIHO:
     {
-        auto param_hiho = dynamic_cast<factory::Codec_HIHO::parameters*> (params_OnlyCodec.cdc.get());
+        auto param_hiho = dynamic_cast<factory::Codec_HIHO::parameters*> (params_codec.cdc.get());
         codec = std::unique_ptr<module::Codec<B, Q >> (param_hiho->template build<B, Q>(nullptr));
         break;
     }
@@ -172,7 +172,7 @@ void OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::sockets_binding()
 {
     std::vector<const module::Module*> m_modules;
@@ -277,14 +277,14 @@ void OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::setNoise(float ebn0)
 {
     this->m_fNoise = ebn0;
     if (m_bInitialized) {
         tools::Sigma<> noise;
 
-        const float Rate = (float) params_OnlyCodec.cdc->enc->K / (float) params_OnlyCodec.cdc->enc->N_cw;
+        const float Rate = (float) params_codec.cdc->enc->K / (float) params_codec.cdc->enc->N_cw;
 
 
         // compute the current sigma for the channel noise
@@ -301,7 +301,7 @@ void OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::printCodecInfo(std::ostream &stream)
 {
     auto& r_encoder = codec->get_encoder();
@@ -325,10 +325,10 @@ void OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-bool OnlyCodec<B, R, Q>::
+bool Codec_Generic<B, R, Q>::
 is_codeword(void *in)
 {
-    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    int N =  params_codec.cdc->enc->N_cw;
     B* candidate = static_cast<B*> (in);
     
     using namespace module;
@@ -338,13 +338,13 @@ is_codeword(void *in)
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::encode(void *in, void *out, int n_cw)
 {
     PRINT_POINT();
     
-    int K =  params_OnlyCodec.cdc->enc->K;
-    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    int K =  params_codec.cdc->enc->K;
+    int N =  params_codec.cdc->enc->N_cw;
     B* input = static_cast<B*> (in);
     B* output = static_cast<B*> (out); 
 
@@ -376,14 +376,14 @@ void OnlyCodec<B, R, Q>
 
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::decodeHIHO(void *in, void *out, int n_cw)
 {
     B* recieved = static_cast<B*>(in);
     B* decoded = static_cast<B*>(out);
        
-    int K =  params_OnlyCodec.cdc->enc->K;
-    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    int K =  params_codec.cdc->enc->K;
+    int N =  params_codec.cdc->enc->N_cw;
     
     if ((!codec) || (m_bInitialized == false)) {
         std::cout << "Codec is null" << std::endl;
@@ -413,13 +413,13 @@ void OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::decodeSISO(void *in, void *out, int n_cw)
 {
     R* recieved = static_cast<R*>(in);
     R* decoded = static_cast<R*>(out);
 
-    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    int N =  params_codec.cdc->enc->N_cw;
     
     if ((!codec) || (m_bInitialized == false)) {
         std::cout << "Codec is null" << std::endl;
@@ -449,14 +449,14 @@ void OnlyCodec<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void OnlyCodec<B, R, Q>
+void Codec_Generic<B, R, Q>
 ::decodeSIHO(void *in, void *out, int n_cw)
 {
     R* recieved = static_cast<R*>(in);
     B* decoded = static_cast<B*>(out);
        
-    int K =  params_OnlyCodec.cdc->enc->K;
-    int N =  params_OnlyCodec.cdc->enc->N_cw;
+    int K =  params_codec.cdc->enc->K;
+    int N =  params_codec.cdc->enc->N_cw;
     
     if ((!codec) || (m_bInitialized == false)) {
         std::cout << "Codec is null" << std::endl;
@@ -489,8 +489,8 @@ void OnlyCodec<B, R, Q>
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"
 #ifdef AFF3CT_MULTI_PREC
-template class aff3ct::simulation::OnlyCodec<B_8, R_8, Q_8>;
-template class aff3ct::simulation::OnlyCodec<B_32, R_32, Q_32>;
+template class aff3ct::simulation::Codec_Generic<B_8, R_8, Q_8>;
+template class aff3ct::simulation::Codec_Generic<B_32, R_32, Q_32>;
 #else
 #error "Not yet implemented"
 #endif

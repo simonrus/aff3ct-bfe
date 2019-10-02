@@ -30,23 +30,23 @@
  * Created on September 2, 2019, 10:10 PM
  */
 
-#ifndef LAUNCHER_ONLYCODEC_HPP
-#define LAUNCHER_ONLYCODEC_HPP
+#ifndef LAUNCHER_CODEC_GENERIC_HPP
+#define LAUNCHER_CODEC_GENERIC_HPP
 
 #include <aff3ct-addons/launcher/Codec.hpp>
-#include <aff3ct-addons/factory/OnlyCodec.hpp>
+#include <aff3ct-addons/factory/Codec_Generic.hpp>
 
 namespace aff3ct {
 namespace launcher{
     
 template <typename B = int, typename R = float, typename Q = R>
-class OnlyCodec: public Codec 
+class Codec_Generic: public Codec 
 {
     protected:
-	factory::OnlyCodec::parameters params;
+	factory::Codec_Generic::parameters params;
     public:
-	OnlyCodec(const int argc, const char **argv, std::ostream &stream = std::cout);
-	virtual ~OnlyCodec() = default;
+	Codec_Generic(const int argc, const char **argv, std::ostream &stream = std::cout);
+	virtual ~Codec_Generic() = default;
 
         simulation::Codec* build_simu();
     protected:
@@ -59,5 +59,5 @@ class OnlyCodec: public Codec
 } //namespace launcher
 } //namespace aff3ct
 
-#endif /* LAUNCHER_ONLYCODEC_HPP */
+#endif /* LAUNCHER_CODEC_GENERIC_HPP */
 

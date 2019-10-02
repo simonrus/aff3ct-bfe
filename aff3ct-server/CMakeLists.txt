@@ -57,7 +57,7 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/simulation/OnlyCodec.cpp
     
 #set main sources
 set(MAIN_SRCS
-${CMAKE_CURRENT_SOURCE_DIR}/src/Model.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/Facade_Codec.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-errc.cpp
 )
 

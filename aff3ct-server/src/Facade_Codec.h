@@ -24,36 +24,30 @@
  */
 
 /* 
- * Class implements the aff3ct processing chain
+ * Class implements a Codec FACADE to aff3ct 
  */
 
-#ifndef MODEL_H
-#define MODEL_H
-
-#define B_TYPE  int
-#define Q_TYPE  float
-#define R_TYPE  float  
+#ifndef FACADE_CODEC_H
+#define FACADE_CODEC_H
 
 #include <aff3ct.hpp>
-#include <list>
-#include <memory>
 #include "aff3ct-errc.h"
 #include "aff3ct-addons/Source_memory.hpp"
 #include "aff3ct-addons/Monitor_BFER_detailed.hpp"
 
-
 #include "aff3ct-addons/simulation/CodecRun.hpp"
 #include "aff3ct-addons/factory/OnlyCodec.hpp"
 
+#include <list>
+#include <memory>
+
+
 using namespace aff3ct;
 
-class Model {
+class Facade_Codec {
 
 protected:
     
-    //std::unique_ptr<factory::OnlyCodec::parameters >   p_params;
-    
-    //std::vector<factory::Factory::parameters*> m_paramsList;
     std::unique_ptr<simulation::CodecRun>       m_codec;
     factory::OnlyCodec::parameters              m_params;
     
@@ -66,13 +60,12 @@ protected:
 public:
     void setNoise(float ebn0);
     
-    Model():m_params("sim") { };
-    virtual ~Model() = default;
+    Facade_Codec():m_params("sim") { };
+    virtual ~Facade_Codec() = default;
     
     bool init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream = std::cerr);
     bool reset();
     
-    void iterate(void);
     void setDebugPrint(bool bEnabled=true);
     
     void resetMonitor();
@@ -82,5 +75,5 @@ public:
     
 };
 
-#endif /* MODEL_H */
+#endif /* FACADE_CODEC_H */
 

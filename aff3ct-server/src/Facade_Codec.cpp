@@ -23,12 +23,12 @@
  * SOFTWARE.
  */
 
-#include "Model.h"
+#include "Facade_Codec.h"
 #include <aff3ct-addons/launcher/CodecRun.hpp>
 
 #include <Tools/Algo/Draw_generator/Gaussian_noise_generator/Gaussian_noise_generator.hpp>
 
-std::error_code Model::constructAll()
+std::error_code Facade_Codec::constructAll()
 {
     std::error_code ec = make_error_code(Aff3ctErrc::NoError);
     
@@ -36,7 +36,7 @@ std::error_code Model::constructAll()
     return ec;
 }
 
-void Model::setDebugPrint(bool bEnabled) 
+void Facade_Codec::setDebugPrint(bool bEnabled) 
 {
     m_bDebugPrint = bEnabled;
      
@@ -48,7 +48,7 @@ void Model::setDebugPrint(bool bEnabled)
     }
 }
 
-bool Model::reset()
+bool Facade_Codec::reset()
 {
     
    // std::unique_ptr<factory::OnlyCodec::parameters>                params(new factory::OnlyCodec::parameters());
@@ -57,7 +57,7 @@ bool Model::reset()
     return true;
 }
 
-bool Model::read_arguments(const int argc, const char** argv, factory::OnlyCodec::parameters &params)
+bool Facade_Codec::read_arguments(const int argc, const char** argv, factory::OnlyCodec::parameters &params)
 {
     PRINT_POINT();
     tools::Argument_handler ah(argc, argv);
@@ -100,7 +100,7 @@ bool Model::read_arguments(const int argc, const char** argv, factory::OnlyCodec
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
  * \param arg_vec - vector arguments where arg_vec[0] shall be interpreted as a program name
  */
-bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream)
+bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream)
 {
     PRINT_POINT();
     
@@ -327,7 +327,7 @@ bool Model::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostr
     return true;
 }
 
-void Model::setNoise(float ebn0) 
+void Facade_Codec::setNoise(float ebn0) 
 {
     this->m_fNoise = ebn0;
     if (m_bInitialized) 
@@ -351,25 +351,9 @@ void Model::setNoise(float ebn0)
 }
 
 
-void Model::resetMonitor() 
+void Facade_Codec::resetMonitor() 
 {
 //    if (m_bInitialized)
 //        m_monitor->reset();
 }
 
-
-void Model::iterate(void)
-{
-    using namespace module;
-     
-    std::cout << "Model::iterate()" << std::endl;
-    try {           
-        if (m_codec)
-        {
-            //m_codec->iterate(nullptr, nullptr);
-        }
-    } catch (std::exception const& e) {
-        std::cout << "Exception:" << e.what() << std::endl;
-    }
-   
-}

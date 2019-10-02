@@ -53,11 +53,11 @@
 
 #include <aff3ct.hpp>
 
-#include "Model.h"
+#include "Facade_Codec.h"
 
 Aff3ctErrc      g_Error = Aff3ctErrc::NoError;
 
-Model g_model;
+Facade_Codec g_model;
 
 void sigHandler(int s)
 {
@@ -81,12 +81,10 @@ int enableSIGTermHandler()
 std::map<std::string, std::vector<float>> g_MemoryContainer;
 
 enum ECommand {
-    eInit, 
-    eIter
+    eInit
 };
 
-std::map<std::string, enum ECommand> g_supportedCommands = { {"init", eInit},
-                                                     {"iter", eIter}};
+std::map<std::string, enum ECommand> g_supportedCommands = { {"init", eInit}};
 
 bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
 {    
@@ -118,10 +116,6 @@ bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
                 std::cout << "Model initialized" << std::endl;
             }
 
-            break;
-
-        case eIter:
-            g_model.iterate();
             break;
 
         default:
@@ -202,11 +196,7 @@ int main(int argc, char** argv)
         "200"
         };
     sendCommand(init_command);
-
-    std::vector<std::string> iter_command = {"iter"};
-    sendCommand(iter_command);
-    
-        
+         
     TRACELOG(INFO, "ErrStream is %s", getErrStream().str().c_str());
     return 0;
 }

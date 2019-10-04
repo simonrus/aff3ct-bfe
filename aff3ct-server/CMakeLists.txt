@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
 # Specify bin path
 set (EXECUTABLE_OUTPUT_PATH bin/)
+set (LIBRARY_OUTPUT_PATH bin/)
 
 get_filename_component(TOP_LEVEL_PATH ../ ABSOLUTE)
 set(PROTO_DIR ${TOP_LEVEL_PATH}/proto)
@@ -60,8 +61,10 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src/Factory_Codec.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-errc.cpp
 )
 
+add_library(aff3ct-codec SHARED ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${LOGURU_SRCS})
+
 #add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
-add_executable(aff3ct-test ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
+add_executable(aff3ct-test ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
 
 # Link with AFF3CT
 set (AFF3CT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
@@ -74,10 +77,22 @@ set(LOCAL_INCLUDE_DIRS
 
 #target_include_directories(aff3ct-server PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
 target_include_directories(aff3ct-test PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-codec PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
 
 if(NOT WIN32)
     set(DL_LIBRARY dl)
 endif()
 
+target_link_libraries(aff3ct-codec PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
 #target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
-target_link_libraries(aff3ct-test PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
+target_link_libraries(aff3ct-test  PRIVATE aff3ct::aff3ct-static-lib aff3ct-codec PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
+
+
+### ADD TESTS
+find_package(CxxTest)
+if(CXXTEST_FOUND) 
+    enable_testing()
+    CXXTEST_ADD_TEST(unittest_factory_codec test_factory_codec.cc
+		${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_factory_codec.h)
+    target_link_libraries(unittest_factory_codec aff3ct-codec)
+endif()

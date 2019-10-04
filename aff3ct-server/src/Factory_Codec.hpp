@@ -24,11 +24,11 @@
  */
 
 /* 
- * Class implements a Codec FACADE to aff3ct 
+ * Class implements a Codec Factory
  */
 
-#ifndef FACADE_CODEC_HPP
-#define FACADE_CODEC_HPP
+#ifndef FACTORY_CODEC_HPP
+#define FACTORY_CODEC_HPP
 
 #include <aff3ct.hpp>
 #include "aff3ct-errc.h"
@@ -42,36 +42,18 @@
 
 using namespace aff3ct;
 
-class Facade_Codec {
-
-protected:
-    
-    std::unique_ptr<simulation::Codec>       m_codec;
-    factory::Codec_Generic::parameters              m_params;
-    
-    std::error_code constructAll();
-    
-    
-    bool                                        m_bDebugPrint = false;
-    bool                                        m_bInitialized = false;
-    float                                       m_fNoise = 0.0;
+class Factory_Codec 
+{
 public:
-    void setNoise(float ebn0);
-    
-    Facade_Codec():m_params("sim") { };
-    virtual ~Facade_Codec() = default;
-    
-    bool init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream = std::cerr);
-    bool reset();
-    
-    void setDebugPrint(bool bEnabled=true);
-    
-    void resetMonitor();
-  
+    static std::unique_ptr<simulation::Codec> create(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream = std::cerr);
     
     static bool read_arguments(const int argc, const char** argv, factory::Codec_Generic::parameters &params);
+
+private:    
+    Factory_Codec() = default;
+    virtual ~Factory_Codec() = default;
     
 };
 
-#endif /* FACADE_CODEC_HPP */
+#endif /* FACTORY_CODEC_HPP */
 

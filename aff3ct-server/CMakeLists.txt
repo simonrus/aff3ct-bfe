@@ -47,16 +47,16 @@ set(LOGURU_INCLUDE_DIRS ${LOGURU_DIR})
 set(LOGURU_SRCS ${LOGURU_DIR}/loguru.cpp)
 
 set(AFF3CT_ADDONS_SRCS
-${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/factory/OnlyCodec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/factory/Codec_Generic.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/launcher/Codec.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/launcher/OnlyCodec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/launcher/Codec_Generic.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/simulation/Codec.cpp
-${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/simulation/OnlyCodec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/simulation/Codec_Generic.cpp
 )
     
 #set main sources
 set(MAIN_SRCS
-${CMAKE_CURRENT_SOURCE_DIR}/src/Facade_Codec.cpp
+${CMAKE_CURRENT_SOURCE_DIR}/src/Factory_Codec.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-errc.cpp
 )
 

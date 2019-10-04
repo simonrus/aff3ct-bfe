@@ -53,11 +53,11 @@
 
 #include <aff3ct.hpp>
 
-#include "Facade_Codec.hpp"
+#include "Factory_Codec.hpp"
 
 Aff3ctErrc      g_Error = Aff3ctErrc::NoError;
 
-Facade_Codec g_model;
+std::unique_ptr<simulation::Codec> g_codec;
 
 void sigHandler(int s)
 {
@@ -108,7 +108,7 @@ bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
 
     switch (eCommand) {
         case eInit:
-            result = g_model.init(args, ec, err_stream);
+            g_codec = Factory_Codec::create(args, ec, err_stream);
             if (ec) {
                 std::cout << ec << std::endl;
                 TRACELOG(ERROR, "Model failed to init: %s", ec.message().c_str());
@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 
     GOOGLE_PROTOBUF_VERIFY_VERSION;
 #ifndef NDEBUG    
-    g_model.setDebugPrint(true);
+    //g_model.setDebugPrint(true);
 #endif
     loguru::init(argc, argv);
     

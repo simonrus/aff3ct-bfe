@@ -46,11 +46,11 @@
 
 #include <aff3ct.hpp>
 
-#include "Facade_Codec.hpp"
+#include "Factory_Codec.hpp"
 
 Aff3ctErrc      g_Error = Aff3ctErrc::NoError;
 
-Facade_Codec g_model;
+Factory_Codec g_model;
 
 void sigHandler(int s)
 {
@@ -126,7 +126,7 @@ void logCommand(std::list<std::string> &args)
 {
     /** do command logging */
     std::ostringstream ss;
-    ss << "Facade received command (" << args.size() << " args):";
+    ss << "Factory received command (" << args.size() << " args):";
     for (std::string &str : args) 
     {
         ss << str << " ";
@@ -154,7 +154,7 @@ bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
         
         if (ec)
         {
-            TRACELOG(ERROR, "Facade failed to init: %s", ec.message().c_str());    
+            TRACELOG(ERROR, "Factory failed to init: %s", ec.message().c_str());    
         }
         
         return result;

@@ -23,41 +23,12 @@
  * SOFTWARE.
  */
 
-#include "Facade_Codec.hpp"
+#include "Factory_Codec.hpp"
 #include <aff3ct-addons/launcher/Codec.hpp>
 
 #include <Tools/Algo/Draw_generator/Gaussian_noise_generator/Gaussian_noise_generator.hpp>
 
-std::error_code Facade_Codec::constructAll()
-{
-    std::error_code ec = make_error_code(Aff3ctErrc::NoError);
-    
-    
-    return ec;
-}
-
-void Facade_Codec::setDebugPrint(bool bEnabled) 
-{
-    m_bDebugPrint = bEnabled;
-     
-    if (m_bInitialized) 
-    {
-        using namespace module;
-    
-       
-    }
-}
-
-bool Facade_Codec::reset()
-{
-    
-   // std::unique_ptr<factory::Codec_Generic::parameters>                params(new factory::Codec_Generic::parameters());
-    
-    //p_params.swap(params);
-    return true;
-}
-
-bool Facade_Codec::read_arguments(const int argc, const char** argv, factory::Codec_Generic::parameters &params)
+bool Factory_Codec::read_arguments(const int argc, const char** argv, factory::Codec_Generic::parameters &params)
 {
     PRINT_POINT();
     tools::Argument_handler ah(argc, argv);
@@ -100,12 +71,15 @@ bool Facade_Codec::read_arguments(const int argc, const char** argv, factory::Co
  * \ref https://github.com/aff3ct/my_project_with_aff3ct/blob/master/examples/factory/src/main.cpp
  * \param arg_vec - vector arguments where arg_vec[0] shall be interpreted as a program name
  */
-bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream)
+std::unique_ptr<simulation::Codec> 
+Factory_Codec::create(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream)
 {
+    std::unique_ptr<simulation::Codec> newCodec;
+    
     PRINT_POINT();
     
-    int exit_code;
-    
+    factory::Codec_Generic::parameters              m_params;
+            
     std::vector<const char *> argv;
 
     argv.reserve(arg_vec.size());
@@ -113,11 +87,6 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
     {   
         argv.push_back(arg.c_str());
     }
-
-    reset();
-
-    
-    //m_paramsList =  {p_params.get()};
 
     std::cout << "********** 1st args parsing *********** " << std::endl;
     //factory::Command_parser cp(argv.size(), (char**)&argv[0], m_paramsList, true, err_stream);
@@ -130,14 +99,13 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
     
     std::cout << "read_arguments finished" << std::endl;
     
-
     std::unique_ptr<launcher::Codec> codecLauncher;
         
 #ifdef AFF3CT_MULTI_PREC
         std::cout << "sim_prec " << m_params.sim_prec << std::endl;
         switch (m_params.sim_prec) {
             
-            //case 8: m_codecLauncher =  std::unique_ptr<simulation::Codec> (factory::Codec_Generic::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
+            //case 8: newCodecLauncher =  std::unique_ptr<simulation::Codec> (factory::Codec_Generic::build<B_8, R_8, Q_8 >(m_params, argv.size(), (const char**)&argv[0], std::cout));    break;
             //case 16: launcher = factory::Codec_Generic::build<B_16, R_16, Q_16>(m_params); break;
             case 32: 
                 launcher::Codec *lau_codec = factory::Codec_Generic::build<B_32, R_32, Q_32 >(m_params, argv.size(), (const char**)&argv[0], std::cout);
@@ -151,27 +119,7 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
 #else
 #error Not implemented
 #endif
-        
-//    if (cp.help_required())
-//    {
-//        cp.print_help    ();
-//        return false;
-//    }
-//    
-    // parse the command for the given parameters and fill them
-//    if (cp.parsing_failed())
-//    {
-//        cp.print_warnings();
-//        cp.print_errors  ();
-//    
-//        //TRACELOG(ERROR,"cp.parsing_failed");
-//        //FIXME: Redirect std::cout to log!
-//        return false;
-//    }
-//       
-//    // display the headers (= print the AFF3CT parameters on the screen)
-//    factory::Header::print_parameters(m_paramsList); 
-//    cp.print_warnings();
+   
         
     if (!codecLauncher) {
         std::cout << "CodecLauncher is not initialized" << std::endl;
@@ -180,20 +128,16 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
         
     simulation::Codec* codec = codecLauncher->build_simu();
     
-    m_codec =  std::unique_ptr<simulation::Codec> (codec);
+    newCodec =  std::unique_ptr<simulation::Codec> (codec);
     
-    if (!m_codec) {
+    if (!newCodec) {
         std::cout << "Codec is not initialized" << std::endl;
         return false;
     }
     
-    ec = constructAll();
-    if (ec)
-        return false; 
+    newCodec->initialize();
     
-    m_codec->initialize();
-    
-    m_codec->printCodecInfo(std::cout);
+    newCodec->printCodecInfo(std::cout);
     
     int N = 7;
     int n_frames = 3;
@@ -203,19 +147,19 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
     std::vector<int32_t> codeword(n_frames * N);
     std::vector<int32_t> non_codeword(n_frames * N);
     
-    m_codec->encode(&in[0], &codeword[0], n_frames);  
+    newCodec->encode(&in[0], &codeword[0], n_frames);  
     /* ENCODE TEST ENDS */
     
     /* IS codeword test*/
     std::cout << "is_codeword test: ";
-    std::cout << ((m_codec->is_codeword(&codeword[0]) == true)?"PASSED":"FAILED");
+    std::cout << ((newCodec->is_codeword(&codeword[0]) == true)?"PASSED":"FAILED");
     std::cout << std::endl;
     
     std::cout << "is_codeword test(not): ";
     non_codeword = codeword;
     
     non_codeword[1] = codeword[1]?0:1; //revert one bit
-    std::cout << ((m_codec->is_codeword(&non_codeword[0]) == false)?"PASSED":"FAILED");
+    std::cout << ((newCodec->is_codeword(&non_codeword[0]) == false)?"PASSED":"FAILED");
     std::cout << std::endl;
     
     
@@ -256,7 +200,7 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
     std::cout << "** SIHO case ***************************************" <<  std::endl;
     /* SIHO case */
     try {
-        m_codec->decodeSIHO(&recieved_llr[0], &decoded[0], n_frames);
+        newCodec->decodeSIHO(&recieved_llr[0], &decoded[0], n_frames);
     } catch (const std::exception& e) {
         std::cout << "SIHO decoder failed: " << e.what() << std::endl;
     }
@@ -264,7 +208,7 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
     std::cout << "** HIHO case ***************************************" <<  std::endl;
     /* HIHO case */
     try {
-        m_codec->decodeHIHO(&non_codeword[0], &decoded[0], n_frames);
+        newCodec->decodeHIHO(&non_codeword[0], &decoded[0], n_frames);
     } catch (const std::exception& e) {
         std::cout << "HIHO decoder failed: " << e.what() << std::endl;
     }
@@ -273,7 +217,7 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
     /* SISO case */
     std::vector<float> decoded_llr(recieved_llr.size());
     try {
-        m_codec->decodeSISO(&recieved_llr[0], &decoded_llr[0], n_frames);
+        newCodec->decodeSISO(&recieved_llr[0], &decoded_llr[0], n_frames);
     } catch (const std::exception& e) {
         std::cout << "SISO decoder failed: " << e.what() << std::endl;
     }
@@ -281,79 +225,8 @@ bool Facade_Codec::init(std::list<std::string> &arg_vec, std::error_code &ec, st
     
     
     /* DECODE TEST ENDS */
-#ifdef ENABLE_REPORTERS
-    // create reporters to display results in the terminal
-    std::vector<tools::Reporter*> reporters =
-    {
-            new tools::Reporter_noise     <>(noise   ), // report the noise values (Es/N0 and Eb/N0)
-            new tools::Reporter_BFER      <>(*monitor), // report the bit/frame error rates
-            new tools::Reporter_throughput<>(*monitor)  // report the simulation throughputs
-    };
-    // convert the vector of reporter pointers into a vector of smart pointers
-    std::vector<std::unique_ptr<tools::Reporter>> reporters_uptr;
-    for (auto rep : reporters) reporters_uptr.push_back(std::unique_ptr<tools::Reporter>(rep));
-
-    // create a terminal that will display the collected data from the reporters
-    std::unique_ptr<tools::Terminal> terminal(p_ter.build(reporters_uptr));
-
-    // display the legend in the terminal
-    terminal->legend();
-#endif // ENABLE_REPORTERS
+  
 
 
-    //use default parameters
-    /* DEBUG MODE FOR LAUNCHER ?
-    for (auto& m : m_modules)
-        for (auto& t : m->tasks)
-        {
-            t->set_autoalloc  (true ); // enable the automatic allocation of the data in the tasks
-            t->set_autoexec   (false); // disable the auto execution mode of the tasks
-            t->set_debug      (false); // disable the debug mode
-            t->set_debug_limit(16   ); // display only the 16 first bits if the debug mode is enabled
-            t->set_stats      (true ); // enable the statistics
-
-            // enable the fast mode (= disable the useless verifs in the tasks) if there is no debug and stats modes
-            t->set_fast(!t->is_debug() && !t->is_stats());
-        }
-     * */
-    
-    
-    m_bInitialized = true;
-    
-    //postponed initialization
-    setDebugPrint(m_bDebugPrint);
-    setNoise(m_fNoise);
-
-    return true;
+    return std::move(newCodec);
 }
-
-void Facade_Codec::setNoise(float ebn0) 
-{
-    this->m_fNoise = ebn0;
-    if (m_bInitialized) 
-    {
-        tools::Sigma<> noise;
-
-        //const float R = (float) p_cdc->enc->K / (float)p_cdc->enc->N_cw;
-
-
-        // compute the current sigma for the channel noise
-        //        const auto esn0  = tools::ebn0_to_esn0 (ebn0, R);
-        //        const auto sigma = tools::esn0_to_sigma(esn0   );
-        //
-        //        noise.set_noise(sigma, ebn0, esn0);
-
-        // update the sigma of the modem and the channel
-        //        m_codecLauncher  ->set_noise(noise);
-        //        m_modem  ->set_noise(noise);
-        //        m_channel->set_noise(noise);
-    }
-}
-
-
-void Facade_Codec::resetMonitor() 
-{
-//    if (m_bInitialized)
-//        m_monitor->reset();
-}
-

@@ -92,7 +92,5 @@ target_link_libraries(aff3ct-test  PRIVATE aff3ct::aff3ct-static-lib aff3ct-code
 find_package(CxxTest)
 if(CXXTEST_FOUND) 
     enable_testing()
-    CXXTEST_ADD_TEST(unittest_factory_codec test_factory_codec.cc
-		${CMAKE_CURRENT_SOURCE_DIR}/unittests/test_factory_codec.h)
-    target_link_libraries(unittest_factory_codec aff3ct-codec)
+    include(unittests/unittests.cmake)
 endif()

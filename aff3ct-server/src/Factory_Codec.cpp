@@ -93,7 +93,7 @@ Factory_Codec::create(std::list<std::string> &arg_vec, std::error_code &ec, std:
     if (read_arguments(argv.size(), (const char**)&argv[0], m_params) == EXIT_FAILURE) 
     {
         std::cout << "read_arguments failed" << std::endl;
-        return false;
+        return std::move(newCodec);
     
     }
     
@@ -123,7 +123,7 @@ Factory_Codec::create(std::list<std::string> &arg_vec, std::error_code &ec, std:
         
     if (!codecLauncher) {
         std::cout << "CodecLauncher is not initialized" << std::endl;
-        return false;
+        return std::move(newCodec);
     }
         
     simulation::Codec* codec = codecLauncher->build_simu();
@@ -132,7 +132,7 @@ Factory_Codec::create(std::list<std::string> &arg_vec, std::error_code &ec, std:
     
     if (!newCodec) {
         std::cout << "Codec is not initialized" << std::endl;
-        return false;
+        return std::move(newCodec);
     }
     
     newCodec->initialize();

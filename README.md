@@ -30,6 +30,8 @@ http://www.inference.org.uk/mackay/codes/alist.html
 	$ sudo apt-get install pkg-config
 ## ZeroMQ
 	$ sudo apt-get install libzmq3-dev
+## cxxtest(Optional)
+    $ sudo apt-get install cxxtest
 ## Python3 (anaconda way)
 	$ conda create --name py3 python=3.5
 	$ conda activate py3

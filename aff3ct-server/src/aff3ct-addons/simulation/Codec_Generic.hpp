@@ -53,15 +53,7 @@ namespace aff3ct
 namespace simulation
 {
     
-enum CodecType
-{
-    Type_Unknown        = 0,
-    Type_SISO_SIHO      = 1,
-    Type_SISO           = 2,
-    Type_SIHO           = 3,
-    Type_SIHO_HIHO      = 4,
-    Type_HIHO           = 5
-};
+
 
 template <typename B = int, typename R = float, typename Q = R>
 class Codec_Generic : public Codec 
@@ -78,7 +70,6 @@ protected:
     bool                                                    m_bInitialized = false;
     
     void detectCodecType();
-    
     void sockets_binding();
 public:
     explicit Codec_Generic(const factory::Codec_Generic::parameters& params_codec);
@@ -90,6 +81,7 @@ public:
     
     void setNoise(float ebn0) ;
     
+    CodecType getCodecType() {return codecType;}
     virtual void printCodecInfo(std::ostream &stream);
     virtual void encode(void *in, void *out, int n_cw = 1) ;
     virtual bool is_codeword(void *in);

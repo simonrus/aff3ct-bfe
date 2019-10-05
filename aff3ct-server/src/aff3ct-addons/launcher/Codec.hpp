@@ -40,8 +40,16 @@
 
 namespace aff3ct
 {
+namespace simulation
+{
+class Codec;
+}
+    
 namespace launcher
 {
+    
+    
+
 /*!
  * \class Codec
  *
@@ -59,6 +67,7 @@ public:
     virtual ~Codec() = default;
     virtual simulation::Codec* build_simu() = 0;
   
+    factory::Codec_Generic::parameters  &getParams() {return params_common;}
 protected:
     tools::Argument_handler         ah;       /*!< An argument reader to manage the parsing and the documentation of the command line parameters. */
     tools::Argument_map_info        args;     /*!< List of the arguments to find in the command line */

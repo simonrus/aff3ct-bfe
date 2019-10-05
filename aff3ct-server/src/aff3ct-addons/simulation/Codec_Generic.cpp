@@ -42,7 +42,7 @@ Codec_Generic<B, R, Q>
 : params_codec(params_codec)
 {
     PRINT_POINT();
-    rd_engine_seed.seed(params_codec.local_seed);
+    rd_engine_seed.seed(12312312);
 }
 
 template <typename B, typename R, typename Q>
@@ -112,17 +112,13 @@ void Codec_Generic<B, R, Q>
     PRINT_POINT();
 
     detectCodecType();
-    printCodecType(codecType, std::cout);
+    
 
     const auto seed_enc = rd_engine_seed();
     const auto seed_dec = rd_engine_seed();
 
     std::unique_ptr<factory::Codec::parameters> params_cdc(params_codec.cdc->clone());
-    if (params_cdc) {
-        std::cout << "params_cdc is OK " << std::endl;
-    } else
-        std::cout << "params_cdc are failed " << std::endl;
-
+    
     params_cdc->enc->seed = seed_enc;
     params_cdc->dec->seed = seed_dec;
 
@@ -162,11 +158,6 @@ void Codec_Generic<B, R, Q>
         std::cout << "codec is not initialized! " << std::endl;
     }
     }
-
-    if (codec)
-        std::cout << "codec is OK " << std::endl;
-    else
-        std::cout << "codec is NULL " << std::endl;
 
     m_bInitialized = true;
 }
@@ -349,7 +340,9 @@ void Codec_Generic<B, R, Q>
     B* output = static_cast<B*> (out); 
 
     if ((!codec) || (m_bInitialized == false)) {
-        std::cout << "Codec is null" << std::endl;
+        std::stringstream message;
+        message << "Codec is null";
+        throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
     }
 
     using namespace module;
@@ -358,7 +351,7 @@ void Codec_Generic<B, R, Q>
     auto& r_encoder = codec->get_encoder();
 
     
-    (*r_encoder)[enc::tsk::encode].set_debug(true);
+    (*r_encoder)[enc::tsk::encode].set_debug(enable_debug);
     
     for (int i = 0 ; i < n_cw; i++) 
     {
@@ -367,11 +360,6 @@ void Codec_Generic<B, R, Q>
         
         (*r_encoder)[enc::tsk::encode]            .exec();
     }
-
-    //pseudo code looks like
-    //(*r_encoder)[enc::sck::encode      ::U_K ].bind(in)
-    //(*r_encoder)[enc::sck::encode      ::U_K ].bind(out)
-    //(*r_encoder).exec()
 }
 
 
@@ -395,14 +383,14 @@ void Codec_Generic<B, R, Q>
     if (codec_hiho == nullptr)
     {
         std::stringstream message;
-        message << "Codec is not HIHO";
+        message << "Codec is null";
         throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
     }
-    std::cout << "Codec is HIHO" << std::endl;
+
     
     auto &r_decoder = codec_hiho->get_decoder_hiho();
     
-    (*r_decoder)[dec::tsk::decode_hiho].set_debug(true);
+    (*r_decoder)[dec::tsk::decode_hiho].set_debug(enable_debug);
     for (int i = 0 ; i < n_cw; i++) 
     {
         (*r_decoder)[dec::sck::decode_hiho::Y_N].bind(&recieved[i * N]);
@@ -421,8 +409,11 @@ void Codec_Generic<B, R, Q>
 
     int N =  params_codec.cdc->enc->N_cw;
     
-    if ((!codec) || (m_bInitialized == false)) {
-        std::cout << "Codec is null" << std::endl;
+    if ((!codec) || (m_bInitialized == false)) 
+    {
+        std::stringstream message;
+        message << "Codec is null";
+        throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
     }
     
     using namespace module;
@@ -434,11 +425,10 @@ void Codec_Generic<B, R, Q>
         message << "Codec is not SISO";
         throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
     }
-    std::cout << "Codec is SISO" << std::endl;
 
     auto &r_decoder = codec_siso->get_decoder_siso();
 
-    (*r_decoder)[dec::tsk::decode_siso].set_debug(true);
+    (*r_decoder)[dec::tsk::decode_siso].set_debug(enable_debug);
     for (int i = 0; i < n_cw; i++) {
         (*r_decoder)[dec::sck::decode_siso::Y_N1].bind(&recieved[i * N]);
         (*r_decoder)[dec::sck::decode_siso::Y_N2].bind(&decoded[i * N ]);
@@ -471,12 +461,10 @@ void Codec_Generic<B, R, Q>
         message << "Codec is not SIHO";
         throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
     }
-    std::cout << "Codec is SIHO" << std::endl;
-    
 
     auto &r_decoder = codec_siho->get_decoder_siho();
 
-    (*r_decoder)[dec::tsk::decode_siho].set_debug(true);
+    (*r_decoder)[dec::tsk::decode_siho].set_debug(enable_debug);
     for (int i = 0 ; i < n_cw; i++) 
     {
         (*r_decoder)[dec::sck::decode_siho::Y_N].bind(&recieved[i * N]);

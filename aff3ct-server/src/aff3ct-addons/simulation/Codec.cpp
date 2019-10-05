@@ -66,4 +66,24 @@ void Codec::printSocketTypeInfo(std::ostream &stream, module::socket_t type)
     }
 }
 
+int Codec::getK()
+{
+    
+    if (creator) {
+        factory::Codec_Generic::parameters & params = creator->getParams();
+        
+        return params.cdc->enc->K;
+    }
+    else
+        return 0;
+}
 
+int Codec::getN() 
+{
+    if (creator) {
+        factory::Codec_Generic::parameters & params = creator->getParams();
+        return params.cdc->enc->N_cw;
+    }
+    else
+        return 0;
+}

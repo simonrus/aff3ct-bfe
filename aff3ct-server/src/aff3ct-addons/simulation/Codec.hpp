@@ -38,11 +38,25 @@
 #include <Module/Task.hpp>
 #include <Module/Socket.hpp>
 
+#include <aff3ct-addons/launcher/Codec.hpp>
+#include <aff3ct-addons/factory/Codec_Generic.hpp>
 
 namespace aff3ct
 {
+
 namespace simulation
 {
+    
+enum CodecType
+{
+    Type_Unknown        = 0,
+    Type_SISO_SIHO      = 1,
+    Type_SISO           = 2,
+    Type_SIHO           = 3,
+    Type_SIHO_HIHO      = 4,
+    Type_HIHO           = 5
+};
+
 class Codec {
 public:
     Codec();
@@ -59,10 +73,19 @@ public:
     
     virtual void printCodecInfo(std::ostream &stream) = 0;
     
+    virtual CodecType getCodecType() = 0;
+    
+    std::unique_ptr<launcher::Codec>                creator;
+    
+    int getK();
+    int getN();
+    
+    void enableDebug(bool enable_debug) {this->enable_debug = enable_debug;}
 protected:
     static void printSocketInfo(std::ostream &stream, module::Socket &socket);
     static void printSocketTypeInfo(std::ostream &str,module::socket_t type);
     
+    bool                                            enable_debug = false;
 
 };
 } //namespace simulation

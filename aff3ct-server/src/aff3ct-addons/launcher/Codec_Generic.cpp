@@ -74,8 +74,8 @@ void Codec_Generic<B,R,Q>
 		this->args.erase({psrc+"-info-bits", "K"});
      */
     
-    std::string penc_prefix = params.cdc->enc->get_prefix();
-    std::cout << "penc_prefix " << penc_prefix << std::endl;
+    //std::string penc_prefix = params.cdc->enc->get_prefix();
+    //std::cout << "penc_prefix " << penc_prefix << std::endl;
     
 }
 

@@ -18,11 +18,24 @@ set(PROTO_DIR ${TOP_LEVEL_PATH}/proto)
 set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
-find_package(Protobuf REQUIRED)
 
 message ("PROTO_DIR = ${PROTO_DIR}/")
 
-protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_DIR}/aff3ct.proto)
+find_package(Threads REQUIRED)
+set (Flatbuffers_DIR "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/CMake/")
+find_package(Flatbuffers REQUIRED)
+set(FLATBUFFERS_FLATC_EXECUTABLE "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/flatc")
+include("${Flatbuffers_DIR}/BuildFlatBuffers.cmake" REQUIRED)
+# protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_DIR}/aff3ct.proto)
+build_flatbuffers("${PROTO_DIR}/aff3ct-server.fbs" 
+                    "" 
+                    "aff3ct_proto_generated_includes"
+                    "" 
+                    "generated"
+                    "" 
+                    "")
+                        
+
 
 # Print path to generated files
 message ("PROTO_SRCS = ${PROTO_SRCS}")
@@ -85,12 +98,13 @@ endif()
 
 target_link_libraries(aff3ct-codec PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
 #target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
-target_link_libraries(aff3ct-test  PRIVATE aff3ct::aff3ct-static-lib aff3ct-codec PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
 
+target_link_libraries(aff3ct-test  PRIVATE aff3ct::aff3ct-static-lib aff3ct-codec PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
+add_dependencies(aff3ct-test aff3ct_proto_generated_includes)
 
 ### ADD TESTS
 find_package(CxxTest)
-if(CXXTEST_FOUND) 
-    enable_testing()
-    include(unittests/unittests.cmake)
-endif()
+#if(CXXTEST_FOUND) 
+#    enable_testing()
+#    include(unittests/unittests.cmake)
+#endif()

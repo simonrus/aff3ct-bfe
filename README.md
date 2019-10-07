@@ -38,11 +38,10 @@ http://www.inference.org.uk/mackay/codes/alist.html
 	$ pip install pyzmq
 	$ pip install ipython
 	$ pip install cmd2
-## protobuf > 3.0
-	$ sudo apt-get install libprotobuf-dev 
-	$ sudo apt-get install protobuf-compiler
-or
-follow https://leimao.github.io/blog/ProtoBuf-Tutorial/
+## flatbuffers (local install)
+	$ git submodule update --init --recursive
+    $ cd 3rdparty/flatbuffers
+    $ cmake . && make -j 4 all
 
 ## missfec 
 	$ git clone https://simonrus@bitbucket.org/simonrus/missfec.git

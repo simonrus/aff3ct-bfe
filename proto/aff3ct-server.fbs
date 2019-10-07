@@ -1,0 +1,39 @@
+namespace aff3ct;
+
+enum ResultType : byte { Success = 0, Failed }
+
+/*
+    General structure to transfer vectors (n=1) or matrixes (float will be 
+    converted to int)
+*/
+table Matrix {
+    n:int;      
+    m:int;
+    values:[float];
+}
+
+table Result
+{
+    type: ResultType;
+    error_text:string;
+}
+
+enum Action: byte{
+    Push,
+    Pull,
+    Exec,
+    Encode,
+    DecodeSIHO,
+    DecodeSISO,
+    DecodeHIHO,
+}
+
+table Message 
+{
+    action: Action;
+    matrix: Matrix;
+    variable: string;
+    result: Result;   
+}
+
+root_type Message;

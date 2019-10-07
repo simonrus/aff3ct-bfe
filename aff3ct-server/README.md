@@ -14,6 +14,7 @@ Copy the cmake configuration files from the AFF3CT build
 
 	$ mkdir cmake && mkdir cmake/Modules
 	$ cp ../lib/aff3ct/build/lib/cmake/aff3ct-*/* cmake/Modules
+	$ cp ../3rdparty/flatbuffers/CMake/*.cmake cmake/Modules    
 
 Compile the code on Linux/MacOS/MinGW:
 
@@ -21,7 +22,7 @@ Compile the code on Linux/MacOS/MinGW:
 	$ cd build
 	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-funroll-loops -march=native"
     or 
-    $ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-march=native -ggdb"
+	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-march=native -ggdb"
 	$ make
 
 Compile the code on Windows (Visual Studio project)

@@ -2,7 +2,7 @@
 ## Used libraries
 https://github.com/python-cmd2/cmd2
 ## Motivation
-To interruct simple with aff3ct
+To interact simple with aff3ct
 
 ## Discription
 [] optional flag
@@ -10,39 +10,41 @@ To interruct simple with aff3ct
 
 ## General
 ### Set mode
-C: mode TEXT/SHM
-
-S: ok
 
 ## Data transfer
 ### Transfer matrix (Client to server) 
-C: push G
-    
-    4,3
-    G00, G01,G02...
+(Client):$ push G 4,3 G00, G01,G02...
 
-S: ok   
+S: ok  ->remote G is updated   
+
 ### Transfer vector (client to server)
-C: pull X
+(Client): push X 3   G1, G2,G3.
 
-    3
-    G1, G2,G3.
-
-S: ok
-
+(Server): ok            ->remote X is updated
+   
 ### Transfer vector (server to client )
-C: pull X
+(Client): pull G
 
-S: 
+(Server): ok         >local G is updated
+    
+### Transfer vector (server to client )
+(Client): pull X
 
-    4,3
-    G00,G01,G02
+(Server): ok         >local X is updated
     
 
 ## FUNCTION CALL
-C: do encode X -> Y
+(Client): encode X Y
+(Server): ok
 
-S: ok
+(Client): encode X
+(Server): * print * 
+
+(Client): HISO LLR res
+(Server): ok
+
+(Client): SIHO LLR 
+(Server): * Print *
 
 ## local settings
 C: local print with zeros

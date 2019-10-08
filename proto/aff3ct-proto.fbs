@@ -1,4 +1,4 @@
-namespace aff3ct;
+namespace aff3ct.proto;
 
 enum ResultType : byte { Success = 0, Failed }
 

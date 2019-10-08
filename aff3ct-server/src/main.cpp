@@ -39,10 +39,8 @@
 #include <stdint.h>
 #include <stdarg.h>     /* va_list, va_start, va_arg, va_end */
 
-//Include protobuf generated file
-#include <aff3ct.pb.h>
+#include <aff3ct-proto_generated.h>
 #include <aff3ct-errc.h>
-
 
 #include <aff3ct.hpp>
 
@@ -50,12 +48,11 @@
 
 Aff3ctErrc      g_Error = Aff3ctErrc::NoError;
 
-Factory_Codec g_model;
+std::unique_ptr<simulation::Codec> g_codec;
 
 void sigHandler(int s)
 {
     TRACELOG(INFO, "Caught signal %d. Exiting", s);
-    google::protobuf::ShutdownProtobufLibrary();
     exit(1);
 }
 
@@ -71,7 +68,7 @@ int enableSIGTermHandler()
 }
 
 std::map<std::string, std::vector<float>> g_MemoryContainer;
-
+#if 0 
 /*
  * Converts protobuf matrix to vector
  */
@@ -122,6 +119,8 @@ void vector2pbMatrix(std::vector<float> &from, aff3ct::Matrix* to)
     }
 }
 
+#endif 
+
 void logCommand(std::list<std::string> &args)
 {
     /** do command logging */
@@ -132,50 +131,63 @@ void logCommand(std::list<std::string> &args)
         ss << str << " ";
     }
     TRACELOG(INFO,"%s", ss.str().c_str());
-
 }
+
+enum ECommand {
+    eInit
+};
+
+std::map<std::string, enum ECommand> g_supportedCommands = { {"init", eInit}};
+
 bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
 {    
-    bool result;
+   bool result;
     LOG_SCOPE_FUNCTION(INFO);
-    
-    logCommand(args);
     
     if (args.empty()) {
         TRACELOG(ERROR, "no arguments provided for a command");
         return false;
     }
     std::string front = args.front();
-        
-    if (front == "init")
-    {   
-        std::error_code ec;
-        result = g_model.init(args, ec, err_stream);
-        
-        if (ec)
-        {
-            TRACELOG(ERROR, "Factory failed to init: %s", ec.message().c_str());    
-        }
-        
-        return result;
-    }
-    else {
+    
+    if (g_supportedCommands.find(front) == g_supportedCommands.end()) 
+    {
         TRACELOG(ERROR, "wrong command %s", front.c_str());  
         return false;
     }
     
+    std::error_code ec;
+    ECommand eCommand = g_supportedCommands[front];
+
+    switch (eCommand) {
+        case eInit:
+            g_codec = Factory_Codec::create(args, ec, err_stream);
+            if (ec) {
+                std::cout << ec << std::endl;
+                TRACELOG(ERROR, "Model failed to init: %s", ec.message().c_str());
+            } else {
+                std::cout << "Model initialized" << std::endl;
+            }
+
+            break;
+
+        default:
+            break;
+    }
+
+    return result;
 }
 
 
-aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
+void processClientMessage(const aff3ct::proto::Message *recvMessage)
 {
     LOG_SCOPE_FUNCTION(INFO);
     
     bool bSuccess = false;
-    switch (recvMessage.content_case()) {
-        case aff3ct::Message::ContentCase::kPushRequest:
+    switch (recvMessage->action()) {
+    case aff3ct::proto::Action::Action_Push:
         {
-            std::string var_name = recvMessage.pushrequest().var();
+            /*std::string var_name = recvMessage.pushrequest().var();
             
             TRACELOG(INFO,"kPushRequest received %s (%d, %d) ", 
                     var_name.c_str(), 
@@ -204,12 +216,15 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
                 aff3ct::Result* result = recvMessage.mutable_result();
                 result->set_type(Success);
             }
+            */
             
-            return recvMessage;
+            TRACELOG(INFO,"Push received!");
+            return ;
         }
 
-        case aff3ct::Message::ContentCase::kPullRequest:
+    case aff3ct::proto::Action::Action_Pull:
         {
+#if 0
             std::string var_name = recvMessage.pullrequest().var();
         
             TRACELOG(INFO,"kPullRequest received for %s", var_name.c_str());
@@ -237,10 +252,11 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
                 aff3ct::Result *result = pull_reply->mutable_result();
                 result->set_type(Success);
             } 
-           
-            return recvMessage;
+#endif
+            TRACELOG(INFO,"Pull received!");
+            return;
         }
-        
+#if 0
         case aff3ct::Message::ContentCase::kCommand:
         {
             uint32_t argc       = recvMessage.command().argc();
@@ -267,9 +283,10 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
             
             return recvMessage;
         }
-        
+#endif     
         default:
-            TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());
+            //TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());
+            TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", 1);
             break;
     }   
 }
@@ -277,8 +294,6 @@ aff3ct::Message & processClientMessage(aff3ct::Message &recvMessage)
 
 int main(int argc, char** argv)
 {
-
-    GOOGLE_PROTOBUF_VERIFY_VERSION;
 
     loguru::init(argc, argv);
     
@@ -290,23 +305,27 @@ int main(int argc, char** argv)
 
     TRACELOG(INFO, "Message loop started");
 
+    
+    zmq::message_t reply(2048);
+    zmq::message_t request;
+    
     while (1) {
-        zmq::message_t request;
+    
         //  Wait for next request from client
         socket.recv(&request);
         
-        aff3ct::Message recvMessage;
-        recvMessage.ParseFromArray(request.data(), request.size());
-
-        recvMessage = processClientMessage(recvMessage);
         //  Send reply back to client
-        zmq::message_t reply(recvMessage.ByteSize());
-        recvMessage.SerializeToArray(reply.data(), reply.size());
-
+        
+        
+        
+        const aff3ct::proto::Message *recvMessage = aff3ct::proto::GetMessage(request.data());
+        
+        //reply?
+        processClientMessage(recvMessage);
+        
+        
         socket.send(reply);
     }
-
-    google::protobuf::ShutdownProtobufLibrary();
 
     return 0;
 }

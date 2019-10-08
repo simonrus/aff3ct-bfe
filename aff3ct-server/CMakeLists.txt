@@ -7,10 +7,12 @@ project (aff3ct-server)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -no-pie")
-# Specify bin path
+
+# Specify output path
 set (EXECUTABLE_OUTPUT_PATH bin/)
 set (LIBRARY_OUTPUT_PATH bin/)
 
+# determine missfec path
 get_filename_component(TOP_LEVEL_PATH ../ ABSOLUTE)
 set(PROTO_DIR ${TOP_LEVEL_PATH}/proto)
 
@@ -19,6 +21,7 @@ set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
+# Add flatbuffers 
 set (FLATBUFFERS_INCLUDE_DIRS "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/include")
 set (Flatbuffers_DIR "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/CMake/")
 find_package(Flatbuffers REQUIRED)
@@ -27,13 +30,14 @@ set(FLATBUFFERS_FLATC_EXECUTABLE "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/flatc")
 include("${Flatbuffers_DIR}/BuildFlatBuffers.cmake" REQUIRED)
 
 set(FLATBUFFERS_GENERATED_HEADERS_DIR        "${PROJECT_BINARY_DIR}/generated")
-build_flatbuffers("${PROTO_DIR}/aff3ct-server.fbs" 
+build_flatbuffers("${PROTO_DIR}/aff3ct-proto.fbs" 
                     "" 
                     "aff3ct_proto_generated_includes"
                     "" 
                     "${FLATBUFFERS_GENERATED_HEADERS_DIR}"
                     "" 
                     "")
+
 
 #Link with zeromq
 find_package(PkgConfig)
@@ -54,6 +58,20 @@ set(LOGURU_DIR ${TOP_LEVEL_PATH}/3rdparty/loguru)
 set(LOGURU_INCLUDE_DIRS ${LOGURU_DIR})
 set(LOGURU_SRCS ${LOGURU_DIR}/loguru.cpp)
 
+#Add AFF3CT libraries
+
+# Link with AFF3CT
+set (AFF3CT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
+find_package(AFF3CT)
+
+set(LOCAL_INCLUDE_DIRS
+    ${CMAKE_CURRENT_SOURCE_DIR}/include 
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+############################ 
+#       AFF3CT source code
+############################ 
 set(AFF3CT_ADDONS_SRCS
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/factory/Codec_Generic.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-addons/launcher/Codec.cpp
@@ -68,32 +86,25 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src/Factory_Codec.cpp
 ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-errc.cpp
 )
 
-add_library(aff3ct-codec SHARED ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${LOGURU_SRCS})
 
-#add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${LOGURU_SRCS})
+
+add_library(aff3ct-codec SHARED ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${LOGURU_SRCS})
+add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${LOGURU_SRCS})
 add_executable(aff3ct-test ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp ${LOGURU_SRCS})
 
-# Link with AFF3CT
-set (AFF3CT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
-find_package(AFF3CT)
 
-set(LOCAL_INCLUDE_DIRS
-    ${CMAKE_CURRENT_SOURCE_DIR}/include 
-    ${CMAKE_CURRENT_SOURCE_DIR}/src
-)
-
-#target_include_directories(aff3ct-server PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
-target_include_directories(aff3ct-test PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
 target_include_directories(aff3ct-codec PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-server PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-test PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
 
 if(NOT WIN32)
     set(DL_LIBRARY dl)
 endif()
 
-target_link_libraries(aff3ct-codec PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
-#target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
+target_link_libraries(aff3ct-codec PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${DL_LIBRARY})
+target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${DL_LIBRARY})
+target_link_libraries(aff3ct-test  PRIVATE aff3ct::aff3ct-static-lib aff3ct-codec PUBLIC ${ZeroMQ_LIBRARY} ${DL_LIBRARY})
 
-target_link_libraries(aff3ct-test  PRIVATE aff3ct::aff3ct-static-lib aff3ct-codec PUBLIC ${ZeroMQ_LIBRARY} ${PROTOBUF_LIBRARIES} ${DL_LIBRARY})
 add_dependencies(aff3ct-test aff3ct_proto_generated_includes)
 
 ### ADD TESTS

@@ -46,10 +46,7 @@
 #include <stdint.h>
 #include <stdarg.h>     /* va_list, va_start, va_arg, va_end */
 
-//Include protobuf generated file
-#include <aff3ct-server_generated.h>
 #include <aff3ct-errc.h>
-
 
 #include <aff3ct.hpp>
 
@@ -62,7 +59,6 @@ std::unique_ptr<simulation::Codec> g_codec;
 void sigHandler(int s)
 {
     TRACELOG(INFO, "Caught signal %d. Exiting", s);
-    google::protobuf::ShutdownProtobufLibrary();
     exit(1);
 }
 
@@ -140,7 +136,6 @@ void sendCommand(std::vector<std::string> &command)
 int main(int argc, char** argv)
 {
 
-    GOOGLE_PROTOBUF_VERIFY_VERSION;
 #ifndef NDEBUG    
     //g_model.setDebugPrint(true);
 #endif

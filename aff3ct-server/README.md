@@ -4,7 +4,7 @@ Aff3ct-server is a backend for aff3ct-library. It runs as a stand-alone server,
 executes RPC commands and allows to remotely control Fast Forward Error 
 Correction Toolbox (https://aff3ct.github.io/)
 
-The transport for RPC is ZeroMQ and protobuf
+The transport for RPC is ZeroMQ and flatbuffers
 
 # How to compile aff3server
 

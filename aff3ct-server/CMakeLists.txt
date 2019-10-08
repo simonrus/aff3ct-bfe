@@ -19,27 +19,21 @@ set(CMAKE_THREAD_PREFER_PTHREAD ON)
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
-message ("PROTO_DIR = ${PROTO_DIR}/")
-
-find_package(Threads REQUIRED)
+set (FLATBUFFERS_INCLUDE_DIRS "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/include")
 set (Flatbuffers_DIR "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/CMake/")
 find_package(Flatbuffers REQUIRED)
+
 set(FLATBUFFERS_FLATC_EXECUTABLE "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/flatc")
 include("${Flatbuffers_DIR}/BuildFlatBuffers.cmake" REQUIRED)
-# protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS ${PROTO_DIR}/aff3ct.proto)
+
+set(FLATBUFFERS_GENERATED_HEADERS_DIR        "${PROJECT_BINARY_DIR}/generated")
 build_flatbuffers("${PROTO_DIR}/aff3ct-server.fbs" 
                     "" 
                     "aff3ct_proto_generated_includes"
                     "" 
-                    "generated"
+                    "${FLATBUFFERS_GENERATED_HEADERS_DIR}"
                     "" 
                     "")
-                        
-
-
-# Print path to generated files
-message ("PROTO_SRCS = ${PROTO_SRCS}")
-message ("PROTO_HDRS = ${PROTO_HDRS}")
 
 #Link with zeromq
 find_package(PkgConfig)
@@ -76,8 +70,8 @@ ${CMAKE_CURRENT_SOURCE_DIR}/src/aff3ct-errc.cpp
 
 add_library(aff3ct-codec SHARED ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${LOGURU_SRCS})
 
-#add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
-add_executable(aff3ct-test ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp ${PROTO_SRCS} ${PROTO_HDRS} ${LOGURU_SRCS})
+#add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${MAIN_SRCS} ${AFF3CT_ADDONS_SRCS} ${LOGURU_SRCS})
+add_executable(aff3ct-test ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp ${LOGURU_SRCS})
 
 # Link with AFF3CT
 set (AFF3CT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules/")
@@ -88,9 +82,9 @@ set(LOCAL_INCLUDE_DIRS
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-#target_include_directories(aff3ct-server PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
-target_include_directories(aff3ct-test PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
-target_include_directories(aff3ct-codec PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${PROTOBUF_INCLUDE_DIRS} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+#target_include_directories(aff3ct-server PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-test PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-codec PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
 
 if(NOT WIN32)
     set(DL_LIBRARY dl)

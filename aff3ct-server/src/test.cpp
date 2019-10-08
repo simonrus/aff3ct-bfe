@@ -47,7 +47,7 @@
 #include <stdarg.h>     /* va_list, va_start, va_arg, va_end */
 
 //Include protobuf generated file
-#include <aff3ct.pb.h>
+#include <aff3ct-server_generated.h>
 #include <aff3ct-errc.h>
 
 

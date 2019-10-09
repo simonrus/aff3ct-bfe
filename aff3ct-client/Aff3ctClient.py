@@ -6,14 +6,16 @@ from Aff3ctProtocol import Aff3ctProtocol
 
 from ConsoleMatrixParser import ConsoleMatrixParser
 
-
 class Aff3ctClient(cmd2.Cmd):
     """ Main loop"""
     parser = None
     registers = None
+
     zmq_context = None
-    server_address = 'tcp://localhost:5555'
     zmq_socket = None
+
+    server_address = 'tcp://localhost:5555'
+
 
     def report_done(self):
         self.poutput("+(REMOTE) OK")

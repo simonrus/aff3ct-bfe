@@ -5,9 +5,17 @@ class AList:
     def __init__(self):
         ''' some constructor'''
         self.matrix = None
+    
+    def getMatrix(self):
+        return self.matrix
 
-    def readFile(self, filename):
-        # with open(filename) as f:
+    def readFromFile(self, filename):
+        with open(filename) as f:
+            lineList = [line.rstrip('\n') for line in f]
+        f.close()
+
+        self.readMatrix(lineList)
+
         pass
 
     def readMatrix(self, lines):

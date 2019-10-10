@@ -82,7 +82,17 @@ class AListTest(unittest.TestCase):
         reader.readMatrix(alist_text)
 
         self.assertTrue(np.array_equal(matrix_ref, reader.matrix), "Read matrix differs from reference")
+    
+    def test_alist_5gnr(self):
+        #filename = "NR_ldpc.alist"
+        filename = "CCSDS_ldpc_n128_k64.alist"
+        #filename = "wifi_648_r083.alist"
+        reader = AList()
+        reader.readFromFile(filename)
 
+        matrix = reader.getMatrix()
+        print(matrix.shape)
+        print(matrix)
 
 if __name__ == '__main__':
     unittest.main()

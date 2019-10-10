@@ -26,6 +26,7 @@
 #include <list>
 #include <map>
 #include <iostream>
+#include <sstream>
 
 #include <zmq.hpp>
 #include <stdio.h>
@@ -139,15 +140,32 @@ enum ECommand {
 
 std::map<std::string, enum ECommand> g_supportedCommands = { {"init", eInit}};
 
-bool processCommand(std::list<std::string> &args, std::ostream& err_stream)
+bool execCommand(const char* command, std::ostream& err_stream)
 {    
-   bool result;
+    bool result;
+    
+    std::list<std::string>  args;
+    
     LOG_SCOPE_FUNCTION(INFO);
     
-    if (args.empty()) {
+    if (strlen(command) == 0) {
         TRACELOG(ERROR, "no arguments provided for a command");
         return false;
     }
+    
+    /* split text into words */ 
+    std::istringstream ss(command); 
+    do { 
+        // Read a word 
+        std::string word; 
+        ss >> word; 
+  
+        args.push_back(word);
+        
+        // While there is more to read 
+    } while (ss); 
+    
+    /* determine first workd */
     std::string front = args.front();
     
     if (g_supportedCommands.find(front) == g_supportedCommands.end()) 
@@ -187,6 +205,8 @@ void processClientMessage(const aff3ct::proto::Message *recvMessage)
     switch (recvMessage->action()) {
     case aff3ct::proto::Action::Action_Push:
         {
+            TRACELOG(INFO,"Push received!");
+            
             /*std::string var_name = recvMessage.pushrequest().var();
             
             TRACELOG(INFO,"kPushRequest received %s (%d, %d) ", 
@@ -218,12 +238,13 @@ void processClientMessage(const aff3ct::proto::Message *recvMessage)
             }
             */
             
-            TRACELOG(INFO,"Push received!");
+            
             return ;
         }
 
     case aff3ct::proto::Action::Action_Pull:
         {
+             TRACELOG(INFO,"Pull received!");
 #if 0
             std::string var_name = recvMessage.pullrequest().var();
         
@@ -253,11 +274,26 @@ void processClientMessage(const aff3ct::proto::Message *recvMessage)
                 result->set_type(Success);
             } 
 #endif
-            TRACELOG(INFO,"Pull received!");
+           
             return;
         }
         case aff3ct::proto::Action::Action_Exec:
         {
+            TRACELOG(INFO,"Exec received ");
+            
+            if (recvMessage->text() == nullptr)
+            {
+                TRACELOG(ERROR,"No command found");
+                return;
+            }
+                
+            if (execCommand(recvMessage->text()->c_str(), getErrStream()))
+            {
+               TRACELOG(INFO,"Exec finished (OK)"); 
+            }else
+            {
+                TRACELOG(ERROR,"Exec finished (FAILED)"); 
+            }
 #if 0
             uint32_t argc       = recvMessage.command().argc();
             std::list<std::string> args;
@@ -270,7 +306,7 @@ void processClientMessage(const aff3ct::proto::Message *recvMessage)
             /** do command processing */
             aff3ct::Result* result = recvMessage.mutable_result();
             
-            if (processCommand(args, getErrStream())) 
+            if (execCommand(args, getErrStream())) 
             {
                 result->set_type(Success);    
                 
@@ -282,8 +318,8 @@ void processClientMessage(const aff3ct::proto::Message *recvMessage)
             }
             
 #endif     
-            TRACELOG(INFO,"Exec received!");
-            return recvMessage;
+            
+            return;
         }
         default:
             //TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());

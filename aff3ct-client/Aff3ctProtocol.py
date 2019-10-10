@@ -121,7 +121,7 @@ class Aff3ctProtocol:
             return False, message_pb.pullReply.result.error_text, None
 
     @staticmethod
-    def do_command(socket, command):
+    def do_exec(socket, command):
         if not isinstance(command, str):
             return False, "do_command accepts now strings"
 
@@ -142,7 +142,8 @@ class Aff3ctProtocol:
 
         #proccess response
         reply = bytearray(reply)
-        message = aff3ct.proto.Message.GetRootAsMessage(reply, 0)
+        pdb.set_trace()
+        message = aff3ct.proto.Message.Message.GetRootAsMessage(reply, 0)
 
         result = message.Result()
 

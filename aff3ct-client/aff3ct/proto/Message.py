@@ -37,7 +37,7 @@ class Message(object):
         return None
 
     # Message
-    def Variable(self):
+    def Text(self):
         o = flatbuffers.number_types.UOffsetTFlags.py_type(self._tab.Offset(8))
         if o != 0:
             return self._tab.String(o + self._tab.Pos)
@@ -57,6 +57,6 @@ class Message(object):
 def MessageStart(builder): builder.StartObject(4)
 def MessageAddAction(builder, action): builder.PrependInt8Slot(0, action, 0)
 def MessageAddMatrix(builder, matrix): builder.PrependUOffsetTRelativeSlot(1, flatbuffers.number_types.UOffsetTFlags.py_type(matrix), 0)
-def MessageAddVariable(builder, variable): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(variable), 0)
+def MessageAddText(builder, text): builder.PrependUOffsetTRelativeSlot(2, flatbuffers.number_types.UOffsetTFlags.py_type(text), 0)
 def MessageAddResult(builder, result): builder.PrependUOffsetTRelativeSlot(3, flatbuffers.number_types.UOffsetTFlags.py_type(result), 0)
 def MessageEnd(builder): return builder.EndObject()

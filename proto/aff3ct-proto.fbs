@@ -32,7 +32,7 @@ table Message
 {
     action: Action;
     matrix: Matrix;
-    variable: string;
+    text: string;
     result: Result;   
 }
 

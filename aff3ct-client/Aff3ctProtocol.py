@@ -56,7 +56,6 @@ class Aff3ctProtocol:
 
     @staticmethod
     def do_push(socket, var, matrix):
-
         # send request
         builder = flatbuffers.Builder(1024)
 
@@ -66,7 +65,7 @@ class Aff3ctProtocol:
         aff3ct.proto.Message.MessageStart(builder)
         aff3ct.proto.Message.MessageAddAction(builder, aff3ct.proto.Action.Action().Push)
         aff3ct.proto.Message.MessageAddMatrix(builder, matrix_item)
-        aff3ct.proto.Message.MessageAddVariable(builder, var_item)
+        aff3ct.proto.Message.MessageAddText(builder, var_item)
         message = aff3ct.proto.Message.MessageEnd(builder)
 
         builder.Finish(message)
@@ -91,49 +90,67 @@ class Aff3ctProtocol:
 
     @staticmethod
     def do_pull(socket, var_name):
+        
+        # send request
+        builder = flatbuffers.Builder(1024)
+        var_item = builder.CreateString(var_name)
+        
+        aff3ct.proto.Message.MessageStart(builder)
+        aff3ct.proto.Message.MessageAddAction(builder, aff3ct.proto.Action.Action().Pull)
+        aff3ct.proto.Message.MessageAddText(builder, var_item)
+        message = aff3ct.proto.Message.MessageEnd(builder)
 
-        request = aff3ct_pb2.PullRequest(var = var_name)
+        builder.Finish(message)
+        socket.send(builder.Output())
 
-        message_pb = aff3ct_pb2.Message(pullRequest=request)
-        stream = message_pb.SerializeToString()
-
-        socket.send(stream)
-
+        # wait for response
         reply = socket.recv()
 
-        message_pb.ParseFromString(reply)
+        #proccess response
+        reply = bytearray(reply)
+        message = aff3ct.proto.Message.GetRootAsMessage(reply, 0)
 
-        message_type = message_pb.WhichOneof('content')
-        if message_type != 'pullReply':
-            return False, "received object of " + message_type + " instead of pullReply", None
+        result = message.Result()
+        
+        if result is None:
+            return False, "do_pull() didn't receive Result"
 
-        if message_pb.pullReply.result.type == aff3ct_pb2.ResultType.Value('Success'):
+        if result.Type() == aff3ct.proto.ResultType.ResultType().success :
             return True, '', Aff3ctProtocol.deserialize_matrix(message_pb.pullReply.mtx)
         else:
             return False, message_pb.pullReply.result.error_text, None
 
     @staticmethod
-    def do_command(socket, args):
-        argc = len(args)
+    def do_command(socket, command):
+        if not isinstance(command, str):
+            return False, "do_command accepts now strings"
 
-        command = aff3ct_pb2.Command(argc = argc)
-        command.argv.extend(args)
-
-        message_pb = aff3ct_pb2.Message(command = command)
-
-        stream = message_pb.SerializeToString()
+        # send request
+        builder = flatbuffers.Builder(1024)
+        command_item = builder.CreateString(command)
         
-        socket.send(stream)
+        aff3ct.proto.Message.MessageStart(builder)
+        aff3ct.proto.Message.MessageAddAction(builder, aff3ct.proto.Action.Action().Exec)
+        aff3ct.proto.Message.MessageAddText(builder, command_item)
+        message = aff3ct.proto.Message.MessageEnd(builder)
 
+        builder.Finish(message)
+        socket.send(builder.Output())
+
+        # wait for response
         reply = socket.recv()
 
-        message_pb.ParseFromString(reply)
+        #proccess response
+        reply = bytearray(reply)
+        message = aff3ct.proto.Message.GetRootAsMessage(reply, 0)
 
-        message_type = message_pb.WhichOneof('content')
-        if message_type != 'result':
-            return False, "received object of " + message_type + " instead of command"
+        result = message.Result()
 
-        if message_pb.result.type == aff3ct_pb2.ResultType.Value('Success'):
-            return True, ''
+        if result is None:
+            return False, "do_command() didn't receive Result"
+
+        if result.Type() == aff3ct.proto.ResultType.ResultType().success :
+            return True, 'Command Executed'
         else:
-            return False, message_pb.result.error_text
+            return False, message_pb.pullReply.result.error_text, None
+

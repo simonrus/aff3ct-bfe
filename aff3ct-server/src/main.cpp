@@ -256,9 +256,9 @@ void processClientMessage(const aff3ct::proto::Message *recvMessage)
             TRACELOG(INFO,"Pull received!");
             return;
         }
-#if 0
-        case aff3ct::Message::ContentCase::kCommand:
+        case aff3ct::proto::Action::Action_Exec:
         {
+#if 0
             uint32_t argc       = recvMessage.command().argc();
             std::list<std::string> args;
             
@@ -281,9 +281,10 @@ void processClientMessage(const aff3ct::proto::Message *recvMessage)
                 clearErrStream();
             }
             
+#endif     
+            TRACELOG(INFO,"Exec received!");
             return recvMessage;
         }
-#endif     
         default:
             //TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());
             TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", 1);

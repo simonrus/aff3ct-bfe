@@ -47,7 +47,7 @@
 
 #include "Factory_Codec.hpp"
 
-Aff3ctErrc      g_Error = Aff3ctErrc::NoError;
+Aff3ctErrc g_Error = Aff3ctErrc::NoError;
 
 std::unique_ptr<simulation::Codec> g_codec;
 
@@ -69,111 +69,112 @@ int enableSIGTermHandler()
 }
 
 std::map<std::string, std::vector<float>> g_MemoryContainer;
-#if 0 
+
 /*
- * Converts protobuf matrix to vector
+ * Converts flatbuffers matrix to vector
  */
-bool pbMatrixToVector(const aff3ct::Matrix& from, std::vector<float> &to)
+bool fbMatrixToVector(const aff3ct::proto::Matrix *from, std::vector<float> &to)
 {
-    if (from.n() != 1) {
+    if (from->n() != 1) {
         TRACELOG(ERROR, "wrong input dim (%u, %u). Shall be vector (%u, %u)",
-                from.n(), from.m(), 1, from.m());
+                from->n(), from->m(), 1, from->m());
         g_Error = Aff3ctErrc::ParsingError;
         return false;
     }
 
-    to.resize(from.m(), 0.0);
+    if (from->values() == nullptr) {
+        TRACELOG(ERROR, "pbMatrixToVector failed: no values in matrix");
+        g_Error = Aff3ctErrc::ParsingError;
+        return false;
+    }
 
-    if (from.m() != from.values_size()) {
+    const flatbuffers::Vector<float> *values = from->values();
+
+    to.resize(from->m(), 0.0);
+
+    if (from->m() != values->size()) {
         TRACELOG(ERROR, "expected %u elements for vector with length %u, but got %u",
-                from.m(), from.m(), from.values_size());
+                from->m(), from->m(), values->size());
         g_Error = Aff3ctErrc::ParsingError;
         return false;
     }
 
-    for (uint32_t i = 0; i < from.m(); i++) {
-        to[i] = (from.values(i));
+
+    for (uint32_t i = 0; i < from->m(); i++) {
+        to[i] = values->Get(i);
     }
     return true;
 }
 
-
-void invalidatePbMatrix(aff3ct::Matrix* to)
-{
-    to->set_m(0);
-    to->set_n(0);
-}
-
 /*
- * Converts vector to protobuf matrix
+ * Converts vector to flatbuffer matrix
  */
-void vector2pbMatrix(std::vector<float> &from, aff3ct::Matrix* to)
+flatbuffers::Offset<aff3ct::proto::Matrix>
+vector2fbMatrix(std::vector<float> &from, flatbuffers::FlatBufferBuilder &builder)
 {
+    auto values = builder.CreateVector<float>(from);
 
-    to->set_n(1);
-    to->set_m((uint32_t) from.size());
+    aff3ct::proto::MatrixBuilder matrix_builder(builder);
+    matrix_builder.add_n(1);
+    matrix_builder.add_m((int32_t) from.size());
+    matrix_builder.add_values(values);
 
-    to->mutable_values()->Reserve(to->n() * to->m());
-    to->clear_values();
-    for (size_t i = 0; i < from.size(); i++) {
-        to->add_values((float) from[i]);
-    }
+    return matrix_builder.Finish();
 }
-
-#endif 
 
 void logCommand(std::list<std::string> &args)
 {
     /** do command logging */
     std::ostringstream ss;
     ss << "Factory received command (" << args.size() << " args):";
-    for (std::string &str : args) 
-    {
+    for (std::string &str : args) {
         ss << str << " ";
     }
-    TRACELOG(INFO,"%s", ss.str().c_str());
+    TRACELOG(INFO, "%s", ss.str().c_str());
 }
 
-enum ECommand {
+enum ECommand
+{
     eInit
 };
 
-std::map<std::string, enum ECommand> g_supportedCommands = { {"init", eInit}};
+std::map<std::string, enum ECommand> g_supportedCommands = {
+    {"init", eInit}
+};
 
 bool execCommand(const char* command, std::ostream& err_stream)
-{    
+{
     bool result;
-    
-    std::list<std::string>  args;
-    
+
+    std::list<std::string> args;
+
     LOG_SCOPE_FUNCTION(INFO);
-    
+
     if (strlen(command) == 0) {
         TRACELOG(ERROR, "no arguments provided for a command");
         return false;
     }
-    
-    /* split text into words */ 
-    std::istringstream ss(command); 
-    do { 
+
+    /* split text into words */
+    std::istringstream ss(command);
+    do {
         // Read a word 
-        std::string word; 
-        ss >> word; 
-  
+        std::string word;
+        ss >> word;
+
         args.push_back(word);
-        
+
         // While there is more to read 
-    } while (ss); 
-    
+    } while (ss);
+
     /* determine first workd */
     std::string front = args.front();
-    
-    if (g_supportedCommands.find(front) == g_supportedCommands.end()) 
-    {
-        TRACELOG(ERROR, "wrong command %s", front.c_str());  
+
+    if (g_supportedCommands.find(front) == g_supportedCommands.end()) {
+        TRACELOG(ERROR, "wrong command %s", front.c_str());
         return false;
     }
-    
+
     std::error_code ec;
     ECommand eCommand = g_supportedCommands[front];
 
@@ -196,144 +197,162 @@ bool execCommand(const char* command, std::ostream& err_stream)
     return result;
 }
 
-
-void processClientMessage(const aff3ct::proto::Message *recvMessage)
+void processClientMessage(void *data, size_t size, flatbuffers::FlatBufferBuilder &builder)
 {
     LOG_SCOPE_FUNCTION(INFO);
-    
+
+    const aff3ct::proto::Message *recvMessage = aff3ct::proto::GetMessage(data);
+
     bool bSuccess = false;
     switch (recvMessage->action()) {
-    case aff3ct::proto::Action::Action_Push:
+        case aff3ct::proto::Action::Action_Push:
         {
-            TRACELOG(INFO,"Push received!");
-            
-            /*std::string var_name = recvMessage.pushrequest().var();
-            
-            TRACELOG(INFO,"kPushRequest received %s (%d, %d) ", 
-                    var_name.c_str(), 
-                    recvMessage.pushrequest().mtx().n(),
-                    recvMessage.pushrequest().mtx().m());
-            
-            if (g_MemoryContainer.find(var_name) != g_MemoryContainer.end()) {
-                TRACELOG(WARNING,"[PushRequest] overrides existing %s with (%dx%d)", 
-                        var_name.c_str(), 
-                        recvMessage.pushrequest().mtx().n(),
-                        recvMessage.pushrequest().mtx().m());
+            TRACELOG(INFO, "Push received!");
+
+            if ((recvMessage->text() == nullptr) || (recvMessage->matrix() == nullptr)) {
+                TRACELOG(ERROR, "There is no var/matrix in push_request!");
+            } else {
+                std::string var_name = recvMessage->text()->str();
+
+                TRACELOG(INFO, "kPushRequest received %s (%d, %d) ",
+                        var_name.c_str(),
+                        recvMessage->matrix()->n(),
+                        recvMessage->matrix()->m()
+                        );
+
+                if (g_MemoryContainer.find(var_name) != g_MemoryContainer.end()) {
+                    TRACELOG(WARNING, "[PushRequest] overrides existing %s with (%dx%d)",
+                            var_name.c_str(),
+                            recvMessage->matrix()->n(),
+                            recvMessage->matrix()->m());
+                }
+
+                g_MemoryContainer[var_name] = std::vector<float>();
+                bSuccess = fbMatrixToVector(recvMessage->matrix(), g_MemoryContainer[var_name]);
+
             }
 
-            g_MemoryContainer[var_name] = std::vector<float>();
-            bSuccess = pbMatrixToVector(recvMessage.pushrequest().mtx(), g_MemoryContainer[var_name]);
+            /*build answer*/
 
             if (!bSuccess) {
-                aff3ct::Result* result = recvMessage.mutable_result();
-                result->set_type(Failed);
-                
-                std::string error = "pbMatrixToVector failed for "  + var_name;   
-                TRACELOG(INFO,"kPullRequest failed: %s", error.c_str());
 
-                result->set_error_text(getLastLogEntry());
+                std::string error = getErrStream().str();
+                TRACELOG(INFO, "kPullRequest failed: %s", error.c_str());
+
+                auto error_text = builder.CreateString(error.c_str());
+
+                auto result = CreateResult(builder, aff3ct::proto::ResultType_Failed, error_text);
+
+                aff3ct::proto::MessageBuilder message_builder(builder);
+                message_builder.add_result(result);
+                auto offset = message_builder.Finish();
+                builder.Finish(offset);
             } else {
-                aff3ct::Result* result = recvMessage.mutable_result();
-                result->set_type(Success);
+                auto result = CreateResult(builder, aff3ct::proto::ResultType_Success);
+
+                aff3ct::proto::MessageBuilder message_builder(builder);
+                message_builder.add_result(result);
+                auto offset = message_builder.Finish();
+                builder.Finish(offset);
             }
-            */
-            
-            
-            return ;
+
+
+            return;
         }
 
-    case aff3ct::proto::Action::Action_Pull:
+        case aff3ct::proto::Action::Action_Pull:
         {
-             TRACELOG(INFO,"Pull received!");
-#if 0
-            std::string var_name = recvMessage.pullrequest().var();
-        
-            TRACELOG(INFO,"kPullRequest received for %s", var_name.c_str());
-            
-            if (g_MemoryContainer.find(var_name) == g_MemoryContainer.end()) {      
-                //TODO return error result with not found message
-                
-                aff3ct::PullReply* pull_reply = recvMessage.mutable_pullreply();
-                invalidatePbMatrix(pull_reply->mutable_mtx());
-                
-                aff3ct::Result *result = pull_reply->mutable_result();
-                result->set_type(Failed);
-                
-                std::string error = "Can't find variable "  + var_name;   
-                TRACELOG(INFO,"kPullRequest failed: %s", error.c_str());
-                
-                result->set_error_text(getLastLogEntry());
-            } 
-            else 
-            {
-                aff3ct::PullReply* pull_reply = recvMessage.mutable_pullreply();
-                invalidatePbMatrix(pull_reply->mutable_mtx());
-                vector2pbMatrix(g_MemoryContainer[var_name], pull_reply->mutable_mtx());
-                
-                aff3ct::Result *result = pull_reply->mutable_result();
-                result->set_type(Success);
-            } 
-#endif
-           
-            return;
+            TRACELOG(INFO, "Pull received!");
+
+            if (recvMessage->text() == nullptr) {
+                TRACELOG(ERROR, "There is no var/matrix in pull_request!");
+            } else {
+
+                std::string var_name = recvMessage->text()->str();
+
+                TRACELOG(INFO, "kPullRequest received for %s", var_name.c_str());
+
+                if (g_MemoryContainer.find(var_name) != g_MemoryContainer.end()) {
+
+                    auto matrix = vector2fbMatrix(g_MemoryContainer[var_name], builder);
+                    auto result = CreateResult(builder, aff3ct::proto::ResultType_Success);
+
+                    aff3ct::proto::MessageBuilder message_builder(builder);
+                    message_builder.add_result(result);
+                    message_builder.add_matrix(matrix);
+                    auto offset = message_builder.Finish();
+                    builder.Finish(offset);
+
+                    bSuccess = true;
+                } else {
+                    TRACELOG(ERROR, "pull_request failed: Variable %s not found", var_name.c_str());
+                }
+            }
+
+            if (!bSuccess) {
+                std::string error = getErrStream().str();
+                TRACELOG(INFO, "kPullRequest failed: %s", error.c_str());
+
+                auto error_text = builder.CreateString(error.c_str());
+
+                auto result = CreateResult(builder, aff3ct::proto::ResultType_Failed, error_text);
+
+                aff3ct::proto::MessageBuilder message_builder(builder);
+                message_builder.add_result(result);
+                auto offset = message_builder.Finish();
+                builder.Finish(offset);
+            }
         }
         case aff3ct::proto::Action::Action_Exec:
         {
-            TRACELOG(INFO,"Exec received ");
-            
-            if (recvMessage->text() == nullptr)
-            {
-                TRACELOG(ERROR,"No command found");
-                return;
+            TRACELOG(INFO, "Exec received ");
+
+            if (recvMessage->text() == nullptr) {
+                TRACELOG(ERROR, "Action_Exec: no command found");
+            }else {
+                if (execCommand(recvMessage->text()->c_str(), getErrStream())) {
+                    TRACELOG(INFO, "Exec finished (OK)");
+                    bSuccess = true;
+                } else {
+                    TRACELOG(ERROR, "Exec finished (FAILED)");
+                }
             }
-                
-            if (execCommand(recvMessage->text()->c_str(), getErrStream()))
-            {
-               TRACELOG(INFO,"Exec finished (OK)"); 
-            }else
-            {
-                TRACELOG(ERROR,"Exec finished (FAILED)"); 
+
+            if (!bSuccess) {
+
+                std::string error = getErrStream().str();
+
+                auto error_text = builder.CreateString(error.c_str());
+
+                auto result = CreateResult(builder, aff3ct::proto::ResultType_Failed, error_text);
+
+                aff3ct::proto::MessageBuilder message_builder(builder);
+                message_builder.add_result(result);
+                auto offset = message_builder.Finish();
+                builder.Finish(offset);
+            } else {
+                auto result = CreateResult(builder, aff3ct::proto::ResultType_Success);
+
+                aff3ct::proto::MessageBuilder message_builder(builder);
+                message_builder.add_result(result);
+                auto offset = message_builder.Finish();
+                builder.Finish(offset);
             }
-#if 0
-            uint32_t argc       = recvMessage.command().argc();
-            std::list<std::string> args;
-            
-            for (int i = 0; i < argc; i++) 
-            {
-                args.push_back(recvMessage.command().argv(i));
-            }
-            
-            /** do command processing */
-            aff3ct::Result* result = recvMessage.mutable_result();
-            
-            if (execCommand(args, getErrStream())) 
-            {
-                result->set_type(Success);    
-                
-            }else 
-            {
-                result->set_type(Failed);    
-                result->set_error_text(getErrStream().str());    
-                clearErrStream();
-            }
-            
-#endif     
-            
-            return;
         }
         default:
             //TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());
-            TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", 1);
+            TRACELOG(ERROR, "Protocol error: message (id=%d) shall not be received by server", 1);
             break;
-    }   
-}
+    }
 
+    clearErrStream();
+}
 
 int main(int argc, char** argv)
 {
 
     loguru::init(argc, argv);
-    
+
     enableSIGTermHandler();
 
     zmq::context_t context(1);
@@ -342,26 +361,23 @@ int main(int argc, char** argv)
 
     TRACELOG(INFO, "Message loop started");
 
+
     
-    zmq::message_t reply(2048);
     zmq::message_t request;
-    
+
+    flatbuffers::FlatBufferBuilder builder(1024);
+
+
     while (1) {
-    
         //  Wait for next request from client
         socket.recv(&request);
-        
-        //  Send reply back to client
-        
-        
-        
-        const aff3ct::proto::Message *recvMessage = aff3ct::proto::GetMessage(request.data());
-        
-        //reply?
-        processClientMessage(recvMessage);
-        
-        
+
+        processClientMessage(request.data(), request.size(), builder);
+    
+        zmq::message_t reply(builder.GetBufferPointer(), builder.GetSize());
         socket.send(reply);
+        
+        builder.Reset();
     }
 
     return 0;

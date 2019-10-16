@@ -21,5 +21,23 @@ if __name__ == "__main__":
     command1 = "init -C LDPC -K 4 -N 7 --enc-type LDPC_H --enc-g-method IDENTITY --dec-h-path codes/ldpc/BCH_7_4_1_strip.alist --dec-type BP_FLOODING --dec-implem GALA -i 200"
     success, error_string = Aff3ctProtocol.do_exec(zmq_socket, command1)
 
+    ## test case for an value
+    '''
+    orig = np.array([10.0])
+    success, error_string = Aff3ctProtocol.do_push(zmq_socket, "X", orig)
+    success, error_string, got = Aff3ctProtocol.do_pull(zmq_socket, "X")
+    print(orig)
+    print(got)
+    assert orig==got, "Test case1 failed"
+    '''
 
-    success, error_string = Aff3ctProtocol.do_push(zmq_socket, "X", np.array([1]))
+    ## test case for vector 
+    orig = np.array([1.0, 2.0, 3.0])
+    success, error_string = Aff3ctProtocol.do_push(zmq_socket, "VEC", orig)
+    success, error_string, got = Aff3ctProtocol.do_pull(zmq_socket, "VEC")
+
+    print(orig)
+    print(got)
+    assert orig==got, "Test case2 failed"
+
+

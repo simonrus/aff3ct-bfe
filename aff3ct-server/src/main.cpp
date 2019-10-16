@@ -99,9 +99,9 @@ bool fbMatrixToVector(const aff3ct::proto::Matrix *from, std::vector<float> &to)
         return false;
     }
 
-
     for (uint32_t i = 0; i < from->m(); i++) {
         to[i] = values->Get(i);
+        TRACELOG(INFO, "[%d]: %f %f", i, to[i], values->Get(i));
     }
     return true;
 }
@@ -256,7 +256,7 @@ void processClientMessage(void *data, size_t size, flatbuffers::FlatBufferBuilde
                 builder.Finish(offset);
             }
 
-
+            clearErrStream();
             return;
         }
 
@@ -302,6 +302,9 @@ void processClientMessage(void *data, size_t size, flatbuffers::FlatBufferBuilde
                 auto offset = message_builder.Finish();
                 builder.Finish(offset);
             }
+            
+            clearErrStream();
+            return;
         }
         case aff3ct::proto::Action::Action_Exec:
         {
@@ -338,6 +341,9 @@ void processClientMessage(void *data, size_t size, flatbuffers::FlatBufferBuilde
                 auto offset = message_builder.Finish();
                 builder.Finish(offset);
             }
+            
+            clearErrStream();
+            return;
         }
         default:
             //TRACELOG(ERROR,"Protocol error: message (id=%d) shall not be received by server", recvMessage.content_case());

@@ -16,9 +16,11 @@ class Aff3ctProtocol:
 
     @staticmethod
     def serialize_matrix(builder, matrix):
+        print("serialize_matrix start:")
+        print(matrix.flatten().astype(float))
+        print("serialize_matrix end:")
 
-        values = builder.CreateNumpyVector(matrix.flatten())
-
+        values = builder.CreateNumpyVector(matrix.flatten().astype(float))
         aff3ct.proto.Matrix.MatrixStart(builder)
 
         if matrix.ndim == 1:
@@ -38,21 +40,26 @@ class Aff3ctProtocol:
 
 
     @staticmethod
-    def deserialize_matrix(pb_matrix):
-
-        if pb_matrix.n == 1:
+    def deserialize_matrix(fb_matrix):
+        
+        matrix = fb_matrix.ValuesAsNumpy();
+        '''
+        if fb_matrix.N() == 1:
             #### vector case
-            matrix = np.zeros([pb_matrix.m])
-
-            for i in range(0, pb_matrix.m):
-                matrix[i] = pb_matrix.values[i]
+            matrix = np.zeros([fb_matrix.M()])
+    
+            for i in range(0, fb_matrix.M()):
+                matrix[i] = fb_matrix.values[i]
         else:
-            matrix = np.zeros([pb_matrix.n, pb_matrix.m])
-            for i in range(0, pb_matrix.n):
-                for j in range(0, pb_matrix.m):
-                    matrix[i][j] = pb_matrix.values[i * pb_matrix.m + j]
-
-        return matrix
+            matrix = np.zeros([fb_matrix.N(), fb_matrix.M()])
+            for i in range(0, fb_matrix.N()):
+                for j in range(0, fb_matrix.M()):
+                    matrix[i][j] = fb_matrix.values[i * fb_matrix.M() + j]
+        '''
+        if fb_matrix.N() == 1:
+            return matrix
+        else:
+            return matrix.reshape(fb_matrix.N(), fb_matrix.M())
 
     @staticmethod
     def do_push(socket, var, matrix):
@@ -76,14 +83,14 @@ class Aff3ctProtocol:
 
         #proccess response
         reply = bytearray(reply)
-        message = aff3ct.proto.Message.GetRootAsMessage(reply, 0)
+        message = aff3ct.proto.Message.Message.GetRootAsMessage(reply, 0)
 
         result = message.Result()
 
         if result is None:
             return False, "do_push() didn't receive Result"
 
-        if result.Type() == aff3ct.proto.ResultType.ResultType().success :
+        if result.Type() == aff3ct.proto.ResultType.ResultType.Success :
             return True, ''
         else:
             return False, result.ErrorText()
@@ -108,15 +115,16 @@ class Aff3ctProtocol:
 
         #proccess response
         reply = bytearray(reply)
-        message = aff3ct.proto.Message.GetRootAsMessage(reply, 0)
+        message = aff3ct.proto.Message.Message.GetRootAsMessage(reply, 0)
 
         result = message.Result()
         
         if result is None:
             return False, "do_pull() didn't receive Result"
 
-        if result.Type() == aff3ct.proto.ResultType.ResultType().success :
-            return True, '', Aff3ctProtocol.deserialize_matrix(message_pb.pullReply.mtx)
+        if result.Type() == aff3ct.proto.ResultType.ResultType.Success:
+
+            return True, '', Aff3ctProtocol.deserialize_matrix(message.Matrix())
         else:
             return False, message_pb.pullReply.result.error_text, None
 
@@ -142,7 +150,6 @@ class Aff3ctProtocol:
 
         #proccess response
         reply = bytearray(reply)
-        pdb.set_trace()
         message = aff3ct.proto.Message.Message.GetRootAsMessage(reply, 0)
 
         result = message.Result()
@@ -150,7 +157,7 @@ class Aff3ctProtocol:
         if result is None:
             return False, "do_command() didn't receive Result"
 
-        if result.Type() == aff3ct.proto.ResultType.ResultType().success :
+        if result.Type() == aff3ct.proto.ResultType.ResultType.Success :
             return True, 'Command Executed'
         else:
             return False, message_pb.pullReply.result.error_text, None

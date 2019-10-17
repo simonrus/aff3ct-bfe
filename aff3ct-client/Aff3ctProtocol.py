@@ -16,11 +16,7 @@ class Aff3ctProtocol:
 
     @staticmethod
     def serialize_matrix(builder, matrix):
-        print("serialize_matrix start:")
-        print(matrix.flatten().astype(float))
-        print("serialize_matrix end:")
-
-        values = builder.CreateNumpyVector(matrix.flatten().astype(float))
+        values = builder.CreateNumpyVector(matrix.flatten().astype(np.float32))
         aff3ct.proto.Matrix.MatrixStart(builder)
 
         if matrix.ndim == 1:
@@ -43,19 +39,6 @@ class Aff3ctProtocol:
     def deserialize_matrix(fb_matrix):
         
         matrix = fb_matrix.ValuesAsNumpy();
-        '''
-        if fb_matrix.N() == 1:
-            #### vector case
-            matrix = np.zeros([fb_matrix.M()])
-    
-            for i in range(0, fb_matrix.M()):
-                matrix[i] = fb_matrix.values[i]
-        else:
-            matrix = np.zeros([fb_matrix.N(), fb_matrix.M()])
-            for i in range(0, fb_matrix.N()):
-                for j in range(0, fb_matrix.M()):
-                    matrix[i][j] = fb_matrix.values[i * fb_matrix.M() + j]
-        '''
         if fb_matrix.N() == 1:
             return matrix
         else:

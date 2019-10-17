@@ -6,7 +6,7 @@ from Aff3ctProtocol import Aff3ctProtocol
 
 from ConsoleMatrixParser import ConsoleMatrixParser
 
-class Aff3ctClient(cmd2.Cmd):
+class Aff3ctShell(cmd2.Cmd):
     """ Main loop"""
     parser = None
     registers = None

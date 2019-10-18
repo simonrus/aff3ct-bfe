@@ -6,7 +6,6 @@ from Aff3ctProtocol import Aff3ctProtocol
 if __name__ == "__main__":
     zmq_context = None
     zmq_socket = None
-
     server_address = 'tcp://localhost:5555'
 
     # Set use_ipython to True to enable the "ipy" command which embeds and interactive IPython shell

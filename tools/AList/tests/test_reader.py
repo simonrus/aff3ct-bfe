@@ -1,5 +1,5 @@
 import unittest
-from AList import *
+from AListReader import *
 
 
 class AListTest(unittest.TestCase):
@@ -19,7 +19,7 @@ class AListTest(unittest.TestCase):
                       "2 4 5 6",
                       "3 5 6 7"]
 
-        reader = AList()
+        reader = AListReader()
         reader.readMatrix(alist_text)
 
         matrix_ref = np.asarray([[1, 0, 1],
@@ -78,14 +78,14 @@ class AListTest(unittest.TestCase):
                                  [0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0],
                                  [0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0, 1, 0],
                                  [1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0]], dtype=int)
-        reader = AList()
+        reader = AListReader()
         reader.readMatrix(alist_text)
 
         self.assertTrue(np.array_equal(matrix_ref, reader.matrix), "Read matrix differs from reference")
     
     def test_alist_CCSDS(self):
         filename = "tests/CCSDS_ldpc_n128_k64.alist"
-        reader = AList()
+        reader = AListReader()
         reader.readFromFile(filename)
 
         matrix = reader.getMatrix()
@@ -94,7 +94,7 @@ class AListTest(unittest.TestCase):
     
     def test_alist_wifi(self):
         filename = "tests/wifi_648_r083.alist"
-        reader = AList()
+        reader = AListReader()
         reader.readFromFile(filename)
 
         matrix = reader.getMatrix()

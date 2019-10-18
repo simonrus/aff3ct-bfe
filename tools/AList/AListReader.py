@@ -1,7 +1,7 @@
 import numpy as np
 
 
-class AList:
+class AListReader:
     def __init__(self):
         ''' some constructor'''
         self.matrix = None

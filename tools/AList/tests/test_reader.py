@@ -83,16 +83,24 @@ class AListTest(unittest.TestCase):
 
         self.assertTrue(np.array_equal(matrix_ref, reader.matrix), "Read matrix differs from reference")
     
-    def test_alist_5gnr(self):
-        #filename = "NR_ldpc.alist"
-        filename = "CCSDS_ldpc_n128_k64.alist"
-        #filename = "wifi_648_r083.alist"
+    def test_alist_CCSDS(self):
+        filename = "tests/CCSDS_ldpc_n128_k64.alist"
         reader = AList()
         reader.readFromFile(filename)
 
         matrix = reader.getMatrix()
-        print(matrix.shape)
-        print(matrix)
+        self.assertTrue(matrix.shape[0] == 128)
+        self.assertTrue(matrix.shape[1] == 64)
+    
+    def test_alist_wifi(self):
+        filename = "tests/wifi_648_r083.alist"
+        reader = AList()
+        reader.readFromFile(filename)
+
+        matrix = reader.getMatrix()
+        self.assertTrue(matrix.shape[0] == 648)
+        self.assertTrue(matrix.shape[1] == 108)
+  
 
 if __name__ == '__main__':
     unittest.main()

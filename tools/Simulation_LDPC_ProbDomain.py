@@ -28,12 +28,13 @@ def simulation():
 
     N = N_cols
     K = N_cols - N_rows
-    
-    print("LDPC K=%d, N=%d" % (K, N))
 
-    h_transposed = np.transpose(reader.matrix)
+    print("LDPC (%d, %d) read " % (N, K))
 
-    encoder = EncoderLDPCFromH(h_transposed)
+    # h_transposed = np.transpose(reader.matrix)
+
+    pdb.set_trace()
+    encoder = EncoderLDPCFromH(reader.matrix)
 
     # main loop
 
@@ -43,19 +44,22 @@ def simulation():
 
     # for ebn0 in np.arange(ebn0_start, ebn0_end, ebn0_step):
     for ebn0 in np.arange(ebn0_start, ebn0_end, ebn0_step):
-        # vector =  (np.random.rand(K) > 0.5).astype(int)
-        vector = np.random.binomial(1, 0.5, K)
-
-        # modulate using BPSK
-        signal = vector * 2.0 - 1.0
-        sigma = 0.2
 
         # calculate sigma from snr =)
-        sigma = AWGN.ebn0_to_sigma(ebn0, K * 1.0 /N, 1, 1)
+        sigma = AWGN.ebn0_to_sigma(ebn0, K * 1.0 / N, 1, 1)
         print("sigma is ", sigma)
 
-        received = AWGN.add_noise(signal, sigma)
-        print("at ", loop, " ", received)
+        for loop in range(1, 10):
+            # vector =  (np.random.rand(K) > 0.5).astype(int)
+            vector = np.random.binomial(1, 0.5, K)
+
+            # modulate using BPSK
+            signal = vector * 2.0 - 1.0
+            sigma = 0.2
+
+
+            received = AWGN.add_noise(signal, sigma)
+            print("at ", loop, " ", received)
 
 
 

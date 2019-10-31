@@ -9,7 +9,7 @@ class MatrixHandler:
         n_cols = H.shape[1]
         
         K = n_cols - n_rows
-        print ("Estimated K is %d" % K)
+
         assert K > 0, ("invalid dimension (n_cols=%d, n_rows=%d)" % (n_cols, n_rows))
 
         ## step 1: move to triangle way
@@ -39,7 +39,8 @@ class MatrixHandler:
         
         ## step3: build G
         G = np.zeros((K, n_cols), dtype=type(H[0,0]))
-        temp  = H[:,K:n_cols]
+
+        temp = H[:, n_rows:n_cols]
 
         G[0:K, 0:K] = np.diag(np.ones(K))
         G[0:K, K:n_cols] = temp.transpose()

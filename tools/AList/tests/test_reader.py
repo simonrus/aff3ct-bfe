@@ -20,7 +20,10 @@ class AListTest(unittest.TestCase):
                       "3 5 6 7"]
 
         reader = AListReader()
-        reader.readMatrix(alist_text)
+        K, N = reader.readMatrix(alist_text)
+
+        self.assertEqual(K, 3, "Read wrong K")
+        self.assertEqual(N, 7, "Read wrong N")
 
         matrix_ref = np.asarray([[1, 0, 1],
                                  [0, 1, 1],

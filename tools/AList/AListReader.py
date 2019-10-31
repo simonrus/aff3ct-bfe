@@ -14,9 +14,7 @@ class AListReader:
             lineList = [line.rstrip('\n') for line in f]
         f.close()
 
-        self.readMatrix(lineList)
-
-        pass
+        return self.readMatrix(lineList)
 
     def readMatrix(self, lines):
         N, K = [int(x) for x in lines[0].split()]  # read n, m
@@ -41,6 +39,8 @@ class AListReader:
             assert len(pos) >= c, "Error at line %d: number of listed ones (%d) is bigger as number of ones(%d)" \
                                   % (i, len(pos), c)
 
+            assert pos is not None, "Pos is None at cols reading"
+
             for j in pos:
 
                 assert j < K
@@ -60,8 +60,12 @@ class AListReader:
             assert len(pos) >= r, "Error at line %d: number of listed ones (%d) is bigger as number of ones(%d)" \
                                   % (i, len(pos), c)
 
+            assert pos is not None, "Pos is None at rows reading"
+
             for j in pos:
                 assert self.matrix[j, cnt] == 1, "Error at %d: @(%d, %d) shall be zero" % (i, j, cnt)
 
             i = i + 1
             cnt = cnt + 1
+
+        return K, N

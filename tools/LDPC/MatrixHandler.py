@@ -9,7 +9,7 @@ class MatrixHandler:
         n_cols = H.shape[1]
         
         K = n_cols - n_rows
-        assert K > 0, "invalid dimension"
+        assert K > 0, ("invalid dimension (n_cols=%d, n_rows=%d)" % (n_cols, n_rows))
 
         ## step 1: move to triangle way
 

@@ -21,7 +21,9 @@ class MatrixHandlerTest(unittest.TestCase):
     def test_transform_H_to_G_identity_ccsds_128_64(self):
         reader = AListReader()
 
-        K, N = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+        n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+        N = n_cols
+        K = n_cols - n_rows
 
         h_transposed = np.transpose(reader.matrix)
 
@@ -41,7 +43,11 @@ class MatrixHandlerTest(unittest.TestCase):
         5555            5555        5555        5555        4443        3333        4443        4443
         where IX' - idenitiy matrix shifted to X positions right + last row is set to 1s
         '''
-        K, N = reader.readFromFile("../../codes/ldpc/CCSDS_ldpc_n32_k16.alist")
+
+        n_rows, n_cols = reader.readFromFile("../../codes/ldpc/CCSDS_ldpc_n32_k16.alist")
+
+        N = n_cols
+        K = n_cols - n_rows
 
         h_transposed = np.transpose(reader.matrix)
 

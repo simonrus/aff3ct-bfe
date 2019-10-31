@@ -23,11 +23,16 @@ def simulation():
 
     reader = AListReader()
 
-    K, N = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+
+    N_rows, N_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+
+    N = N_cols
+    K = N_cols - N_rows
+    
     print("LDPC K=%d, N=%d" % (K, N))
 
     h_transposed = np.transpose(reader.matrix)
-    pdb.set_trace()
+
     encoder = EncoderLDPCFromH(h_transposed)
 
     # main loop

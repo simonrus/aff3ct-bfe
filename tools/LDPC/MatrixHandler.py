@@ -9,24 +9,25 @@ class MatrixHandler:
         n_cols = H.shape[1]
         
         K = n_cols - n_rows
+        print ("Estimated K is %d" % K)
         assert K > 0, ("invalid dimension (n_cols=%d, n_rows=%d)" % (n_cols, n_rows))
 
         ## step 1: move to triangle way
 
         for i in range(0,n_rows): 
             anchor = None
-            anchor_row = 0
+            # anchor_row = 0
             for j in range(i, n_rows):
                 if H[j,i] == 1:
                     #swap row with i
                     if anchor is None:
                         anchor = H[j,:].copy()
-                        anchor_row = j
                         H[j,:] = H[i,:]
                         H[i,:] = anchor
+                        # anchor_row = i
                     else:
                         #substract
-                        H[j,:] = anchor ^ H[anchor_row,:]
+                        H[j,:] = anchor ^ H[j,:]
                     #substrace curent row from
     
         ## step 2: make identity matrix 
@@ -38,7 +39,7 @@ class MatrixHandler:
         
         ## step3: build G
         G = np.zeros((K, n_cols), dtype=type(H[0,0]))
-        temp  = H[:,K-1:n_cols]
+        temp  = H[:,K:n_cols]
 
         G[0:K, 0:K] = np.diag(np.ones(K))
         G[0:K, K:n_cols] = temp.transpose()

@@ -24,22 +24,25 @@ def simulation():
     reader = AListReader()
 
 
-    N_rows, N_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+    n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+    # print("Read matrix with rows=%d and cols=%d " % (n_rows, n_cols))
 
-    N = N_cols
-    K = N_cols - N_rows
+    N = n_cols
+    K = n_cols - n_rows
 
-    print("LDPC (%d, %d) read " % (N, K))
+    # print("LDPC (%d, %d) read " % (N, K))
 
-    # h_transposed = np.transpose(reader.matrix)
+    h_transposed = np.transpose(reader.matrix)
 
-    pdb.set_trace()
-    encoder = EncoderLDPCFromH(reader.matrix)
+    encoder = EncoderLDPCFromH(h_transposed)
+
+    decoder = DecoderLDPCProb(h_transposed)
 
     # main loop
 
     ebn0_start = 0.0
-    ebn0_end = 5.5
+    # ebn0_end = 5.5
+    ebn0_end = 0.5
     ebn0_step = 0.5
 
     # for ebn0 in np.arange(ebn0_start, ebn0_end, ebn0_step):
@@ -47,27 +50,31 @@ def simulation():
 
         # calculate sigma from snr =)
         sigma = AWGN.ebn0_to_sigma(ebn0, K * 1.0 / N, 1, 1)
-        print("sigma is ", sigma)
+        #print("sigma is ", sigma)
 
-        for loop in range(1, 10):
+        for loop in range(1, 2):
             # vector =  (np.random.rand(K) > 0.5).astype(int)
             vector = np.random.binomial(1, 0.5, K)
 
+            # encode
+
+            codeword = encoder.encode(vector)
+
             # modulate using BPSK
-            signal = vector * 2.0 - 1.0
+            print(type(codeword))
+            signal = codeword * 2.0 - 1.0
             sigma = 0.2
 
-
+            print("at ", loop, " ", signal)
             received = AWGN.add_noise(signal, sigma)
             print("at ", loop, " ", received)
 
+            # Soft probability
+            decoded_cw = decoder.decode(received)
+
+            if decoded_cw 
 
 
-
-
-    vector = np.asarray([1, 0, 1, 1], dtype=int)
-
-    codeword = encoder.encode(vector)
 
 if __name__ == "__main__":
     simulation()

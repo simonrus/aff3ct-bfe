@@ -1,6 +1,7 @@
 import numpy as np
 from .MatrixHandler import MatrixHandler
 
+import pdb
 
 class EncoderLDPCFromH:
     handler = None
@@ -37,5 +38,5 @@ class EncoderLDPCFromH:
         
     def encode(self, in_data):
         temp = in_data @ self.G
-        out_data = [elem % 2 for elem in temp]
-        return out_data
+
+        return temp % 2

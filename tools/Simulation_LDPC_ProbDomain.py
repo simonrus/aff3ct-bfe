@@ -1,5 +1,6 @@
 from AList.AListReader import AListReader
 from LDPC.EncoderLDPCFromH import EncoderLDPCFromH
+from LDPC.DecoderLDPCProb import DecoderLDPCProb
 from Channel.AWGN import AWGN
 
 import numpy as np
@@ -23,20 +24,19 @@ def simulation():
 
     reader = AListReader()
 
+    n_rows, n_cols = reader.readMatrix(alist_text)
 
-    n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
-    # print("Read matrix with rows=%d and cols=%d " % (n_rows, n_cols))
+    #n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+    print("Read matrix with rows=%d and cols=%d " % (n_rows, n_cols))
 
     N = n_cols
     K = n_cols - n_rows
 
-    # print("LDPC (%d, %d) read " % (N, K))
+    print("LDPC (%d, %d) read " % (N, K))
 
-    h_transposed = np.transpose(reader.matrix)
+    encoder = EncoderLDPCFromH(reader.matrix)
 
-    encoder = EncoderLDPCFromH(h_transposed)
-
-    decoder = DecoderLDPCProb(h_transposed)
+    decoder = DecoderLDPCProb(reader.matrix)
 
     # main loop
 
@@ -65,14 +65,14 @@ def simulation():
             signal = codeword * 2.0 - 1.0
             sigma = 0.2
 
-            print("at ", loop, " ", signal)
+            #print("at ", loop, " ", signal)
             received = AWGN.add_noise(signal, sigma)
-            print("at ", loop, " ", received)
+            #print("at ", loop, " w noise ", received)
 
             # Soft probability
-            decoded_cw = decoder.decode(received)
+            decoded_cw = decoder.decodeInProbDomain(received)
 
-            if decoded_cw 
+            #print("at ", loop, " cw ", decoded_cw)
 
 
 

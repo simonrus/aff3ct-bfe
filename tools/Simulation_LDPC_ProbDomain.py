@@ -70,6 +70,7 @@ def simulation():
             #print("at ", loop, " w noise ", received)
 
             # Soft probability
+            decoder.set_sigma(sigma)
             decoded_cw = decoder.decodeInProbDomain(received)
 
             #print("at ", loop, " cw ", decoded_cw)

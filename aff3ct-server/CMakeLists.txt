@@ -105,6 +105,8 @@ target_link_libraries(aff3ct-codec PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${Ze
 target_link_libraries(aff3ct-server PRIVATE aff3ct::aff3ct-static-lib PUBLIC ${ZeroMQ_LIBRARY} ${DL_LIBRARY})
 target_link_libraries(aff3ct-test  PRIVATE aff3ct::aff3ct-static-lib aff3ct-codec PUBLIC ${ZeroMQ_LIBRARY} ${DL_LIBRARY})
 
+add_dependencies(aff3ct-codec aff3ct_proto_generated_includes)
+add_dependencies(aff3ct-server aff3ct_proto_generated_includes)
 add_dependencies(aff3ct-test aff3ct_proto_generated_includes)
 
 ### ADD TESTS

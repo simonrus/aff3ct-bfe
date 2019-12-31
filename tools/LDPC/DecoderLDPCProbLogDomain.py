@@ -1,11 +1,11 @@
 from os import waitid_result
 
 import numpy as np
+
+#np.set_printoptions(edgeitems=30, linewidth=100000, formatter=dict(float=lambda x: "\t%5.3g" % x))
+
 from scipy.sparse import csr_matrix
 from scipy.sparse import csc_matrix
-
-
-from math import exp
 
 from .MatrixHandler import MatrixHandler
 
@@ -34,50 +34,58 @@ class DecoderLDPCProbLogDomain:
     def set_sigma(self, sigma):
         self.sigma = sigma
 
-    def decodeInLogDomain(self, received):
+    
+    def decodeInProbLogDomain(self, received):
         assert not np.isnan(self.sigma), "sigma is not set"
 
         print("received is ", received)
 
-        likelihoods = np.exp(2 * received / self.sigma / self.sigma)
-        prob_ones = likelihoods / (likelihoods + 1)
-
-        #Test code
-        #prob_ones = np.array(range(0,received.shape[0]))
-        #prob_ones = prob_ones / sum(prob_ones)
-
-        pa_prob_ones = prob_ones.copy()
+        LLRs = 2 * received / self.sigma / self.sigma
+        
+        #pa_prob_ones = prob_ones.copy()
+        current_LLRs = LLRs.copy()
         pa_mtx = np.zeros(self.H.shape)
 
-        pdb.set_trace()
-        print("prob_ones ", prob_ones)
-
+            
+        
         for iter in range(0,self.max_num_iter):
             #horizontal step
 
             print("HORIZ step input")
-            print(pa_prob_ones)
+            print(current_LLRs)
             for row_index in range(0, self.N - self.K):
                 row = self.csrow_H.getrow(row_index)
                 weight = row.sum()
 
                 pos_ones = np.where(row.toarray().flatten() == 1)
 
-
                 ##
                 #
-                #                   1 + П (1 - 2 * P_t)
-                # P(sum=odd) =      -------------------
-                #                           2
+                #                   1 + П tanh(v/2)
+                # LLR(sum=odd) =    -------------------
+                #                   1 - П tanh(v/2)
                 ##<
 
-                temp = 1 - 2 * pa_prob_ones
-                prod = np.prod(temp[pos_ones])
-                pa_mtx[row_index, pos_ones] = np.ones(weight) * prod / temp[pos_ones]
-                pa_mtx[row_index, pos_ones] = (pa_mtx[row_index, pos_ones] + 1)/2
+                
+                ## KISS version
+                for i in pos_ones[0]:
+                    prod = 1
+                    for j in pos_ones[0]:
+                        if (i != j):
+                            prod = prod * np.tanh(current_LLRs[j] / 2)
+                    pdb.set_trace()
+                    pa_mtx[row_index, i] = np.log((1 + prod) / (1 - prod))
+                    
 
+                ## Vectorizing
+                #Z = np.tanh(current_LLRs[pos_ones])
+                #prod = np.prod(np.tanh(current_LLRs[pos_ones]/2))
+                #pa_mtx[row_index, pos_ones] = np.ones(weight) * prod / Z[pos_ones]
+                #pa_mtx[row_index, pos_ones] = (1 + pa_mtx[row_index, pos_ones])/(1 - pa_mtx[row_index, pos_ones])
+                #pa_mtx[row_index, pos_ones] = np.log(pa_mtx[row_index, pos_ones])
                 #shall be ok
 
+            
             print("HORIZ step output")
             print(pa_mtx)
 
@@ -90,20 +98,19 @@ class DecoderLDPCProbLogDomain:
 
 
                 ##
-                #
-                #                   P(C) * П(Xn | c)
-                # P(C|X1 .. Xn) =   -------------------
-                #                      P(X1..Xn)
+                #                   
+                # LLR(sum=odd) = LLR0 + sum(LLR_i)    
+                #                   
                 ##<
 
                 temp = pa_mtx[pos_ones, col_index]
-                prod = np.prod(temp)
-                value = pa_prob_ones[col_index] * (1 << weight) * prod
+                sum_value = np.sum(temp)
+                value = current_LLRs[col_index] + sum_value
 
-                pa_prob_ones[col_index] = value #assign new value
+                current_LLRs[col_index] = value #assign new value
 
         print("DONE")
-        print(pa_prob_ones)
+        print(current_LLRs)
 
 
 

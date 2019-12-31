@@ -1,6 +1,6 @@
 from AList.AListReader import AListReader
 from LDPC.EncoderLDPCFromH import EncoderLDPCFromH
-from LDPC.DecoderLDPCProb import DecoderLDPCProb
+from LDPC.DecoderLDPCProbLogDomain import DecoderLDPCProbLogDomain
 from Channel.AWGN import AWGN
 
 import numpy as np
@@ -36,7 +36,7 @@ def simulation():
 
     encoder = EncoderLDPCFromH(reader.matrix)
 
-    decoder = DecoderLDPCProb(reader.matrix)
+    decoder = DecoderLDPCProbLogDomain(reader.matrix)
 
     # main loop
 
@@ -71,9 +71,9 @@ def simulation():
 
             # Soft probability
             decoder.set_sigma(sigma)
-            decoded_cw = decoder.decodeInProbDomain(received)
+            decoded_cw = decoder.decodeInProbLogDomain(received)
 
-            #print("at ", loop, " cw ", decoded_cw)
+            print("at ", loop, " cw ", decoded_cw)
 
 
 

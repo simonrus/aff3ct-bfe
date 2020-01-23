@@ -1,11 +1,20 @@
+import argparse
+
 from AList.AListReader import AListReader
 from LDPC.EncoderLDPCFromH import EncoderLDPCFromH
 from LDPC.DecoderLDPCProbLogDomain import DecoderLDPCProbLogDomain
 from Channel.AWGN import AWGN
+import logging
 
 import numpy as np
 import pdb
 
+def logging_debug(pa_array, msg=None):
+    if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+        prefix = (msg + "\n") if (msg is not None) else "\n"
+        
+        logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',',suppress_small=True))
+        
 def simulation():
     alist_text = ["7 3",
                   "3 4",
@@ -27,12 +36,12 @@ def simulation():
     n_rows, n_cols = reader.readMatrix(alist_text)
 
     #n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
-    print("Read matrix with rows=%d and cols=%d " % (n_rows, n_cols))
+    logging.info("Read matrix with rows=%d and cols=%d " % (n_rows, n_cols))
 
     N = n_cols
     K = n_cols - n_rows
 
-    print("LDPC (%d, %d) read " % (N, K))
+    logging.info("LDPC (%d, %d) read " % (N, K))
 
     encoder = EncoderLDPCFromH(reader.matrix)
 
@@ -50,7 +59,7 @@ def simulation():
 
         # calculate sigma from snr =)
         sigma = AWGN.ebn0_to_sigma(ebn0, K * 1.0 / N, 1, 1)
-        #print("sigma is ", sigma)
+        logging.debug("sigma is " + str(sigma))
 
         for loop in range(1, 2):
             # vector =  (np.random.rand(K) > 0.5).astype(int)
@@ -61,21 +70,36 @@ def simulation():
             codeword = encoder.encode(vector)
 
             # modulate using BPSK
-            print(type(codeword))
+            #print(type(codeword))
             signal = codeword * 2.0 - 1.0
             sigma = 0.2
 
             #print("at ", loop, " ", signal)
+            logging_debug(signal, " Signal at " + str(loop) + " loop")
             received = AWGN.add_noise(signal, sigma)
-            #print("at ", loop, " w noise ", received)
+            logging_debug(received, " Received at " + str(loop) + " loop")
 
             # Soft probability
             decoder.set_sigma(sigma)
             decoded_cw = decoder.decodeInProbLogDomain(received)
 
-            print("at ", loop, " cw ", decoded_cw)
+            if decoded_cw is not None:
+                logging.debug("at loop " + str(loop) + " ok")
+
+                
+            else:
+                logging.debug("at loop " + str(loop) + " failed")
 
 
 
 if __name__ == "__main__":
+    p = argparse.ArgumentParser()
+    p.add_argument("--log")
+
+    args = p.parse_args()
+    
+    if (args.log):
+        logging.basicConfig(level=getattr(logging, args.log))
+    
+
     simulation()

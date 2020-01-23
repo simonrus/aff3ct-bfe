@@ -21,7 +21,7 @@ class MatrixHandlerTest(unittest.TestCase):
     def test_transform_H_to_G_identity_ccsds_128_64(self):
         reader = AListReader()
 
-        n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+        n_rows, n_cols = reader.readFromFile("../../lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
         N = n_cols
         K = n_cols - n_rows
 

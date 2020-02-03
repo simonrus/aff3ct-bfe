@@ -3,6 +3,7 @@ import argparse
 from AList.AListReader import AListReader
 from LDPC.EncoderLDPCFromH import EncoderLDPCFromH
 from LDPC.DecoderLDPCProbLogDomain import DecoderLDPCProbLogDomain
+from Simulator import Simulator
 from Channel.AWGN import AWGN
 import logging
 
@@ -16,6 +17,8 @@ def logging_debug(pa_array, msg=None):
         logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',',suppress_small=True))
         
 def simulation():
+    simulator = Simulator()
+
     alist_text = ["7 3",
                   "3 4",
                   "1 1 2 2 3 2 1",
@@ -34,13 +37,13 @@ def simulation():
     reader = AListReader()
 
     n_rows, n_cols = reader.readMatrix(alist_text)
-
+    logging
     #n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
     logging.info("Read matrix with rows=%d and cols=%d " % (n_rows, n_cols))
 
     N = n_cols
     K = n_cols - n_rows
-
+    logging.info("Simulator = ", simulator.selected_simulator())
     logging.info("LDPC (%d, %d) read " % (N, K))
 
     encoder = EncoderLDPCFromH(reader.matrix)

@@ -1,5 +1,3 @@
-from os import waitid_result
-
 import numpy as np
 
 np.set_printoptions(edgeitems=30, linewidth=100000, formatter=dict(float=lambda x: "\t%5.3g" % x))
@@ -10,11 +8,10 @@ from scipy.sparse import csc_matrix
 import sys # for the float_max and float_min
 from .MatrixHandler import MatrixHandler
 from .EncoderLDPCFromH import EncoderLDPCFromH
+from .Decoder import Decoder
 import pdb
 
-class DecoderLDPCProbLogDomain:
-
-    
+class DecoderLDPCProbLogDomain(Decoder):
     H = None
 
     info_bits_position = None
@@ -27,6 +24,7 @@ class DecoderLDPCProbLogDomain:
 
     # constructor
     def __init__(self, H):
+        Decoder.__init__(self)
         self.H = H
         self.N = H.shape[1]
         self.K = self.N - H.shape[0]
@@ -81,6 +79,7 @@ class DecoderLDPCProbLogDomain:
 
                 
                 ## KISS version
+                 
                 for i in pos_ones[0]:
                     prod = 1
                     for j in pos_ones[0]:

@@ -1,17 +1,19 @@
+import logging
+import sys # for the float_max and float_min
 import numpy as np
 
 np.set_printoptions(edgeitems=30, linewidth=100000, formatter=dict(float=lambda x: "\t%5.3g" % x))
 
-import logging
 from scipy.sparse import csr_matrix
 from scipy.sparse import csc_matrix
-import sys # for the float_max and float_min
+
 from .MatrixHandler import MatrixHandler
 from .EncoderLDPCFromH import EncoderLDPCFromH
 from .Decoder import Decoder
+
 import pdb
 
-class DecoderLDPCProbLogDomain(Decoder):
+class DecoderLDPCProbLogDomainDefault(Decoder):
     H = None
 
     info_bits_position = None
@@ -42,7 +44,7 @@ class DecoderLDPCProbLogDomain(Decoder):
             
             logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',',suppress_small=True))
 
-    def decodeInProbLogDomain(self, received):
+    def decode(self, received):
         assert not np.isnan(self.sigma), "sigma is not set"
 
         logging.debug("received is")
@@ -133,12 +135,4 @@ class DecoderLDPCProbLogDomain(Decoder):
             if (self.encoder.is_codeword(candidate)):
                 return candidate * 1
 
-        logging.error("FAILED to decode")
         return None
-
-
-
-        pass
-
-    def decode(self, likelihoods):
-        one_prob = []

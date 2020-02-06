@@ -1,1 +1,2 @@
-python Simulation_LDPC_ProbLogDomain.py --log=INFO
+python Simulation_LDPC_ProbLogDomain.py --log=Debug
+python Simulation_LDPC_ProbLogDomain.py --log=DEBUG --decoder=Default

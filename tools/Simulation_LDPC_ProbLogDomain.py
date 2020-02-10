@@ -12,6 +12,8 @@ import importlib
 import numpy as np
 import pdb
 
+import scipy.io
+
 def logging_debug(pa_array, msg=None):
     if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
         prefix = (msg + "\n") if (msg is not None) else "\n"
@@ -55,7 +57,9 @@ def simulation(args):
     decoder_class = getattr(importlib.import_module(sim_config.family + "." + sim_config.decoder),sim_config.decoder)
     decoder = decoder_class(reader.matrix)
 
+    sumulation_result_ebn0 = []
     sumulation_result_PER = []
+    sumulation_result_BER = []
 
     # for ebn0 in np.arange(ebn0_start, ebn0_end, ebn0_step):
     pbar =  tqdm(np.arange(sim_config.ebn0_start, 
@@ -73,6 +77,7 @@ def simulation(args):
 
         nFailed = 0
         nSuccess = 0
+        nFailedBits = 0
         for loop in tqdm(range(num_iteration)):
             # vector =  (np.random.rand(K) > 0.5).astype(int)
             vector = np.random.binomial(1, 0.5, K)
@@ -90,27 +95,41 @@ def simulation(args):
             if decoded_cw is not None:
                 logging.debug("at loop " + str(loop) + " ok")        
                 nSuccess = nSuccess + 1
+                nFailedBits = sum(decoded_cw ^ codeword)
             else:
                 logging.debug("at loop " + str(loop) + " failed")
                 nFailed = nFailed + 1   
+                nFailedBits += N
 
         PER = nFailed * 1.0/ (nSuccess + nFailed)
-        sumulation_result_PER.append((ebn0,PER))
+        BER = nFailedBits / (nSuccess + nFailed)
+        sumulation_result_ebn0.append(ebn0)
+        sumulation_result_PER.append(PER)
+        sumulation_result_BER.append(BER)
 
+    if (args.outmat):
+        pdb.set_trace()
+        scipy.io.savemat(args.outmat, mdict={'ebn0': sumulation_result_ebn0,
+                                                        'PER': sumulation_result_PER, 
+                                                        'BER':sumulation_result_BER} )
+
+    print(sumulation_result_ebn0)
+    print(sumulation_result_BER)
     print(sumulation_result_PER)
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     # Mandatory
-    p.add_argument("--config", required=True, nargs="+", type=str,help="Path to the config file")
+    p.add_argument("--config", required=True, type=str,help="Path to the config file")
 
     # Optional arguments 
     p.add_argument("--log", help="DEBUG | INFO | WARNING | ERROR | CRITICAL")
+    p.add_argument("--outmat", type=str, help="output matlab file")
      
 
     args = p.parse_args()
     
     if (args.log):
         logging.basicConfig(level=getattr(logging, args.log))
-    
+        
     simulation(args)

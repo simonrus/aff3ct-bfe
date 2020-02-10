@@ -30,9 +30,9 @@ class EncoderLDPCFromH:
 
         for i in range(0, self.N - self.K):
             if (np.sum(vector & self.H[i, :]) % 2) != 0:
-                print ("Failed check at row %d" % i)
-                print(vector)
-                print(self.H[i, :])
+                #print ("Failed check at row %d" % i)
+                #print(vector)
+                #print(self.H[i, :])
                 n_failed_checks = n_failed_checks + 1
 
         return n_failed_checks == 0

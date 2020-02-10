@@ -38,6 +38,7 @@ http://www.inference.org.uk/mackay/codes/alist.html
 	$ pip install pyzmq
 	$ pip install ipython
 	$ pip install cmd2
+	$ pip install tqdm ConfigParser
 ## flatbuffers (local install)
 	$ git submodule update --init --recursive
     $ cd 3rdparty/flatbuffers

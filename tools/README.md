@@ -1,2 +1,6 @@
-python Simulation_LDPC_ProbLogDomain.py --log=Debug
-python Simulation_LDPC_ProbLogDomain.py --log=DEBUG --decoder=Default
+python Simulation_LDPC_ProbLogDomain.py --log=DEBUG 
+python Simulation_LDPC_ProbLogDomain.py --config=configs/ldpc_7_3_default.ini
+
+
+##config example
+see configs/ldpc_7_3_default.ini 

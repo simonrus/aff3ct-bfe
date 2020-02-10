@@ -3,7 +3,9 @@ import argparse
 from AList.AListReader import AListReader
 from LDPC.EncoderLDPCFromH import EncoderLDPCFromH
 from Simulator import Simulator
+from SimulatorConfig import SimulatorConfig
 from Channel.AWGN import AWGN
+from tqdm import tqdm
 import logging
 import importlib
 
@@ -17,8 +19,8 @@ def logging_debug(pa_array, msg=None):
         logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',',suppress_small=True))
         
 
-def simulation(decoder_id):
-    #simulator = Simulator()
+def simulation(args):
+    sim_config = SimulatorConfig(args.config)
 
     alist_text = ["7 3",
                   "3 4",
@@ -50,33 +52,28 @@ def simulation(decoder_id):
 
     encoder = EncoderLDPCFromH(reader.matrix)
 
-    decoder_type = "DecoderLDPCProbLogDomain"
-    decoder_class = getattr(importlib.import_module("LDPC." + decoder_type + decoder_id),decoder_type + decoder_id)
+    decoder_class = getattr(importlib.import_module(sim_config.family + "." + sim_config.decoder),sim_config.decoder)
     decoder = decoder_class(reader.matrix)
 
-    # main loop
-
-    ebn0_start = 0.0
-    # ebn0_end = 5.5
-    ebn0_end = 0.5
-    ebn0_step = 0.5
-
-    desired_accuracy = 1e-4
-    sumulation_result_PER = {}
+    sumulation_result_PER = []
 
     # for ebn0 in np.arange(ebn0_start, ebn0_end, ebn0_step):
-    for ebn0 in np.arange(ebn0_start, ebn0_end, ebn0_step):
+    pbar =  tqdm(np.arange(sim_config.ebn0_start, 
+                            sim_config.ebn0_end, 
+                            sim_config.ebn0_step))
+    for ebn0 in pbar:
 
         # calculate sigma from snr =)
         sigma = AWGN.ebn0_to_sigma(ebn0, K * 1.0 / N, 1, 1)
         decoder.set_sigma(sigma)
-        num_iteration = int(1 / (sigma * sigma * desired_accuracy))
+        num_iteration = int(1 / (sigma * sigma * sim_config.desired_accuracy))
         
         logging.info("sigma is %s, num_iteration=%d" % (str(sigma), num_iteration))
+        pbar.set_description("Simulating ebn0=%f" % ebn0)
 
         nFailed = 0
         nSuccess = 0
-        for loop in range(1, num_iteration):
+        for loop in tqdm(range(num_iteration)):
             # vector =  (np.random.rand(K) > 0.5).astype(int)
             vector = np.random.binomial(1, 0.5, K)
 
@@ -98,19 +95,22 @@ def simulation(decoder_id):
                 nFailed = nFailed + 1   
 
         PER = nFailed * 1.0/ (nSuccess + nFailed)
-        sumulation_result_PER[ebn0] = PER
+        sumulation_result_PER.append((ebn0,PER))
 
     print(sumulation_result_PER)
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
+    # Mandatory
+    p.add_argument("--config", required=True, nargs="+", type=str,help="Path to the config file")
+
+    # Optional arguments 
     p.add_argument("--log", help="DEBUG | INFO | WARNING | ERROR | CRITICAL")
-    p.add_argument("--decoder", default="Default", help="The name of decoder to use (DecoderLDPCProbLogDomain*)")
+     
 
     args = p.parse_args()
     
     if (args.log):
         logging.basicConfig(level=getattr(logging, args.log))
     
-
-    simulation(args.decoder)
+    simulation(args)

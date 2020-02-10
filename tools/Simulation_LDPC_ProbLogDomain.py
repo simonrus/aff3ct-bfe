@@ -55,7 +55,7 @@ def simulation(args):
     encoder = EncoderLDPCFromH(reader.matrix)
 
     decoder_class = getattr(importlib.import_module(sim_config.family + "." + sim_config.decoder),sim_config.decoder)
-    decoder = decoder_class(reader.matrix)
+    decoder = decoder_class(reader.matrix, sim_config)
 
     sumulation_result_ebn0 = []
     sumulation_result_PER = []
@@ -102,13 +102,12 @@ def simulation(args):
                 nFailedBits += N
 
         PER = nFailed * 1.0/ (nSuccess + nFailed)
-        BER = nFailedBits / (nSuccess + nFailed)
+        BER = nFailedBits * 1.0/ (nSuccess + nFailed)
         sumulation_result_ebn0.append(ebn0)
         sumulation_result_PER.append(PER)
         sumulation_result_BER.append(BER)
 
     if (args.outmat):
-        pdb.set_trace()
         scipy.io.savemat(args.outmat, mdict={'ebn0': sumulation_result_ebn0,
                                                         'PER': sumulation_result_PER, 
                                                         'BER':sumulation_result_BER} )

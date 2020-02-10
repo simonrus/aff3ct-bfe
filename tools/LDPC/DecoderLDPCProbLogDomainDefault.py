@@ -22,10 +22,8 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
     N = 0
     sigma = np.nan
 
-    max_num_iter = 1
-
     # constructor
-    def __init__(self, H):
+    def __init__(self, H, sim_config):
         Decoder.__init__(self)
         self.H = H
         self.N = H.shape[1]
@@ -34,15 +32,17 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
         self.cscol_H = csr_matrix(H)
         self.encoder = EncoderLDPCFromH(H)
         self.print_output = False
+        self.sim_config = sim_config
 
     def set_sigma(self, sigma):
         self.sigma = sigma
 
     def logging_debug(self, pa_array, msg=None):
-        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-            prefix = (msg + "\n") if (msg is not None) else "\n"
-            
-            logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',',suppress_small=True))
+        #if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+        #    prefix = (msg + "\n") if (msg is not None) else "\n"
+        #    
+        #    logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',',suppress_small=True))
+        pass
 
     def decode(self, received):
         assert not np.isnan(self.sigma), "sigma is not set"
@@ -60,7 +60,7 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
         minLLR = np.log(sys.float_info.min)
         maxLLR = np.log(sys.float_info.max)
         
-        for iter in range(0,self.max_num_iter):
+        for iter in range(0,self.sim_config.ldpc_max_iter):
             #horizontal step
 
             logging.debug("HORIZ step input")

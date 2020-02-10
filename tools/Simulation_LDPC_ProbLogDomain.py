@@ -20,28 +20,12 @@ def logging_debug(pa_array, msg=None):
         
         logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',',suppress_small=True))
         
-
 def simulation(args):
     sim_config = SimulatorConfig(args.config)
 
-    alist_text = ["7 3",
-                  "3 4",
-                  "1 1 2 2 3 2 1",
-                  "4 4 4",
-                  "1 0 0",
-                  "2 0 0",
-                  "1 3 0",
-                  "1 2 0",
-                  "1 2 3",
-                  "2 3 0",
-                  "3 0 0",
-                  "1 3 4 5",
-                  "2 4 5 6",
-                  "3 5 6 7"]
-
     reader = AListReader()
 
-    n_rows, n_cols = reader.readMatrix(alist_text)
+    n_rows, n_cols = reader.readFromFile(sim_config.h_matrix)
     #n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
     logging.info("Read matrix with rows=%d and cols=%d " % (n_rows, n_cols))
 

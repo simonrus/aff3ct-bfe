@@ -26,7 +26,8 @@ class SimulatorConfig   :
         self.ebn0_end = self.configur.getfloat('General','ebn0_end');                   print ("ebn0_end ? : ", self.ebn0_end) 
         self.ebn0_step =  self.configur.getfloat('General','ebn0_step');                print ("ebn0_step ? : ",self.ebn0_step ) 
         self.desired_accuracy = self.configur.getfloat('General','desired_accuracy');   print ("desired_accuracy ? : ", self.desired_accuracy) 
-        self.decoder = self.configur.get('General','decoder');         print ("decodern : ", self.decoder)
+        self.decoder = self.configur.get('General','decoder');                          print ("decoder : ", self.decoder)
+        self.h_matrix = self.configur.get('General','h_matrix');                        print ("h_matrix : ", self.h_matrix)
         #print ("Port Server : ", configur.getint('server','port')) 
     
     def parseLDPCSettings(self):       

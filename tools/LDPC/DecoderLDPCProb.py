@@ -98,7 +98,7 @@ class DecoderLDPCProb:
 
                 temp = pa_mtx[pos_ones, col_index]
                 prod = np.prod(temp)
-                value = pa_prob_ones[col_index] * (1 << weight) * prod
+                value = pa_prob_ones[col_index] * (1 << weight) * prod  # valid only for AWGN SymChannel
 
                 pa_prob_ones[col_index] = value #assign new value
 

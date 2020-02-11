@@ -45,6 +45,7 @@ def simulation(sim_args):
     simulation_result_per = []
     simulation_result_ber = []
 
+    pdb.set_trace()
     pbar = tqdm(np.arange(sim_config.ebn0_start,
                           sim_config.ebn0_end,
                           sim_config.ebn0_step))

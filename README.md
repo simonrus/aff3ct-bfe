@@ -65,6 +65,13 @@ For debugging puposes it is better to use CLANG
 	$ make -j8
 	$ cd ../../../aff3ct-server
 
+## aff3ct binaries (optional) for compare own LDPC decoder implementation
+	$ cd aff3ct
+	$ mkdir build_exe
+	$ cd build_exe
+    $ cmake .. -G"Unix Makefiles" -DCMAKE_CXX_COMPILER="g++" -DCMAKE_BUILD_TYPE="Release" -DCMAKE_CXX_FLAGS="-funroll-loops -march=native"
+    $ make -j8
+
 ## post steps
 follow README.RE
 

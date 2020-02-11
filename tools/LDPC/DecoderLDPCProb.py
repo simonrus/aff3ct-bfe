@@ -34,7 +34,7 @@ class DecoderLDPCProb:
     def set_sigma(self, sigma):
         self.sigma = sigma
 
-    def decodeInProbDomain(self, received):
+    def decode(self, received):
         assert not np.isnan(self.sigma), "sigma is not set"
 
         print("received is ", received)
@@ -105,9 +105,3 @@ class DecoderLDPCProb:
         print("DONE")
         print(pa_prob_ones)
 
-
-
-        pass
-
-    def decode(self, likelihoods):
-        one_prob = []

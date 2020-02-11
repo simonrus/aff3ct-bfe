@@ -26,7 +26,8 @@ def simulation():
 
     n_rows, n_cols = reader.readMatrix(alist_text)
 
-    #n_rows, n_cols = reader.readFromFile("/home/simon/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+    # n_rows, n_cols = reader.readFromFile("~/work/phd/missfec/lib/aff3ct/conf/dec/LDPC/CCSDS_64_128.alist")
+
     print("Read matrix with rows=%d and cols=%d " % (n_rows, n_cols))
 
     N = n_cols
@@ -50,14 +51,12 @@ def simulation():
 
         # calculate sigma from snr =)
         sigma = AWGN.ebn0_to_sigma(ebn0, K * 1.0 / N, 1, 1)
-        #print("sigma is ", sigma)
+        # print("sigma is ", sigma)
 
         for loop in range(1, 2):
-            # vector =  (np.random.rand(K) > 0.5).astype(int)
             vector = np.random.binomial(1, 0.5, K)
 
             # encode
-
             codeword = encoder.encode(vector)
 
             # modulate using BPSK
@@ -65,15 +64,15 @@ def simulation():
             signal = codeword * 2.0 - 1.0
             sigma = 0.2
 
-            #print("at ", loop, " ", signal)
+            # print("at ", loop, " ", signal)
             received = AWGN.add_noise(signal, sigma)
-            #print("at ", loop, " w noise ", received)
+            # print("at ", loop, " w noise ", received)
 
             # Soft probability
             decoder.set_sigma(sigma)
-            decoded_cw = decoder.decodeInProbDomain(received)
+            decoded_cw = decoder.decode(received)
 
-            #print("at ", loop, " cw ", decoded_cw)
+            # print("at ", loop, " cw ", decoded_cw)
 
 
 

@@ -1,5 +1,7 @@
 import logging
-import sys # for the float_max and float_min
+
+# for the float_max and float_min
+import sys
 import numpy as np
 
 np.set_printoptions(edgeitems=30, linewidth=100000, formatter=dict(float=lambda x: "\t%5.3g" % x))
@@ -38,10 +40,10 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
         self.sigma = sigma
 
     def logging_debug(self, pa_array, msg=None):
-        #if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
-        #    prefix = (msg + "\n") if (msg is not None) else "\n"
-        #    
-        #    logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',',suppress_small=True))
+        if logging.getLogger().getEffectiveLevel() == logging.DEBUG:
+            prefix = (msg + "\n") if (msg is not None) else "\n"
+
+            logging.debug(prefix + np.array2string(pa_array, precision=2, separator=',', suppress_small=True))
         pass
 
     def decode(self, received):
@@ -50,21 +52,19 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
         logging.debug("received is")
         self.logging_debug(received)
 
-
-        LLRs = 2 * received / self.sigma / self.sigma
+        input_llrs = 2 * received / self.sigma / self.sigma
+        current_llrs = input_llrs.copy()
         
-        #pa_prob_ones = prob_ones.copy()
-        current_LLRs = LLRs.copy()
         pa_mtx = np.zeros(self.H.shape)
 
-        minLLR = np.log(sys.float_info.min)
-        maxLLR = np.log(sys.float_info.max)
+        min_llr_value = np.log(sys.float_info.min)
+        max_llr_value = np.log(sys.float_info.max)
         
-        for iter in range(0,self.sim_config.ldpc_max_iter):
-            #horizontal step
+        for loop in range(0, self.sim_config.ldpc_max_iter):
 
+            # horizontal step
             logging.debug("HORIZ step input")
-            self.logging_debug(current_LLRs, "current_LLRs")
+            self.logging_debug(current_llrs, "current_llrs")
             
             for row_index in range(0, self.N - self.K):
                 row = self.csrow_H.getrow(row_index)
@@ -79,35 +79,31 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
                 #                   1 - П tanh(v/2)
                 ##
 
-                
-                ## KISS version
-                 
+                ''' KISS version'''
                 for i in pos_ones[0]:
                     prod = 1
                     for j in pos_ones[0]:
                         if (i != j):
-                            prod = prod * np.tanh(current_LLRs[j] / 2)
+                            prod = prod * np.tanh(current_llrs[j] / 2)
                     ## 
                     if prod == 1.0:
-                        pa_mtx[row_index, i] = maxLLR
+                        pa_mtx[row_index, i] = max_llr_value
                     elif prod == -1:
-                        pa_mtx[row_index, i] = minLLR
+                        pa_mtx[row_index, i] = min_llr_value
                     else:
                         pa_mtx[row_index, i] = np.log((1 + prod) / (1 - prod))
                     
+                ##
+                # Vectorisation
+                # Z = np.tanh(current_llrs[pos_ones])
+                # prod = np.prod(np.tanh(current_llrs[pos_ones]/2))
+                # pa_mtx[row_index, pos_ones] = np.ones(weight) * prod / Z[pos_ones]
+                # pa_mtx[row_index, pos_ones] = (1 + pa_mtx[row_index, pos_ones])/(1 - pa_mtx[row_index, pos_ones])
+                # pa_mtx[row_index, pos_ones] = np.log(pa_mtx[row_index, pos_ones])
+                # shall be ok
 
-                ## Vectorizing
-                #Z = np.tanh(current_LLRs[pos_ones])
-                #prod = np.prod(np.tanh(current_LLRs[pos_ones]/2))
-                #pa_mtx[row_index, pos_ones] = np.ones(weight) * prod / Z[pos_ones]
-                #pa_mtx[row_index, pos_ones] = (1 + pa_mtx[row_index, pos_ones])/(1 - pa_mtx[row_index, pos_ones])
-                #pa_mtx[row_index, pos_ones] = np.log(pa_mtx[row_index, pos_ones])
-                #shall be ok
-
-            
             logging.debug("HORIZ step output")
             self.logging_debug(pa_mtx, "pa_mtx")
-            
 
             for col_index in range(0, self.N):
                 col = self.cscol_H.getcol(col_index)
@@ -125,14 +121,14 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
 
                 temp = pa_mtx[pos_ones, col_index]
                 sum_value = np.sum(temp)
-                value = current_LLRs[col_index] + sum_value
+                value = current_llrs[col_index] + sum_value
 
-                current_LLRs[col_index] = value #assign new value
+                current_llrs[col_index] = value                     # assign new value
 
             
-            candidate = current_LLRs > 0
+            candidate = current_llrs > 0
             
-            if (self.encoder.is_codeword(candidate)):
+            if self.encoder.is_codeword(candidate):
                 return candidate * 1
 
         return None

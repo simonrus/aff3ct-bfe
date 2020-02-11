@@ -44,8 +44,9 @@ def simulation(sim_args):
     simulation_result_ebn0 = []
     simulation_result_per = []
     simulation_result_ber = []
+    simulation_result_received_packets = []
+    simulation_result_dec_fails = []
 
-    pdb.set_trace()
     pbar = tqdm(np.arange(sim_config.ebn0_start,
                           sim_config.ebn0_end,
                           sim_config.ebn0_step))
@@ -59,9 +60,11 @@ def simulation(sim_args):
         logging.info("sigma is %s, num_iteration=%d" % (str(sigma), num_iteration))
         pbar.set_description("Simulating ebn0=%f" % ebn0)
 
-        n_failed = 0
-        n_success = 0
+        n_failed_packets = 0
+        n_success_packets = 0
         n_failed_bits = 0
+        n_success_bits = 0
+        n_failed_decodes = 0
 
         for loop in tqdm(range(num_iteration)):
             vector = np.random.binomial(1, 0.5, K)
@@ -73,23 +76,32 @@ def simulation(sim_args):
             logging_debug(signal, " Signal at " + str(loop) + " loop")
             received = AWGN.add_noise(signal, sigma)                            # transmit
             logging_debug(received, " Received at " + str(loop) + " loop")
-          
+
             decoded_cw = decoder.decode(received)               # Soft probability
 
-            if decoded_cw is not None:
-                logging.debug("at loop " + str(loop) + " ok")        
-                n_success = n_success + 1
-                n_failed_bits = sum(decoded_cw ^ codeword)
-            else:
-                logging.debug("at loop " + str(loop) + " failed")
-                n_failed = n_failed + 1
-                n_failed_bits += N
+            if decoded_cw is None:
+                # Code is systematic. Let's take hard decision
+                decoded_cw = (received > 0) * 1
+                n_failed_decodes = n_failed_decodes + 1
 
-        per = n_failed * 1.0 / (n_success + n_failed)
-        ber = n_failed_bits * 1.0 / (n_success + n_failed)
+            vector_r = decoded_cw[0:K]
+
+            mismatches = sum(vector ^ vector_r)
+            n_failed_bits += mismatches
+            n_success_bits += K - mismatches
+
+            if mismatches:
+                n_failed_packets = n_failed_packets + 1
+            else:
+                n_success_packets = n_success_packets + 1
+
+        per = n_failed_packets * 1.0 / (n_success_packets + n_failed_packets)
+        ber = n_failed_bits * 1.0 / (n_success_bits + n_failed_bits)
         simulation_result_ebn0.append(ebn0)
         simulation_result_per.append(per)
         simulation_result_ber.append(ber)
+        simulation_result_dec_fails.append(n_failed_decodes)
+        simulation_result_received_packets.append(n_success_packets + n_failed_packets)
 
     if sim_args.outmat:
         scipy.io.savemat(sim_args.outmat, mdict={'ebn0': simulation_result_ebn0,
@@ -99,12 +111,14 @@ def simulation(sim_args):
     print(simulation_result_ebn0)
     print(simulation_result_ber)
     print(simulation_result_per)
+    print(simulation_result_dec_fails)
+    print(simulation_result_received_packets)
 
 
 if __name__ == "__main__":
     p = argparse.ArgumentParser()
     # Mandatory arguments
-    p.add_argument("--config", required=True, type=str,help="Path to the config file")
+    p.add_argument("--config", required=True, type=str, help="Path to the config file")
 
     # Optional arguments 
     p.add_argument("--log", help="DEBUG | INFO | WARNING | ERROR | CRITICAL")

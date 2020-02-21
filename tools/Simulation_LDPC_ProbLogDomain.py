@@ -3,7 +3,7 @@ import logging
 import importlib
 import numpy as np
 from tqdm import tqdm
-
+import os
 
 
 from AList.AListReader import AListReader
@@ -25,7 +25,7 @@ def logging_debug(pa_array, msg=None):
 
 
 def simulation(sim_args):
-    sim_config = SimulatorConfig(sim_args.config)
+    sim_config = SimulatorConfig(sim_args)
 
     reader = AListReader()
 
@@ -40,6 +40,9 @@ def simulation(sim_args):
 
     decoder_class = getattr(importlib.import_module(sim_config.family + "." + sim_config.decoder),sim_config.decoder)
     decoder = decoder_class(reader.matrix, sim_config)
+
+    if sim_args.seed:
+        np.random.seed(sim_args.seed)
 
     simulation_result_ebn0 = []
     simulation_result_per = []
@@ -123,6 +126,9 @@ if __name__ == "__main__":
     # Optional arguments 
     p.add_argument("--log", help="DEBUG | INFO | WARNING | ERROR | CRITICAL")
     p.add_argument("--outmat", type=str, help="output matlab file")
+    p.add_argument("--seed", type=int, help="random seed")
+
+    SimulatorConfig.describe_override_arguments(p)
 
     args = p.parse_args()
     

@@ -4,7 +4,7 @@ class AWGN:
     @staticmethod
     def add_noise(vector, sigma):  #mod_info, snr!
         
-        noise = np.random.normal(loc=0.0, scale=sigma, size=len(vector))
+        noise = np.random.normal(loc=0.0, scale=sigma, size=vector.shape)
         return vector + noise
 
     @staticmethod

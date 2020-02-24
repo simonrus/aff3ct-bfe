@@ -36,6 +36,23 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
         self.print_output = False
         self.sim_config = sim_config
 
+        self.min_llr_value = np.log(sys.float_info.min)
+        self.max_llr_value = np.log(sys.float_info.max)
+
+        epsilon = sys.float_info.epsilon
+        self.min_llr_value = np.log((epsilon) / (2 - epsilon))
+        self.max_llr_value = np.log((2 - epsilon) / (epsilon))
+
+        self.pos_ones_row = {}
+        for i in range(self.N - self.K):
+            row = self.csrow_H.getrow(i)                        # can be precalculated (TBD)
+            self.pos_ones_row[i] = np.where(row.toarray().flatten() == 1)[0]   # can be precalculated (TBD)
+
+        self.pos_ones_col = {}
+        for i in range(0, self.N):
+            col = self.cscol_H.getcol(i)                                # can be precalculated  (TBD)
+            self.pos_ones_col[i] = np.where(col.toarray().flatten() == 1)               # can be precalculated  (TBD)
+
     def set_sigma(self, sigma):
         self.sigma = sigma
 
@@ -52,17 +69,9 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
         logging.debug("received is")
         self.logging_debug(received)
 
-        input_llrs = 2 * received / self.sigma / self.sigma
-        current_llrs = input_llrs.copy()
+        current_llrs = 2 * received / self.sigma / self.sigma
         
         pa_mtx = np.zeros(self.H.shape)
-
-        min_llr_value = np.log(sys.float_info.min)
-        max_llr_value = np.log(sys.float_info.max)
-
-        epsilon = sys.float_info.epsilon
-        min_llr_value = np.log((epsilon) / (2 - epsilon))
-        max_llr_value = np.log((2 - epsilon) / (epsilon))
 
         for loop in range(0, self.sim_config.ldpc_max_iter):
             # horizontal step
@@ -72,9 +81,6 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
             z = np.tanh(current_llrs / 2)
 
             for row_index in range(0, self.N - self.K):
-                row = self.csrow_H.getrow(row_index)                # can be precalculated (TBD)
-                pos_ones = np.where(row.toarray().flatten() == 1)   # can be precalculated (TBD)
-
                 ##
                 #
                 #                   1 + П tanh(v/2)
@@ -83,16 +89,16 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
                 ##
 
                 # KISS version start
-                for i in pos_ones[0]:
+                for i in self.pos_ones_row[row_index]:
                     prod = 1
-                    for j in pos_ones[0]:
+                    for j in self.pos_ones_row[row_index]:
                         if i != j:
                             prod = prod * z[j]
                     ## 
                     if prod == 1.0:
-                        pa_mtx[row_index, i] = max_llr_value
+                        pa_mtx[row_index, i] = self.max_llr_value
                     elif prod == -1:
-                        pa_mtx[row_index, i] = min_llr_value
+                        pa_mtx[row_index, i] = self.min_llr_value
                     else:
                         pa_mtx[row_index, i] = np.log((1 + prod) / (1 - prod))
 
@@ -107,22 +113,22 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
                 # because in kiss version we have (w) * (w - 1) multiplication
                 # w + (w - 1) division but extra logarithms =)
                 #
-                prod = np.prod(z[pos_ones])
-                pa_mtx[row_index, pos_ones] = np.ones(weight) * prod / z[pos_ones]
+                prod = np.prod(z[pos_ones_row])
+                pa_mtx[row_index, pos_ones_row] = np.ones(weight) * prod / z[pos_ones_row]
 
                 # pdb.set_trace()
-                pa_mtx[row_index, pos_ones] = (1 + pa_mtx[row_index, pos_ones])/(1 - pa_mtx[row_index, pos_ones])
+                pa_mtx[row_index, pos_ones_row] = (1 + pa_mtx[row_index, pos_ones_row])/(1 - pa_mtx[row_index, pos_ones_row])
 
-                pa_mtx[row_index, pos_ones] = np.log(pa_mtx[row_index, pos_ones])
+                pa_mtx[row_index, pos_ones_row] = np.log(pa_mtx[row_index, pos_ones_row])
 
-                for p in pos_ones[0]:
+                for p in pos_ones_row[0]:
                     if pa_mtx[row_index, p] == np.inf:
-                        pa_mtx[row_index, p] = max_llr_value
+                        pa_mtx[row_index, p] = self.max_llr_value
                     if pa_mtx[row_index, p] == -np.inf:
-                        pa_mtx[row_index, p] = min_llr_value
+                        pa_mtx[row_index, p] = self.min_llr_value
 
-                #pa_mtx[row_index, pos_ones] = np.where(pa_mtx[row_index, pos_ones] == np.inf, max_llr_value, pa_mtx[row_index, pos_ones])
-                #pa_mtx[row_index, pos_ones] = np.where(pa_mtx[row_index, pos_ones] == -np.inf, min_llr_value, pa_mtx[row_index, pos_ones])
+                #pa_mtx[row_index, pos_ones_row] = np.where(pa_mtx[row_index, pos_ones_row] == np.inf, self.max_llr_value, pa_mtx[row_index, pos_ones_row])
+                #pa_mtx[row_index, pos_ones_row] = np.where(pa_mtx[row_index, pos_ones_row] == -np.inf, self.min_llr_value, pa_mtx[row_index, pos_ones_row])
                 # Vectorisation end
                 '''
 
@@ -131,18 +137,11 @@ class DecoderLDPCProbLogDomainDefault(Decoder):
             logging.debug("HORIZ step output")
             self.logging_debug(pa_mtx, "pa_mtx")
 
-            for col_index in range(0, self.N):
-                col = self.cscol_H.getcol(col_index)                            # can be precalculated  (TBD)
-                pos_ones = np.where(col.toarray().flatten() == 1)               # can be precalculated  (TBD)
-
-
+            for col_index in range(0, self.N):                
                 ##
-                #                   
                 # LLR(sum=odd) = LLR0 + sum(LLR_i)    
-                #                   
                 ##<
-
-                temp = pa_mtx[pos_ones, col_index]
+                temp = pa_mtx[self.pos_ones_col[col_index], col_index]
                 sum_value = np.sum(temp)
                 value = current_llrs[col_index] + sum_value
 

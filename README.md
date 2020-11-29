@@ -1,9 +1,14 @@
 # Introduction (Motivation)
 The project allows 3rd party applications to remotely encode/decode messages using different FEC codecs from AFF3CT library
 
-The messages and codec settings are transmitted using RPC text protocol based on protobuf (will be moved to flatbuffers later).
+The messages and codec settings are transmitted using RPC over flatbuffers
 
 The project can be used to compare FEC codec implementations with a well-known reference implementation
+
+# Current state
+Still in development phase! 
+
+Rename from MISSFEC -> aff3ct-bfe (Aff3ct backend-fronend)
 
 # Components
 This project provides backend and sample python-frontend for the Fast Forward Error Correction toolbox. 
@@ -44,9 +49,9 @@ http://www.inference.org.uk/mackay/codes/alist.html
     $ cd 3rdparty/flatbuffers
     $ cmake . && make -j 4 all
 
-## missfec 
-	$ git clone https://simonrus@bitbucket.org/simonrus/missfec.git
-	$ cd missfec/lib
+## aff3ct-bfe  
+	$ git clone git@github.com:simonrus/aff3ct-bfe.git
+	$ cd afaff3ct-bfee/lib
 	$ git submodule update --init --recursive
 ## Select compiler (Optional)
 Aff3ct uses structures inside class to declare i.e. parameters. The GCC toolchain and gdb are not happy with this and ofter cannot find symbols.

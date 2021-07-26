@@ -25,7 +25,8 @@ find_package(Threads REQUIRED)
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
     find_package(Flatbuffers REQUIRED)
     message(STATUS "Flatbuffers dir is ${Flatbuffers_DIR}")
-    include("${Flatbuffers_DIR}/BuildFlatBuffers.cmake" REQUIRED)
+    include("${TOP_LEVEL_PATH}/3rdparty/flatbuffers/CMake/BuildFlatBuffers.cmake" REQUIRED)
+    set(FLATBUFFERS_FLATC_EXECUTABLE "flatc")
 else()
     set (FLATBUFFERS_INCLUDE_DIRS "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/include")
     set (Flatbuffers_DIR "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/CMake/")
@@ -50,7 +51,8 @@ find_package(PkgConfig)
 ##
 if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
     message(STATUS "APPLE")
-    pkg_check_modules(PC_ZeroMQ QUIET libzmq)
+
+    pkg_check_modules(PC_ZeroMQ QUIET zmq)
     
     ## use the hint from above to find where 'zmq.hpp' is located
     find_path(ZeroMQ_INCLUDE_DIR
@@ -63,6 +65,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
         NAMES zmq
         PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
         )
+
+    set(CPPZeroMQ_DIR ${TOP_LEVEL_PATH}/3rdparty/cppzmq)
+    set(CPPZeroMQ_INCLUDE_DIR ${CPPZeroMQ_DIR})
 else ()
     message(STATUS "LINUX")
     pkg_check_modules(PC_ZeroMQ QUIET zmq)
@@ -120,9 +125,9 @@ add_executable(aff3ct-server ${CMAKE_CURRENT_SOURCE_DIR}/src/main.cpp ${MAIN_SRC
 add_executable(aff3ct-test ${CMAKE_CURRENT_SOURCE_DIR}/src/test.cpp ${LOGURU_SRCS})
 
 
-target_include_directories(aff3ct-codec PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
-target_include_directories(aff3ct-server PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
-target_include_directories(aff3ct-test PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-codec PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${CPPZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-server PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${CPPZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
+target_include_directories(aff3ct-test PUBLIC ${LOCAL_INCLUDE_DIRS} ${ZeroMQ_INCLUDE_DIR} ${CPPZeroMQ_INCLUDE_DIR} ${FLATBUFFERS_INCLUDE_DIRS} ${FLATBUFFERS_GENERATED_HEADERS_DIR} ${CMAKE_CURRENT_BINARY_DIR} ${LOGURU_INCLUDE_DIRS})
 
 if(NOT WIN32)
     set(DL_LIBRARY dl)

@@ -22,12 +22,18 @@ set(THREADS_PREFER_PTHREAD_FLAG ON)
 find_package(Threads REQUIRED)
 
 # Add flatbuffers 
-set (FLATBUFFERS_INCLUDE_DIRS "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/include")
-set (Flatbuffers_DIR "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/CMake/")
-find_package(Flatbuffers REQUIRED)
+if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+    find_package(Flatbuffers REQUIRED)
+    message(STATUS "Flatbuffers dir is ${Flatbuffers_DIR}")
+    include("${Flatbuffers_DIR}/BuildFlatBuffers.cmake" REQUIRED)
+else()
+    set (FLATBUFFERS_INCLUDE_DIRS "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/include")
+    set (Flatbuffers_DIR "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/CMake/")
+    find_package(Flatbuffers REQUIRED)
 
-set(FLATBUFFERS_FLATC_EXECUTABLE "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/flatc")
-include("${Flatbuffers_DIR}/BuildFlatBuffers.cmake" REQUIRED)
+    set(FLATBUFFERS_FLATC_EXECUTABLE "${TOP_LEVEL_PATH}/3rdparty/flatbuffers/flatc")
+    include("${Flatbuffers_DIR}/BuildFlatBuffers.cmake" REQUIRED)
+endif()
 
 set(FLATBUFFERS_GENERATED_HEADERS_DIR        "${PROJECT_BINARY_DIR}/generated")
 build_flatbuffers("${PROTO_DIR}/aff3ct-proto.fbs" 
@@ -41,17 +47,38 @@ build_flatbuffers("${PROTO_DIR}/aff3ct-proto.fbs"
 
 #Link with zeromq
 find_package(PkgConfig)
-pkg_check_modules(PC_ZeroMQ QUIET zmq)
-## use the hint from above to find where 'zmq.hpp' is located
-find_path(ZeroMQ_INCLUDE_DIR
-        NAMES zmq.hpp
+##
+if(CMAKE_SYSTEM_NAME STREQUAL Darwin)
+    message(STATUS "APPLE")
+    pkg_check_modules(PC_ZeroMQ QUIET libzmq)
+    
+    ## use the hint from above to find where 'zmq.hpp' is located
+    find_path(ZeroMQ_INCLUDE_DIR
+        NAMES zmq.h
         PATHS ${PC_ZeroMQ_INCLUDE_DIRS}
         )
-## use the hint from about to find the location of libzmq
-find_library(ZeroMQ_LIBRARY
+    
+    ## use the hint from about to find the location of libzmq
+    find_library(ZeroMQ_LIBRARY
         NAMES zmq
         PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
         )
+else ()
+    message(STATUS "LINUX")
+    pkg_check_modules(PC_ZeroMQ QUIET zmq)
+    
+    ## use the hint from above to find where 'zmq.hpp' is located
+    find_path(ZeroMQ_INCLUDE_DIR
+        NAMES zmq.hpp
+        PATHS ${PC_ZeroMQ_INCLUDE_DIRS}
+        )
+    
+    ## use the hint from about to find the location of libzmq
+    find_library(ZeroMQ_LIBRARY
+        NAMES zmq
+        PATHS ${PC_ZeroMQ_LIBRARY_DIRS}
+        )
+endif ()
 
 #add logging module
 set(LOGURU_DIR ${TOP_LEVEL_PATH}/3rdparty/loguru)

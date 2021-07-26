@@ -21,6 +21,11 @@ It has the following parts:
     -- execute operations on the vectors/matrix using aff3ct-library
 - Aff3ct-client is a simple frontend, written in Python. It provides an interactive command shell to control remote aff3ct server
 
+# Mac M1 support
+
+remove march=native option from cmake configuration
+
+
 # Repo management
 ## 1.1 Sync procedure with main repo
 
@@ -34,7 +39,7 @@ http://www.inference.org.uk/mackay/codes/alist.html
 # Install everything
 	$ sudo apt-get install pkg-config
 ## ZeroMQ
-	$ sudo apt-get install libzmq3-dev
+	$ sudo apt-get install libzmq3-dev # brew install zmq
 ## cxxtest(Optional)
     $ sudo apt-get install cxxtest
 ## Python3 (anaconda way)
@@ -44,7 +49,7 @@ http://www.inference.org.uk/mackay/codes/alist.html
 	$ pip install ipython
 	$ pip install cmd2
 	$ pip install tqdm ConfigParser
-## flatbuffers (local install)
+## flatbuffers (local install) # brew install flatbuffers 
 	$ git submodule update --init --recursive
     $ cd 3rdparty/flatbuffers
     $ cmake . && make -j 4 all

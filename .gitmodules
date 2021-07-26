@@ -12,4 +12,7 @@
 	url = https://github.com/CxxTest/cxxtest.git
 [submodule "3rdparty/flatbuffers"]
 	path = 3rdparty/flatbuffers
-	url = https://github.com/google/flatbuffers.git
+    url = https://github.com/google/flatbuffers.git
+[submodule "3rdparty/cppzmq"]
+	path = 3rdparty/cppzmq
+    url = https://github.com/zeromq/cppzmq.git

@@ -1,6 +1,6 @@
 [submodule "lib/aff3ct"]
 	path = lib/aff3ct
-	url = https://simonrus@bitbucket.org/simonrus/aff3ct-lib.git
+	url = https://github.com/aff3ct/aff3ct.git
 [submodule "3rdparty/lpdec"]
 	path = 3rdparty/lpdec
 	url = https://github.com/supermihi/lpdec.git

@@ -70,7 +70,7 @@ int Codec::getK()
 {
     
     if (creator) {
-        factory::Codec_Generic::parameters & params = creator->getParams();
+        factory::Codec_Generic & params = creator->getParams();
         
         return params.cdc->enc->K;
     }
@@ -81,7 +81,7 @@ int Codec::getK()
 int Codec::getN() 
 {
     if (creator) {
-        factory::Codec_Generic::parameters & params = creator->getParams();
+        factory::Codec_Generic & params = creator->getParams();
         return params.cdc->enc->N_cw;
     }
     else

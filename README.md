@@ -56,7 +56,7 @@ http://www.inference.org.uk/mackay/codes/alist.html
 
 ## aff3ct-bfe  
 	$ git clone git@github.com:simonrus/aff3ct-bfe.git
-	$ cd afaff3ct-bfee/lib
+	$ cd aff3ct-bfe/lib
 	$ git submodule update --init --recursive
 ## Select compiler (Optional)
 Aff3ct uses structures inside class to declare i.e. parameters. The GCC toolchain and gdb are not happy with this and ofter cannot find symbols.

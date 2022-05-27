@@ -39,7 +39,7 @@
 #include <Simulation/Simulation.hpp>
 
 #include <Module/Codec/Codec_SISO_SIHO.hpp>
-#include <Module/Codec/Codec_SIHO.hxx>
+//#include <Module/Codec/Codec_SIHO.hxx>
 
 #include <Factory/Module/Codec/Codec.hpp>
 #include <Factory/Module/Codec/Codec_SISO_SIHO.hpp>
@@ -60,7 +60,7 @@ class Codec_Generic : public Codec
 {
 
 protected:
-    const aff3ct::factory::Codec_Generic::parameters&           params_codec;
+    const aff3ct::factory::Codec_Generic&           params_codec;
     std::unique_ptr<module::Codec <B,Q>>                    codec;
     
     std::mt19937                                            rd_engine_seed;
@@ -72,12 +72,12 @@ protected:
     void detectCodecType();
     void sockets_binding();
 public:
-    explicit Codec_Generic(const factory::Codec_Generic::parameters& params_codec);
+    explicit Codec_Generic(const factory::Codec_Generic& params_codec);
     virtual ~Codec_Generic() = default;
     virtual void initialize();
     
     static void printCodecType(CodecType type, std::ostream &stream = std::cout);
-    static CodecType getCodecType(factory::Codec::parameters *param);
+    static CodecType getCodecType(factory::Codec *param);
     
     void setNoise(float ebn0) ;
     

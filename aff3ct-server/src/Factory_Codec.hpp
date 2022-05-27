@@ -47,7 +47,7 @@ class Factory_Codec
 public:
     static std::unique_ptr<simulation::Codec> create(std::list<std::string> &arg_vec, std::error_code &ec, std::ostream& err_stream = std::cerr);
     
-    static bool read_arguments(const int argc, const char** argv, factory::Codec_Generic::parameters *params);
+    static bool read_arguments(const int argc, const char** argv, factory::Codec_Generic *params);
 
 private:    
     Factory_Codec() = default;

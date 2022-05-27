@@ -32,7 +32,7 @@
 
 #include "Codec_Generic.hpp"
 #include "aff3ct-addons/simulation/Codec_Generic.hpp"
-
+#include <Factory/Header.hpp>
 
 using namespace aff3ct;
 using namespace aff3ct::launcher;
@@ -43,7 +43,7 @@ Codec_Generic<B,R,Q>
 : Codec(argc, argv, params, stream)
 {
     PRINT_POINT();
-    params.set_src(new factory::Source      ::parameters("src"));
+    params.set_src(new factory::Source      ("src"));
 }
 
 
@@ -111,7 +111,7 @@ simulation::Codec* Codec_Generic<B,R,Q>
         return nullptr;
     }
         
-    std::vector<aff3ct::factory::Factory::parameters*> paramsPtrs;
+    std::vector<aff3ct::factory::Factory*> paramsPtrs;
     paramsPtrs.push_back(&params);
     aff3ct::factory::Header::print_parameters(paramsPtrs, true, std::cout);
     

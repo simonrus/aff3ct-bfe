@@ -61,5 +61,7 @@ class test_proto(unittest.TestCase):
         self.assertTrue(success)
         self.assertTrue(np.allclose(orig, got, equal_nan=True))
 
+if __name__ == "__main__":
+    unittest.main()
 
 

@@ -109,10 +109,13 @@ class Aff3ctProtocol:
 
             return True, '', Aff3ctProtocol.deserialize_matrix(message.Matrix())
         else:
-            return False, message_pb.pullReply.result.error_text, None
+            return False, message.pullReply.result.error_text, None
 
     @staticmethod
     def do_exec(socket, command):
+        if isinstance(command, list):
+            command = ' '.join(command)
+
         if not isinstance(command, str):
             return False, "do_command accepts now strings"
 
@@ -143,5 +146,5 @@ class Aff3ctProtocol:
         if result.Type() == aff3ct.proto.ResultType.ResultType.Success :
             return True, 'Command Executed'
         else:
-            return False, message_pb.pullReply.result.error_text, None
+            return False, result.ErrorText().decode("utf-8")
 

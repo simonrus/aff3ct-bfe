@@ -143,7 +143,7 @@ class ConsoleMatrixParser:
 
 
             #ok, size of matrix is determined(parsed), the i+1... end are numbers
-            if len(shape) is not 2:
+            if len(shape) != 2:
                 self.error += "Currently only 2 dim matrices are supported (provided %d-dim)"%(len(shape))
                 return False
 

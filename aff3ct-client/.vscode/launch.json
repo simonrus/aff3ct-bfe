@@ -5,11 +5,26 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Python aff3ct-client",
+            "name": "Run aff3ct-client",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}",
             "program": "${workspaceFolder}/aff3ct-client.py"
-        }
+        },
+        {
+            "name": "unittest aff3ct ",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/tests/test_proto.py",
+            "args": ["test_proto.test_pushpull"]
+        },
+        {
+            "name": "test aff3ct-client",
+            "type": "python",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolder}/tests/aff3ct-test.py"
+        },
     ]
 }

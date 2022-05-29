@@ -30,7 +30,7 @@ class Aff3ctShell(cmd2.Cmd):
 
     def __init__(self):
         # Set use_ipython to True to enable the "ipy" command which embeds and interactive IPython shell
-        super().__init__(use_ipython=False, multiline_commands=['push'])
+        super().__init__(multiline_commands=['push'])
         self.parser = ConsoleMatrixParser()
         self.registers = {}
         self.zmq_context = zmq.Context()
@@ -112,7 +112,7 @@ class Aff3ctShell(cmd2.Cmd):
     def do_cmd(self, args):
         """ List item command help """
 
-        success, error_string = Aff3ctProtocol.do_command(self.zmq_socket, args)
+        success, error_string = Aff3ctProtocol.do_exec(self.zmq_socket, args)
 
         if not success:
             self.report_failed(error_string)

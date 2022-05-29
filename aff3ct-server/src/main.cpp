@@ -144,7 +144,7 @@ std::map<std::string, enum ECommand> g_supportedCommands = {
 
 bool execCommand(const char* command, std::ostream& err_stream)
 {
-    bool result;
+    bool result = false;
 
     std::list<std::string> args;
 
@@ -184,12 +184,12 @@ bool execCommand(const char* command, std::ostream& err_stream)
             if (ec) {
                 std::cout << ec << std::endl;
                 TRACELOG(ERROR, "Model failed to init: %s", ec.message().c_str());
+                result = false;
             } else {
                 std::cout << "Model initialized" << std::endl;
+                result = true;
             }
-
             break;
-
         default:
             break;
     }

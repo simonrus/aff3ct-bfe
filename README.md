@@ -6,18 +6,18 @@ The messages and codec settings are transmitted using RPC over flatbuffers
 The project can be used to compare FEC codec implementations with a well-known reference implementation
 
 # Current state
-Still in development phase! 
+Still in development phase!
 
 Rename from MISSFEC -> aff3ct-bfe (Aff3ct backend-fronend)
 
 # Components
-This project provides backend and sample python-frontend for the Fast Forward Error Correction toolbox. 
+This project provides backend and sample python-frontend for the Fast Forward Error Correction toolbox.
 
 It has the following parts:
 - Aff3ct-server is a backend. It runs as a stand-alone server, executes RPC commands and allows to encode/decode messages using FEC.
-- RPC Protocol describes synchronous mechanism and messages used to 
+- RPC Protocol describes synchronous mechanism and messages used to
     -- configure aff3ct-library server
-    -- push/pull data (vectors/matrices) from frontend to backend 
+    -- push/pull data (vectors/matrices) from frontend to backend
     -- execute operations on the vectors/matrix using aff3ct-library
 - Aff3ct-client is a simple frontend, written in Python. It provides an interactive command shell to control remote aff3ct server
 
@@ -36,25 +36,38 @@ remove march=native option from cmake configuration
 https://www.uni-kl.de/channel-codes/channel-codes-database/more-ldpc-codes
 http://www.inference.org.uk/mackay/codes/alist.html
 
-# Install everything
+# Pre-req
+## (Ubuntu)
 	$ sudo apt-get install pkg-config
-## ZeroMQ
-	$ sudo apt-get install libzmq3-dev # brew install zmq
-## cxxtest(Optional)
+### ZeroMQ
+	$ sudo apt-get install libzmq3-dev
+### cxxtest(Optional)
     $ sudo apt-get install cxxtest
-## Python3 (anaconda way)
+### Python3 (anaconda way)
 	$ conda create --name py3 python=3.5
 	$ conda activate py3
-	$ pip install pyzmq
-	$ pip install ipython
-	$ pip install cmd2
-	$ pip install tqdm ConfigParser
-## flatbuffers (local install) # brew install flatbuffers 
+    $ pip install -r requirements.txt
+
+### flatbuffers (local install)
 	$ git submodule update --init --recursive
     $ cd 3rdparty/flatbuffers
     $ cmake . && make -j 4 all
 
-## aff3ct-bfe  
+## Macos
+### ZeroMQ
+    $ brew install zmq
+    # brew doesn't ship zmq.hpp, take it separetely https://github.com/zeromq/cppzmq/blob/master/zmq.hpp
+    $ wget --no-check-certificate --content-disposition https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq.hpp
+    $ mv zmq.hpp aff3ct-server/include
+
+### Python
+    $ pip install -r requirements.txt
+### flatbuffers
+    $ brew install flatbuffers
+
+
+# Building
+## aff3ct-bfe
 	$ git clone git@github.com:simonrus/aff3ct-bfe.git
 	$ cd aff3ct-bfe/lib
 	$ git submodule update --init --recursive
@@ -63,7 +76,7 @@ Aff3ct uses structures inside class to declare i.e. parameters. The GCC toolchai
 
 For debugging puposes it is better to use CLANG
     $ export CC=/usr/bin/clang-6.0
-    $ export CXX=/usr/bin/clang++-6.0 
+    $ export CXX=/usr/bin/clang++-6.0
 ## aff3ct library
 	$ cd aff3ct
 	$ mkdir build
@@ -83,7 +96,7 @@ For debugging puposes it is better to use CLANG
     $ make -j8
 
 ## post steps
-follow README.RE
+follow aff3ct-server/README.md
 
 # Running Samples
 ## Server

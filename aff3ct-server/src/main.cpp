@@ -57,7 +57,7 @@ void sigHandler(int s)
     exit(1);
 }
 
-int enableSIGTermHandler()
+void enableSIGTermHandler()
 {
     struct sigaction sigIntHandler;
 

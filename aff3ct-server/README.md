@@ -22,7 +22,7 @@ Compile the code on Linux/MacOS/MinGW:
 	$ cd build
 	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS="-funroll-loops -march=native"
     or 
-	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-march=native -ggdb"
+	$ cmake .. -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug -DCMAKE_CXX_FLAGS="-march=native -ggdb -fno-limit-debug-info"
 	$ make
 
 Compile the code on Windows (Visual Studio project)

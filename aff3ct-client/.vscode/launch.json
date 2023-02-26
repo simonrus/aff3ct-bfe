@@ -12,19 +12,11 @@
             "program": "${workspaceFolder}/aff3ct-client.py"
         },
         {
-            "name": "unittest aff3ct ",
+            "name": "Run example",
             "type": "python",
             "request": "launch",
             "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/tests/test_proto.py",
-            "args": ["test_proto.test_pushpull"]
-        },
-        {
-            "name": "test aff3ct-client",
-            "type": "python",
-            "request": "launch",
-            "cwd": "${workspaceFolder}",
-            "program": "${workspaceFolder}/tests/aff3ct-test.py"
+            "program": "${workspaceFolder}/example.py"
         },
     ]
 }

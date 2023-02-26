@@ -1,19 +1,19 @@
 /*
  * MIT License
- * 
+ *
  * Copyright (c) 2017 aff3ct
  * Copyright (c) 2018 Sergei Semenov
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
  * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
  * copies of the Software, and to permit persons to whom the Software is
  * furnished to do so, subject to the following conditions:
- * 
+ *
  * The above copyright notice and this permission notice shall be included in all
  * copies or substantial portions of the Software.
- * 
+ *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
  * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -23,10 +23,10 @@
  * SOFTWARE.
  */
 
-/* 
+/*
  * File:   Codec_Generic.cpp
  * Author: simon
- * 
+ *
  * Created on September 12, 2019, 3:06 PM
  */
 
@@ -37,31 +37,29 @@ using namespace aff3ct;
 using namespace aff3ct::simulation;
 
 template <typename B, typename R, typename Q>
-Codec_Generic<B, R, Q>
-::Codec_Generic(const factory::Codec_Generic& params_codec)
-: params_codec(params_codec)
+Codec_Generic<B, R, Q>::Codec_Generic(const factory::Codec_Generic &params_codec)
+    : params_codec(params_codec)
 {
     PRINT_POINT();
     rd_engine_seed.seed(12312312);
 }
 
 template <typename B, typename R, typename Q>
-CodecType Codec_Generic<B, R, Q>
-::getCodecType(factory::Codec *param)
+CodecType Codec_Generic<B, R, Q>::getCodecType(factory::Codec *param)
 {
-    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO*> (param);
+    auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO *>(param);
     if (param_siso_siho != nullptr)
         return Type_SISO_SIHO;
 
-    auto param_siso = dynamic_cast<factory::Codec_SISO*> (param);
+    auto param_siso = dynamic_cast<factory::Codec_SISO *>(param);
     if (param_siso != nullptr)
         return Type_SISO;
 
-    auto param_siho = dynamic_cast<factory::Codec_SIHO*> (param);
+    auto param_siho = dynamic_cast<factory::Codec_SIHO *>(param);
     if (param_siho != nullptr)
         return Type_SIHO;
 
-    auto param_hiho = dynamic_cast<factory::Codec_HIHO*> (param);
+    auto param_hiho = dynamic_cast<factory::Codec_HIHO *>(param);
     if (param_siso != nullptr)
         return Type_HIHO;
 
@@ -69,22 +67,19 @@ CodecType Codec_Generic<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::detectCodecType()
+void Codec_Generic<B, R, Q>::detectCodecType()
 {
     codecType = getCodecType(params_codec.cdc.get());
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::printCodecType(CodecType type, std::ostream &stream)
+void Codec_Generic<B, R, Q>::printCodecType(CodecType type, std::ostream &stream)
 {
     stream << "Codec_SISO_SIHO ";
     if (type == Type_SISO_SIHO)
         stream << "[*]" << std::endl;
     else
         stream << "[ ]" << std::endl;
-
 
     stream << "Codec_SISO      ";
     if (type == Type_SISO)
@@ -106,50 +101,49 @@ void Codec_Generic<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::initialize()
+void Codec_Generic<B, R, Q>::initialize()
 {
     PRINT_POINT();
 
     detectCodecType();
-    
 
     const auto seed_enc = rd_engine_seed();
     const auto seed_dec = rd_engine_seed();
 
     std::unique_ptr<factory::Codec> params_cdc(params_codec.cdc->clone());
-    
+
     params_cdc->enc->seed = seed_enc;
     params_cdc->dec->seed = seed_dec;
 
 #warning "FIXME!!! We do here some COPY! WTF!"
 
-    switch (codecType) {
+    switch (codecType)
+    {
     case Type_SISO_SIHO:
     {
-        auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO*> (params_codec.cdc.get());
-        codec = std::unique_ptr<module::Codec<B, Q >> (param_siso_siho->template build<B, Q>(nullptr));
+        auto param_siso_siho = dynamic_cast<factory::Codec_SISO_SIHO *>(params_codec.cdc.get());
+        codec = std::unique_ptr<module::Codec<B, Q>>(param_siso_siho->template build<B, Q>(nullptr));
         break;
     }
 
     case Type_SISO:
     {
-        auto param_siso = dynamic_cast<factory::Codec_SISO*> (params_codec.cdc.get());
-        codec = std::unique_ptr<module::Codec<B, Q >> (param_siso->template build<B, Q>(nullptr));
+        auto param_siso = dynamic_cast<factory::Codec_SISO *>(params_codec.cdc.get());
+        codec = std::unique_ptr<module::Codec<B, Q>>(param_siso->template build<B, Q>(nullptr));
         break;
     }
 
     case Type_SIHO:
     {
-        auto param_siho = dynamic_cast<factory::Codec_SIHO*> (params_codec.cdc.get());
-        codec = std::unique_ptr<module::Codec<B, Q >> (param_siho->template build<B, Q>(nullptr));
+        auto param_siho = dynamic_cast<factory::Codec_SIHO *>(params_codec.cdc.get());
+        codec = std::unique_ptr<module::Codec<B, Q>>(param_siho->template build<B, Q>(nullptr));
         break;
     }
 
     case Type_HIHO:
     {
-        auto param_hiho = dynamic_cast<factory::Codec_HIHO*> (params_codec.cdc.get());
-        codec = std::unique_ptr<module::Codec<B, Q >> (param_hiho->template build<B, Q>(nullptr));
+        auto param_hiho = dynamic_cast<factory::Codec_HIHO *>(params_codec.cdc.get());
+        codec = std::unique_ptr<module::Codec<B, Q>>(param_hiho->template build<B, Q>(nullptr));
         break;
     }
 
@@ -163,42 +157,42 @@ void Codec_Generic<B, R, Q>
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::sockets_binding()
+void Codec_Generic<B, R, Q>::sockets_binding()
 {
-    std::vector<const module::Module*> m_modules;
+    std::vector<const module::Module *> m_modules;
     using namespace module;
 
     // get the r_encoder and r_decoder modules from the codec module
-    auto& r_encoder = codec->get_encoder();
-    //auto& r_decoder = codec->get_decoder_siho();
+    auto &r_encoder = codec->get_encoder();
+    // auto& r_decoder = codec->get_decoder_siho();
 
-    m_modules = {/*m_source.get(), */
+    m_modules = {
+        /*m_source.get(), */
         r_encoder.get(),
-        /*m_modem.get(), 
+        /*m_modem.get(),
         m_channel.get(), */
-        //                    r_decoder.get(), 
+        //                    r_decoder.get(),
         /*m_monitor.get() */
     };
 
-
-    switch (codecType) {
+    switch (codecType)
+    {
     case Type_SISO_SIHO:
     {
         module::Codec_SISO_SIHO<B, Q> *codecPtr;
-        codecPtr = dynamic_cast<module::Codec_SISO_SIHO<B, Q> *> (codec.get());
-        auto& r_decoder = codecPtr->get_decoder_siho();
+        codecPtr = dynamic_cast<module::Codec_SISO_SIHO<B, Q> *>(codec.get());
+        auto &r_decoder = codecPtr->get_decoder_siho();
         m_modules.push_back(r_decoder.get());
         break;
     }
 
-        //FIXME!!! get_decoder_siho() or get_decoder_siso()
+        // FIXME!!! get_decoder_siho() or get_decoder_siso()
 
     case Type_SISO:
     {
         module::Codec_SISO<B, Q> *codecPtr;
-        codecPtr = dynamic_cast<module::Codec_SISO<B, Q> *> (codec.get());
-        auto& r_decoder = codecPtr->get_decoder_siso();
+        codecPtr = dynamic_cast<module::Codec_SISO<B, Q> *>(codec.get());
+        auto &r_decoder = codecPtr->get_decoder_siso();
         m_modules.push_back(r_decoder.get());
         break;
     }
@@ -206,8 +200,8 @@ void Codec_Generic<B, R, Q>
     case Type_SIHO:
     {
         module::Codec_SIHO<B, Q> *codecPtr;
-        codecPtr = dynamic_cast<module::Codec_SIHO<B, Q> *> (codec.get());
-        auto& r_decoder = codecPtr->get_decoder_siho();
+        codecPtr = dynamic_cast<module::Codec_SIHO<B, Q> *>(codec.get());
+        auto &r_decoder = codecPtr->get_decoder_siho();
         m_modules.push_back(r_decoder.get());
         break;
     }
@@ -215,8 +209,8 @@ void Codec_Generic<B, R, Q>
     case Type_SIHO_HIHO:
     {
         module::Codec_SIHO_HIHO<B, Q> *codecPtr;
-        codecPtr = dynamic_cast<module::Codec_SIHO_HIHO<B, Q> *> (codec.get());
-        auto& r_decoder = codecPtr->get_decoder_siho();
+        codecPtr = dynamic_cast<module::Codec_SIHO_HIHO<B, Q> *>(codec.get());
+        auto &r_decoder = codecPtr->get_decoder_siho();
         m_modules.push_back(r_decoder.get());
         break;
     }
@@ -224,36 +218,33 @@ void Codec_Generic<B, R, Q>
     case Type_HIHO:
     {
         module::Codec_HIHO<B, Q> *codecPtr;
-        codecPtr = dynamic_cast<module::Codec_HIHO<B, Q> *> (codec.get());
-        auto& r_decoder = codecPtr->get_decoder_hiho();
+        codecPtr = dynamic_cast<module::Codec_HIHO<B, Q> *>(codec.get());
+        auto &r_decoder = codecPtr->get_decoder_hiho();
         m_modules.push_back(r_decoder.get());
         break;
     }
 
     default:
-        //FIXME: call assert?
+        // FIXME: call assert?
         std::cout << "FAILED" << std::endl;
         return;
-
     }
 
-    //use default parameters
-    for (auto& m : m_modules)
-        for (auto& t : m->tasks) {
+    // use default parameters
+    for (auto &m : m_modules)
+        for (auto &t : m->tasks)
+        {
             t->set_autoalloc(true); // enable the automatic allocation of the data in the tasks
             t->set_autoexec(false); // disable the auto execution mode of the tasks
-            t->set_debug(false); // disable the debug mode
+            t->set_debug(false);    // disable the debug mode
             t->set_debug_limit(16); // display only the 16 first bits if the debug mode is enabled
-            t->set_stats(true); // enable the statistics
+            t->set_stats(true);     // enable the statistics
 
             // enable the fast mode (= disable the useless verifs in the tasks) if there is no debug and stats modes
             t->set_fast(!t->is_debug() && !t->is_stats());
         }
 
-
-    ///home/simon/work/phd/missfec/examples/tasks/src/main.cpp!!
-
-
+    /// home/simon/work/phd/missfec/examples/tasks/src/main.cpp!!
 
     //(*r_decoder)
     //    TODO: (*r_encoder)[enc::sck::encode      ::U_K ].bind((*m_source )[src::sck::generate   ::U_K ]);
@@ -264,19 +255,17 @@ void Codec_Generic<B, R, Q>
     (*r_decoder)[dec::sck::decode_siho ::Y_N ].bind((*m_modem  )[mdm::sck::demodulate ::Y_N2]);
     (*m_monitor)[mnt::sck::check_errors::U   ].bind((*r_encoder)[enc::sck::encode     ::U_K ]);
     (*m_monitor)[mnt::sck::check_errors::V   ].bind((*r_decoder)[dec::sck::decode_siho::V_K ]);*/
-
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::setNoise(float ebn0)
+void Codec_Generic<B, R, Q>::setNoise(float ebn0)
 {
     this->m_fNoise = ebn0;
-    if (m_bInitialized) {
+    if (m_bInitialized)
+    {
         tools::Sigma<> noise;
 
-        const float Rate = (float) params_codec.cdc->enc->K / (float) params_codec.cdc->enc->N_cw;
-
+        const float Rate = (float)params_codec.cdc->enc->K / (float)params_codec.cdc->enc->N_cw;
 
         // compute the current sigma for the channel noise
         const auto esn0 = tools::ebn0_to_esn0(ebn0, Rate);
@@ -285,21 +274,20 @@ void Codec_Generic<B, R, Q>
         noise.set_noise(sigma, ebn0, esn0);
 
         // update the sigma of the modem and the channel
-        codec ->set_noise(noise);
-        //m_modem  ->set_noise(noise);
-        //m_channel->set_noise(noise);
+        codec->set_noise(noise);
+        // m_modem  ->set_noise(noise);
+        // m_channel->set_noise(noise);
     }
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::printCodecInfo(std::ostream &stream)
+void Codec_Generic<B, R, Q>::printCodecInfo(std::ostream &stream)
 {
-    auto& r_encoder = codec->get_encoder();
+    auto &r_encoder = codec->get_encoder();
 
     using namespace module;
     {
-        Socket &socket = (*r_encoder)[enc::sck::encode::U_K ];
+        Socket &socket = (*r_encoder)[enc::sck::encode::U_K];
         stream << "---------------------------" << std::endl;
         stream << "enc::sck::encode      ::U_K " << std::endl;
         printSocketInfo(stream, socket);
@@ -307,7 +295,7 @@ void Codec_Generic<B, R, Q>
     }
 
     {
-        Socket &socket = (*r_encoder)[enc::sck::encode::X_N ];
+        Socket &socket = (*r_encoder)[enc::sck::encode::X_N];
         stream << "---------------------------" << std::endl;
         stream << "enc::sck::encode      ::X_N " << std::endl;
         printSocketInfo(stream, socket);
@@ -317,29 +305,29 @@ void Codec_Generic<B, R, Q>
 
 template <typename B, typename R, typename Q>
 bool Codec_Generic<B, R, Q>::
-is_codeword(void *in)
+    is_codeword(void *in)
 {
-    int N =  params_codec.cdc->enc->N_cw;
-    B* candidate = static_cast<B*> (in);
-    
+    int N = params_codec.cdc->enc->N_cw;
+    B *candidate = static_cast<B *>(in);
+
     using namespace module;
-    auto& r_encoder = codec->get_encoder();
-    
+    auto &r_encoder = codec->get_encoder();
+
     return r_encoder->is_codeword(candidate);
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::encode(void *in, void *out, int n_cw)
+void Codec_Generic<B, R, Q>::encode(void *in, void *out, int n_cw)
 {
     PRINT_POINT();
-    
-    int K =  params_codec.cdc->enc->K;
-    int N =  params_codec.cdc->enc->N_cw;
-    B* input = static_cast<B*> (in);
-    B* output = static_cast<B*> (out); 
 
-    if ((!codec) || (m_bInitialized == false)) {
+    int K = params_codec.cdc->enc->K;
+    int N = params_codec.cdc->enc->N_cw;
+    B *input = static_cast<B *>(in);
+    B *output = static_cast<B *>(out);
+
+    if ((!codec) || (m_bInitialized == false))
+    {
         std::stringstream message;
         message << "Codec is null";
         throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
@@ -347,39 +335,36 @@ void Codec_Generic<B, R, Q>
 
     using namespace module;
 
-    
-    auto& r_encoder = codec->get_encoder();
+    auto &r_encoder = codec->get_encoder();
 
-    
     (*r_encoder)[enc::tsk::encode].set_debug(enable_debug);
-    
-    for (int i = 0 ; i < n_cw; i++) 
+
+    for (int i = 0; i < n_cw; i++)
     {
-        (*r_encoder)[enc::sck::encode      ::U_K ].bind(&input[i * K]);
-        (*r_encoder)[enc::sck::encode      ::X_N ].bind(&output[i * N ]);
-        
-        (*r_encoder)[enc::tsk::encode]            .exec();
+        (*r_encoder)[enc::sck::encode ::U_K].bind(&input[i * K]);
+        (*r_encoder)[enc::sck::encode ::X_N].bind(&output[i * N]);
+
+        (*r_encoder)[enc::tsk::encode].exec();
     }
 }
 
-
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::decodeHIHO(void *in, void *out, int n_cw)
+void Codec_Generic<B, R, Q>::decodeHIHO(void *in, void *out, int n_cw)
 {
-    B* recieved = static_cast<B*>(in);
-    B* decoded = static_cast<B*>(out);
-       
-    int K =  params_codec.cdc->enc->K;
-    int N =  params_codec.cdc->enc->N_cw;
-    
-    if ((!codec) || (m_bInitialized == false)) {
+    B *recieved = static_cast<B *>(in);
+    B *decoded = static_cast<B *>(out);
+
+    int K = params_codec.cdc->enc->K;
+    int N = params_codec.cdc->enc->N_cw;
+
+    if ((!codec) || (m_bInitialized == false))
+    {
         std::cout << "Codec is null" << std::endl;
     }
-        
+
     using namespace module;
-   
-    Codec_HIHO<B, Q> *codec_hiho = dynamic_cast<Codec_HIHO<B, Q> *> (codec.get());
+
+    Codec_HIHO<B, Q> *codec_hiho = dynamic_cast<Codec_HIHO<B, Q> *>(codec.get());
     if (codec_hiho == nullptr)
     {
         std::stringstream message;
@@ -387,38 +372,36 @@ void Codec_Generic<B, R, Q>
         throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
     }
 
-    
     auto &r_decoder = codec_hiho->get_decoder_hiho();
-    
+
     (*r_decoder)[dec::tsk::decode_hiho].set_debug(enable_debug);
-    for (int i = 0 ; i < n_cw; i++) 
+    for (int i = 0; i < n_cw; i++)
     {
         (*r_decoder)[dec::sck::decode_hiho::Y_N].bind(&recieved[i * N]);
-        (*r_decoder)[dec::sck::decode_hiho::V_K].bind(&decoded[i * K ]);
-        
-        (*r_decoder)[dec::tsk::decode_hiho]            .exec();
+        (*r_decoder)[dec::sck::decode_hiho::V_K].bind(&decoded[i * K]);
+
+        (*r_decoder)[dec::tsk::decode_hiho].exec();
     }
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::decodeSISO(void *in, void *out, int n_cw)
+void Codec_Generic<B, R, Q>::decodeSISO(void *in, void *out, int n_cw)
 {
-    R* recieved = static_cast<R*>(in);
-    R* decoded = static_cast<R*>(out);
+    R *recieved = static_cast<R *>(in);
+    R *decoded = static_cast<R *>(out);
 
-    int N =  params_codec.cdc->enc->N_cw;
-    
-    if ((!codec) || (m_bInitialized == false)) 
+    int N = params_codec.cdc->enc->N_cw;
+
+    if ((!codec) || (m_bInitialized == false))
     {
         std::stringstream message;
         message << "Codec is null";
         throw tools::runtime_error(__FILE__, __LINE__, __func__, message.str());
     }
-    
+
     using namespace module;
-   
-    Codec_SISO<B, Q> *codec_siso = dynamic_cast<Codec_SISO<B, Q> *> (codec.get());
+
+    Codec_SISO<B, Q> *codec_siso = dynamic_cast<Codec_SISO<B, Q> *>(codec.get());
     if (codec_siso == nullptr)
     {
         std::stringstream message;
@@ -429,32 +412,32 @@ void Codec_Generic<B, R, Q>
     auto &r_decoder = codec_siso->get_decoder_siso();
 
     (*r_decoder)[dec::tsk::decode_siso].set_debug(enable_debug);
-    for (int i = 0; i < n_cw; i++) {
+    for (int i = 0; i < n_cw; i++)
+    {
         (*r_decoder)[dec::sck::decode_siso::Y_N1].bind(&recieved[i * N]);
-        (*r_decoder)[dec::sck::decode_siso::Y_N2].bind(&decoded[i * N ]);
+        (*r_decoder)[dec::sck::decode_siso::Y_N2].bind(&decoded[i * N]);
 
-        (*r_decoder)[dec::tsk::decode_siso] .exec();
+        (*r_decoder)[dec::tsk::decode_siso].exec();
     }
-
 }
 
 template <typename B, typename R, typename Q>
-void Codec_Generic<B, R, Q>
-::decodeSIHO(void *in, void *out, int n_cw)
+void Codec_Generic<B, R, Q>::decodeSIHO(void *in, void *out, int n_cw)
 {
-    R* recieved = static_cast<R*>(in);
-    B* decoded = static_cast<B*>(out);
-       
-    int K =  params_codec.cdc->enc->K;
-    int N =  params_codec.cdc->enc->N_cw;
-    
-    if ((!codec) || (m_bInitialized == false)) {
+    R *recieved = static_cast<R *>(in);
+    B *decoded = static_cast<B *>(out);
+
+    int K = params_codec.cdc->enc->K;
+    int N = params_codec.cdc->enc->N_cw;
+
+    if ((!codec) || (m_bInitialized == false))
+    {
         std::cout << "Codec is null" << std::endl;
     }
-    
+
     using namespace module;
 
-    Codec_SIHO<B, Q> *codec_siho = dynamic_cast<Codec_SIHO<B, Q> *> (codec.get());
+    Codec_SIHO<B, Q> *codec_siho = dynamic_cast<Codec_SIHO<B, Q> *>(codec.get());
     if (codec_siho == nullptr)
     {
         std::stringstream message;
@@ -465,14 +448,13 @@ void Codec_Generic<B, R, Q>
     auto &r_decoder = codec_siho->get_decoder_siho();
 
     (*r_decoder)[dec::tsk::decode_siho].set_debug(enable_debug);
-    for (int i = 0 ; i < n_cw; i++) 
+    for (int i = 0; i < n_cw; i++)
     {
         (*r_decoder)[dec::sck::decode_siho::Y_N].bind(&recieved[i * N]);
-        (*r_decoder)[dec::sck::decode_siho::V_K].bind(&decoded[i * K ]);
+        (*r_decoder)[dec::sck::decode_siho::V_K].bind(&decoded[i * K]);
 
-        (*r_decoder)[dec::tsk::decode_siho]            .exec();
+        (*r_decoder)[dec::tsk::decode_siho].exec();
     }
-    
 }
 // ==================================================================================== explicit template instantiation
 #include "Tools/types.h"
